@@ -1,4 +1,5 @@
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 
 public class CamRotation : MonoBehaviour
@@ -17,6 +18,8 @@ public class CamRotation : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player");
         orientation = player.transform.Find("Orientation").transform;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
 
