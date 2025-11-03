@@ -17,6 +17,8 @@ public class outputTextUI : MonoBehaviour
     private LookAt lookAtScript;
     private bool Pause;
 
+    private float frameCount;
+    private float timer;
 
     void Start()
     {
@@ -27,6 +29,10 @@ public class outputTextUI : MonoBehaviour
 
     void Update()
     {
+        frameCount++;
+        timer += Time.unscaledDeltaTime;
+
+
         if (Input.GetKeyDown(KeyCode.Q))
         {
             Pause = !Pause;
@@ -49,6 +55,14 @@ public class outputTextUI : MonoBehaviour
 
         else
         {
+            int FPS = Mathf.RoundToInt(frameCount / timer);
+            if (timer > 1)
+            {
+                FPS = Mathf.RoundToInt(frameCount / timer);
+                frameCount = 0;
+                timer -= 1;
+            }
+
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
             Time.timeScale = 1f;
@@ -59,7 +73,11 @@ public class outputTextUI : MonoBehaviour
             BackgroundMenu.SetActive(false);
             CrossHair.SetActive(true);
             Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-            SpeedText.text = "speed: " + Mathf.Round(flatVel.magnitude).ToString() + "\nHit: " + lookAtScript.getIsHit();
+            SpeedText.text = "speed: " + Mathf.Round(flatVel.magnitude).ToString()
+                            + "\nHit: " + lookAtScript.getIsHit()
+                            + "\nFPS: " + FPS;
+
+
         }
 
 

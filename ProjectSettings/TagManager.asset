@@ -7,6 +7,9 @@ TagManager:
   - Orientation
   - CameraHolder
   - CanvasPause
+  - Conductor
+  - Domi
+  - Remi
   layers:
   - Default
   - TransparentFX

@@ -53,6 +53,8 @@ public class Move : MonoBehaviour
 
     void movePlayer()
     {
+        if (gameObject.tag != "Player") return;
+        orientation = GameObject.FindGameObjectWithTag("Player").transform.Find("Orientation").transform;
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
         rb.AddForce(moveDirection.normalized * speed * 10f, ForceMode.Force);
     }
@@ -67,4 +69,5 @@ public class Move : MonoBehaviour
             rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
         }
     }
+
 }
