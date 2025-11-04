@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
@@ -17,7 +18,7 @@ public class SwitchCharacter : MonoBehaviour
     [Header ("UI Script")]
     [SerializeField] private UI_SwitchCharacter uiSwitchCharacterScript;
 
-
+    private bool _isSwitching = false;
     void Start()
     {
         activeCharacterIndex = 0;
@@ -28,14 +29,31 @@ public class SwitchCharacter : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1) && activeCharacterIndex != 0) { ChangeCharacter(0); }
-        else if (Input.GetKeyDown(KeyCode.Alpha2) && activeCharacterIndex != 1) { ChangeCharacter(1); }
-        else if (Input.GetKeyDown(KeyCode.Alpha3) && activeCharacterIndex != 2) { ChangeCharacter(2); }
+        if (Input.GetKeyDown(KeyCode.Alpha1) && activeCharacterIndex != 0) { DelayAndSwitchTo(0); }
+        else if (Input.GetKeyDown(KeyCode.Alpha2) && activeCharacterIndex != 1) { DelayAndSwitchTo(1); }
+        else if (Input.GetKeyDown(KeyCode.Alpha3) && activeCharacterIndex != 2) { DelayAndSwitchTo(2); }
+    }
+
+
+    public void DelayAndSwitchTo(int characterIndex)
+    {
+        uiSwitchCharacterScript.PlayVFX_SwitchCharacter();
+        Invoke(() => ChangeCharacter(characterIndex), 0.5f);
+    }
+
+    void Invoke(System.Action action, float delay)
+    {
+        StartCoroutine(InvokeRoutine(action, delay));
+    }
+
+    IEnumerator InvokeRoutine(System.Action action, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        action();
     }
 
     void ChangeCharacter(int characterIndex)
     {
-
 
         // Set kembali tag Karakter menjadi asli nya
         if (activeCharacterIndex == 0) 
@@ -103,8 +121,14 @@ public class SwitchCharacter : MonoBehaviour
         // Ganti orientation di sini
         camRotationScript.UpdateOrientation();
     }
+    
+    public bool isSwitching 
+    {
+        get { return _isSwitching; }
+        set { _isSwitching = value; }
+    }
 
-    public void noFreeze(GameObject gObject)
+public void noFreeze(GameObject gObject)
     {
         gObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
         gObject.GetComponent<Rigidbody>().constraints = ~RigidbodyConstraints.FreezePosition;

@@ -22,7 +22,6 @@ public class LookAt : MonoBehaviour
         if (Physics.Raycast(ray, out hitInfo, radius, AcceptableHit))
         {
             isHit = true;
-            print("hit: " + hitInfo.collider.name);
             Debug.DrawLine(ray.origin, hitInfo.point, Color.red);
 
             lineRenderer.enabled = true;

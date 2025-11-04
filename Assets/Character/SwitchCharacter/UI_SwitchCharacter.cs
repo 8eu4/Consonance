@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.VFX;
 
 public class UI_SwitchCharacter : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class UI_SwitchCharacter : MonoBehaviour
     [SerializeField] private Image UI_ConductorHP;
     [SerializeField] private Image UI_DomiHP;
     [SerializeField] private Image UI_RemiHP;
+    [SerializeField] private VisualEffect VFX_SwitchCharacter;    
 
     [Header("UI Elements")]
     [SerializeField] private Sprite _2ActiveHP;
@@ -64,5 +66,22 @@ public class UI_SwitchCharacter : MonoBehaviour
             HP1.sprite = _2UnactiveHP;
             HP2.sprite = _2UnactiveHP;
         }
+    }
+
+    public void PlayVFX_SwitchCharacter()
+    {
+        VFX_SwitchCharacter.SetInt("SpawnRate_Dots", 5000);
+        VFX_SwitchCharacter.SetInt("SpawnRate_Notes", 100);
+        Invoke("StopVFX_SwitchCharacter", 0.2f);
+    }
+    public void StopVFX_SwitchCharacter()
+    {
+        VFX_SwitchCharacter.SetInt("SpawnRate_Dots", 0);
+        VFX_SwitchCharacter.SetInt("SpawnRate_Notes", 0);
+    }
+
+    private void Update()
+    {
+        print(SwitchCharacterScript.isSwitching);
     }
 }
