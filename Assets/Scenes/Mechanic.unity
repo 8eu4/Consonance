@@ -288,10 +288,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 500628039}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 582.5, y: -285}
-  m_SizeDelta: {x: 1167, y: 570}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &35485490
 MonoBehaviour:
@@ -1638,13 +1638,13 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1894059911}
   - {fileID: 35485489}
   - {fileID: 234350451}
   - {fileID: 1278384648}
   - {fileID: 34584244}
   - {fileID: 1994717360}
   - {fileID: 1864295382}
-  - {fileID: 1894059911}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -4513,6 +4513,7 @@ GameObject:
   - component: {fileID: 1643502656}
   - component: {fileID: 1643502657}
   - component: {fileID: 1643502658}
+  - component: {fileID: 1643502659}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -4538,6 +4539,7 @@ MonoBehaviour:
   camRotationScript: {fileID: 330585548}
   camScript: {fileID: 658124729}
   uiSwitchCharacterScript: {fileID: 1643502656}
+  offScreenIndicatorScript: {fileID: 1643502658}
 --- !u!4 &1643502655
 Transform:
   m_ObjectHideFlags: 0
@@ -4604,9 +4606,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fed7e8e7c5d4d3548b18f949d63da2b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  targets: []
+  targets:
+  - {fileID: 1408703789}
+  - {fileID: 1560295120}
+  - {fileID: 1511740198}
   arrowUI: {fileID: 1894059911}
   cam: {fileID: 330585545}
+--- !u!114 &1643502659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1643502653}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e1f6e6c2e551e241aa74027b5771b8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  triggerVFX_Dots: 0
+  triggerVFX_Notes: 0
+  VFX_SwitchCharacter: {fileID: 1682905180}
+  VFX_Dots: 2000
+  VFX_Notes: 100
 --- !u!1 &1682905177
 GameObject:
   m_ObjectHideFlags: 0
@@ -5352,7 +5374,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1894059911
 RectTransform:
   m_ObjectHideFlags: 0

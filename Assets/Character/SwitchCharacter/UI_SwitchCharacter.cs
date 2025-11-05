@@ -70,12 +70,14 @@ public class UI_SwitchCharacter : MonoBehaviour
 
     public void PlayVFX_SwitchCharacter()
     {
-        VFX_SwitchCharacter.SetInt("SpawnRate_Dots", 5000);
+        print("haloo");
+        VFX_SwitchCharacter.SetInt("SpawnRate_Dots", 2000);
         VFX_SwitchCharacter.SetInt("SpawnRate_Notes", 100);
-        Invoke("StopVFX_SwitchCharacter", 0.2f);
+        Invoke("StopVFX_SwitchCharacter", 0.5f);
     }
     public void StopVFX_SwitchCharacter()
     {
+        print("byee");
         VFX_SwitchCharacter.SetInt("SpawnRate_Dots", 0);
         VFX_SwitchCharacter.SetInt("SpawnRate_Notes", 0);
     }

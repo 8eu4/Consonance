@@ -39,7 +39,7 @@ public class SwitchCharacter : MonoBehaviour
     public void DelayAndSwitchTo(int characterIndex)
     {
         uiSwitchCharacterScript.PlayVFX_SwitchCharacter();
-        Invoke(() => ChangeCharacter(characterIndex), 0.5f);
+        Invoke(() => ChangeCharacter(characterIndex), 0.6f);
     }
 
     void Invoke(System.Action action, float delay)

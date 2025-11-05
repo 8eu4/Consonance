@@ -13,7 +13,7 @@ Library: D:\SEM 5\DG_PG\Consonance\Temp\BurstOutput\Data\Plugins\x86_64\lib_burs
 --linker-options=PdbAltPath="Consonance_Data/Plugins/x86_64/lib_burst_generated.pdb"
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=D:\SEM 5\DG_PG\Consonance\Temp\Burst
---key-folder=C:/Program Files/Unity/Hub/Editor/6000.2.5f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport
+--key-folder=C:/Program Files/Unity/Hub/Editor/6000.2.8f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport
 --decode-folder=D:\SEM 5\DG_PG\Consonance\Library\Burst
 --output=D:\SEM 5\DG_PG\Consonance\Temp\BurstOutput\Data\Plugins\x86_64\lib_burst_generated
 --pdb-search-paths=Temp/ManagedSymbols/
@@ -34,7 +34,7 @@ Library: D:\SEM 5\DG_PG\Consonance\Temp\BurstOutput\Data\Plugins\x86_64\lib_burs
 --linker-options=PdbAltPath="Consonance_Data/Plugins/x86_64/lib_burst_generated.pdb"
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=D:\SEM 5\DG_PG\Consonance\Temp\Burst
---key-folder=C:/Program Files/Unity/Hub/Editor/6000.2.5f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport
+--key-folder=C:/Program Files/Unity/Hub/Editor/6000.2.8f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport
 --decode-folder=D:\SEM 5\DG_PG\Consonance\Library\Burst
 --output=D:\SEM 5\DG_PG\Consonance\Temp\BurstOutput\Data\Plugins\x86_64\lib_burst_generated
 --pdb-search-paths=Temp/ManagedSymbols/
@@ -53,7 +53,7 @@ Library: D:\SEM 5\DG_PG\Consonance\Temp\BurstOutput\Data\Plugins\x86_64\lib_burs
 --linker-options=PdbAltPath="Consonance_Data/Plugins/x86_64/lib_burst_generated.pdb"
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=D:\SEM 5\DG_PG\Consonance\Temp\Burst
---key-folder=C:/Program Files/Unity/Hub/Editor/6000.2.5f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport
+--key-folder=C:/Program Files/Unity/Hub/Editor/6000.2.8f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport
 --decode-folder=D:\SEM 5\DG_PG\Consonance\Library\Burst
 --output=D:\SEM 5\DG_PG\Consonance\Temp\BurstOutput\Data\Plugins\x86_64\lib_burst_generated
 --pdb-search-paths=Temp/ManagedSymbols/
@@ -164,7 +164,7 @@ Library: D:\SEM 5\DG_PG\Consonance\Temp\BurstOutput\Data\Plugins\x86_64\lib_burs
 --linker-options=PdbAltPath="Consonance_Data/Plugins/x86_64/lib_burst_generated.pdb"
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=D:\SEM 5\DG_PG\Consonance\Temp\Burst
---key-folder=C:/Program Files/Unity/Hub/Editor/6000.2.5f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport
+--key-folder=C:/Program Files/Unity/Hub/Editor/6000.2.8f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport
 --decode-folder=D:\SEM 5\DG_PG\Consonance\Library\Burst
 --output=D:\SEM 5\DG_PG\Consonance\Temp\BurstOutput\Data\Plugins\x86_64\lib_burst_generated
 --pdb-search-paths=Temp/ManagedSymbols/
