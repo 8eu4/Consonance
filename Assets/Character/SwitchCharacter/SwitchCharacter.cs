@@ -17,6 +17,7 @@ public class SwitchCharacter : MonoBehaviour
 
     [Header ("UI Script")]
     [SerializeField] private UI_SwitchCharacter uiSwitchCharacterScript;
+    [SerializeField] private OffScreenIndicator offScreenIndicatorScript;
 
     private bool _isSwitching = false;
     void Start()
