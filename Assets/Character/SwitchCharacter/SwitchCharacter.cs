@@ -129,7 +129,7 @@ public class SwitchCharacter : MonoBehaviour
         set { _isSwitching = value; }
     }
 
-public void noFreeze(GameObject gObject)
+    public void noFreeze(GameObject gObject)
     {
         gObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
         gObject.GetComponent<Rigidbody>().constraints = ~RigidbodyConstraints.FreezePosition;

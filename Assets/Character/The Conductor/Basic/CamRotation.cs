@@ -16,6 +16,8 @@ public class CamRotation : MonoBehaviour
 
     GameObject Player;
 
+    public bool isAttackLocked = false;
+
     void Start()
     {
         Player = GameObject.FindGameObjectWithTag("Player");
@@ -27,14 +29,18 @@ public class CamRotation : MonoBehaviour
 
     void Update()
     {
+        if (isAttackLocked) return;
+
         float mouseX = Input.GetAxis("Mouse X") * Time.deltaTime * sensX;
         float mouseY = Input.GetAxis("Mouse Y") * Time.deltaTime * sensY;
+
         yRotation += mouseX;
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-        transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
-        orientation.rotation = Quaternion.Euler(0, yRotation, 0);
 
+        transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
+
+        orientation.rotation = Quaternion.Euler(0, yRotation, 0);
         Player.transform.GetChild(0).rotation = Quaternion.Euler(0, yRotation, 0);
     }
 
@@ -44,5 +50,31 @@ public class CamRotation : MonoBehaviour
         orientation = Player.transform.Find("Orientation").transform;
         yRotation = orientation.eulerAngles.y;
 
+    }
+    public void LockLookAt(Vector3 targetPoint)
+    {
+        // 1. Paksa kamera melihat ke target
+        transform.LookAt(targetPoint);
+
+        // 2. Ambil rotasi hasil 'LookAt'
+        Vector3 currentEuler = transform.rotation.eulerAngles;
+
+        // --- PERBAIKAN MASALAH JERK ---
+        // Konversi sudut euler (0-360) ke format rotasi kita (-90 s/d 90)
+        float newX = currentEuler.x;
+        if (newX > 180f)
+        {
+            newX -= 360f; // Contoh: 350° (lihat bawah) menjadi -10°
+        }
+
+        // 3. Simpan rotasi yang sudah benar
+        xRotation = Mathf.Clamp(newX, -90f, 90f);
+        yRotation = currentEuler.y;
+
+        // 4. Update rotasi player (orientation) agar WASD tetap sesuai
+        if (orientation != null)
+            orientation.rotation = Quaternion.Euler(0, yRotation, 0);
+        if (Player != null)
+            Player.transform.GetChild(0).rotation = Quaternion.Euler(0, yRotation, 0);
     }
 }
