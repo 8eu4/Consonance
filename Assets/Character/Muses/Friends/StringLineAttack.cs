@@ -91,7 +91,7 @@ public class StringLineAttack : MonoBehaviour
             {
                 iAmTheLockOwner = false;
                 if (camRotationScript != null)
-                    camRotationScript.isAttackLocked = false;
+                    camRotationScript.IsAttackLocked = false;
             }
         }
 
@@ -113,7 +113,7 @@ public class StringLineAttack : MonoBehaviour
     {
         if (Input.GetButtonDown("Fire1"))
         {
-            if (camRotationScript.isAttackLocked && !iAmTheLockOwner) return;
+            if (camRotationScript.IsAttackLocked && !iAmTheLockOwner) return;
 
             if (isAttached)
             {
@@ -165,7 +165,7 @@ public class StringLineAttack : MonoBehaviour
     {
         iAmTheLockOwner = true;
         if (camRotationScript != null)
-            camRotationScript.isAttackLocked = true;
+            camRotationScript.IsAttackLocked = true;
 
         // Reset target lama jika ada
         if (ignoredTargetCollider != null && lineCollider != null)
@@ -272,7 +272,7 @@ public class StringLineAttack : MonoBehaviour
         {
             iAmTheLockOwner = false;
             if (camRotationScript != null)
-                camRotationScript.isAttackLocked = false;
+                camRotationScript.IsAttackLocked = false;
         }
     }
 
