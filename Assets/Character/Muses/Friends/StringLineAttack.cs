@@ -4,33 +4,29 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer))]
 public class StringLineAttack : MonoBehaviour
 {
-    [Header("Referensi Komponen")]
+    [Header("Reference")]
     [SerializeField] private Transform fireOrigin;
     [SerializeField] private Camera playerCamera;
     [SerializeField] private CamRotation camRotationScript;
 
-    [Header("Pengaturan Tembakan")]
+    [Header("Shoot Settings")]
     [SerializeField] private float lineSpeed = 15f;
     [SerializeField] private float maxLineLength = 100f;
     [SerializeField] private float attachDelay = 2f;
     [SerializeField] private LayerMask hittableLayers;
+    [SerializeField] private float textureScrollSpeed = 1f;
 
-    [Header("Referensi Collider Fisik")]
-    [Tooltip("Drag 'LineColliderObject' dari Hirarki ke sini")]
+    [Header("Collider")]
     [SerializeField] private GameObject lineColliderGameObject;
-    [Tooltip("Drag komponen BoxCollider dari 'LineColliderObject' ke sini")]
-    [SerializeField] private BoxCollider lineCollider;
+    [SerializeField] private CapsuleCollider lineCollider;
 
     [Space]
-    [Header("Pengaturan Bentuk Collider")]
-    [Tooltip("Lebar collider (sumbu X) yang bisa dipijak")]
-    [SerializeField] private float colliderWidth = 0.2f;
-    [Tooltip("Tinggi collider (sumbu Y)")]
-    [SerializeField] private float colliderHeight = 0.2f;
-    [Tooltip("Jarak aman agar collider tidak glitch/menabrak target")]
+    [SerializeField] private float colliderRadius = 0.5f;
     [SerializeField] private float colliderEndOffset = 0.1f;
-    [Tooltip("Jarak aman tambahan agar tidak menabrak player")]
     [SerializeField] private float safetyMargin = 0.05f;
+
+    [Space]
+    [SerializeField] private CapsuleCollider playerCollider;
 
     // Variabel internal
     private LineRenderer lineRenderer;
@@ -38,12 +34,8 @@ public class StringLineAttack : MonoBehaviour
     private bool isAttached = false;
     private Vector3 targetPoint;
     private bool iAmTheLockOwner = false;
-
-    // Offset ini dihitung otomatis dari collider player
     private float colliderStartOffset;
-
-    // Referensi ke collider player, diambil otomatis
-    private CapsuleCollider playerCollider;
+    private Collider ignoredTargetCollider = null; // Target yang di-ignore
 
     void Awake()
     {
@@ -51,20 +43,15 @@ public class StringLineAttack : MonoBehaviour
         lineRenderer.positionCount = 2;
         lineRenderer.enabled = false;
 
-        // --- LOGIKA BARU: Ambil collider player otomatis ---
-        playerCollider = GetComponent<CapsuleCollider>();
         if (playerCollider != null)
         {
-            // Set offset awal = radius player + jarak aman
-            colliderStartOffset = playerCollider.radius + safetyMargin;
+            colliderStartOffset = playerCollider.radius/2 + safetyMargin;
         }
         else
         {
             Debug.LogWarning("StringLineAttack: Tidak ditemukan CapsuleCollider di " + gameObject.name + ". Menggunakan 'safetyMargin' sebagai offset awal.");
-            // Fallback jika player tidak pakai CapsuleCollider
             colliderStartOffset = safetyMargin;
         }
-        // --- Akhir Logika Baru ---
 
         if (lineColliderGameObject != null)
         {
@@ -73,6 +60,22 @@ public class StringLineAttack : MonoBehaviour
         else
         {
             Debug.LogError("StringLineAttack: 'Line Collider GameObject' belum di-set!");
+        }
+
+        if (lineCollider != null)
+        {
+            lineCollider.direction = 2; // Orientasi kapsul sepanjang sumbu Z
+            lineCollider.center = Vector3.zero;
+
+            // Selalu abaikan diri sendiri (Player)
+            if (playerCollider != null)
+            {
+                Physics.IgnoreCollision(playerCollider, lineCollider, true);
+            }
+            else
+            {
+                Debug.LogWarning("StringLineAttack: Gagal menemukan playerCollider untuk di-ignore.");
+            }
         }
     }
 
@@ -90,6 +93,19 @@ public class StringLineAttack : MonoBehaviour
                 if (camRotationScript != null)
                     camRotationScript.isAttackLocked = false;
             }
+        }
+
+        if (lineRenderer.enabled && textureScrollSpeed != 0f)
+        {
+            // 1. Hitung offset baru berdasarkan waktu
+            // Kita pakai Time.time agar gerakannya mulus dan konsisten
+            // Kita pakai - (minus) agar tekstur bergerak "maju" (dari asal ke target)
+            float newOffsetX = Time.time * -textureScrollSpeed;
+
+            // 2. Terapkan offset ke material LineRenderer
+            // Kita hanya perlu menggeser sumbu X (horizontal di UV map)
+            // (Catatan: Ini akan otomatis membuat instance material baru)
+            lineRenderer.material.mainTextureOffset = new Vector2(newOffsetX, 0f);
         }
     }
 
@@ -151,6 +167,13 @@ public class StringLineAttack : MonoBehaviour
         if (camRotationScript != null)
             camRotationScript.isAttackLocked = true;
 
+        // Reset target lama jika ada
+        if (ignoredTargetCollider != null && lineCollider != null)
+        {
+            Physics.IgnoreCollision(lineCollider, ignoredTargetCollider, false);
+            ignoredTargetCollider = null;
+        }
+
         RaycastHit hit;
         bool didHit = Physics.Raycast(
             playerCamera.transform.position,
@@ -163,6 +186,13 @@ public class StringLineAttack : MonoBehaviour
         if (didHit)
         {
             targetPoint = hit.point;
+
+            // Ignore target yang baru ditembak
+            if (hit.collider != null && lineCollider != null)
+            {
+                Physics.IgnoreCollision(lineCollider, hit.collider, true);
+                ignoredTargetCollider = hit.collider; // Simpan referensi
+            }
         }
         else
         {
@@ -231,6 +261,13 @@ public class StringLineAttack : MonoBehaviour
             lineColliderGameObject.SetActive(false);
         }
 
+        // Aktifkan lagi kolisi dengan target yang tadi di-ignore
+        if (ignoredTargetCollider != null && lineCollider != null)
+        {
+            Physics.IgnoreCollision(lineCollider, ignoredTargetCollider, false);
+            ignoredTargetCollider = null;
+        }
+
         if (iAmTheLockOwner)
         {
             iAmTheLockOwner = false;
@@ -247,19 +284,18 @@ public class StringLineAttack : MonoBehaviour
         Vector3 direction = (endPoint - startPoint).normalized;
         float totalDistance = Vector3.Distance(startPoint, endPoint);
 
-        // Gunakan colliderStartOffset (otomatis) dan colliderEndOffset (manual)
         float colliderLength = totalDistance - colliderStartOffset - colliderEndOffset;
 
         if (colliderLength <= 0)
         {
-            lineCollider.size = Vector3.zero;
+            lineCollider.height = 0f;
             return;
         }
 
-        // --- LOGIKA BARU: Gunakan Width dan Height ---
-        // Atur ukuran: Lebar (X), Tinggi (Y), Panjang (Z)
-        lineCollider.size = new Vector3(colliderWidth, colliderHeight, colliderLength);
-        // --- Akhir Logika Baru ---
+        lineCollider.direction = 2; // Sumbu Z
+        lineCollider.radius = colliderRadius;
+        lineCollider.height = colliderLength;
+        lineCollider.center = Vector3.zero;
 
         Vector3 colliderMidpoint = startPoint + direction * (colliderStartOffset + colliderLength / 2f);
 
