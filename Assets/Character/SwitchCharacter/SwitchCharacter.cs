@@ -20,12 +20,14 @@ public class SwitchCharacter : MonoBehaviour
     [SerializeField] private OffScreenIndicator offScreenIndicatorScript;
 
     private bool _isSwitching = false;
+    private Transform _CurrentPlayer;
     void Start()
     {
         activeCharacterIndex = 0;
         Domi.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
         Remi.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
         Conductor.transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
+        CurrentPlayer = Conductor.transform;
     }
 
     void Update()
@@ -83,6 +85,7 @@ public class SwitchCharacter : MonoBehaviour
         { 
             Conductor.tag = "Player"; 
             activeCharacterIndex = 0;
+            CurrentPlayer = Conductor.transform;
 
             uiSwitchCharacterScript.change4HP(true);
             noFreeze(Conductor);
@@ -95,6 +98,7 @@ public class SwitchCharacter : MonoBehaviour
         { 
             Domi.tag = "Player"; 
             activeCharacterIndex = 1;
+            CurrentPlayer = Domi.transform;
 
             uiSwitchCharacterScript.change2HP(1, true);
             noFreeze(Domi);
@@ -107,6 +111,7 @@ public class SwitchCharacter : MonoBehaviour
         { 
             Remi.tag = "Player"; 
             activeCharacterIndex = 2;
+            CurrentPlayer = Remi.transform;
 
             uiSwitchCharacterScript.change2HP(2, true);
             noFreeze(Remi);
@@ -135,8 +140,9 @@ public class SwitchCharacter : MonoBehaviour
         gObject.GetComponent<Rigidbody>().constraints = ~RigidbodyConstraints.FreezePosition;
         gObject.transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
     }
-    public int getActiveCharacterIndex()
+    public Transform CurrentPlayer
     {
-        return activeCharacterIndex;
+        get { return _CurrentPlayer; }
+        set { _CurrentPlayer = value; }
     }
 }

@@ -5,13 +5,6 @@ public class Cam : MonoBehaviour
     [SerializeField] private Transform cameraPosition;
     [SerializeField] private SwitchCharacter switchCharacterScript;
 
-    private int activeCharacterIndex;
-
-    void Start()
-    {
-        activeCharacterIndex = switchCharacterScript.getActiveCharacterIndex();
-    }
-
     void LateUpdate()
     {
         transform.position = cameraPosition.position;

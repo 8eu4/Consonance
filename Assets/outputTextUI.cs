@@ -20,6 +20,8 @@ public class outputTextUI : MonoBehaviour
     private float frameCount;
     private float timer;
 
+    private bool lastPauseState = false;
+
     void Start()
     {
         Pause = false;
@@ -32,54 +34,57 @@ public class outputTextUI : MonoBehaviour
         frameCount++;
         timer += Time.unscaledDeltaTime;
 
-
         if (Input.GetKeyDown(KeyCode.Q))
         {
             Pause = !Pause;
         }
 
-        if (Pause)
+        if (Pause != lastPauseState)
         {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-            Time.timeScale = 0f;
-            CamRotationScript.enabled = false;
-         
-            MainMenuButton.SetActive(true);
-            ExitButton.SetActive(true);
-            BackgroundMenu.SetActive(true);
-            CrossHair.SetActive(false);
-            SpeedText.text = null;
-
-        }
-
-        else
-        {
-            int FPS = Mathf.RoundToInt(frameCount / timer);
-            if (timer > 1)
+            if (Pause)
             {
-                FPS = Mathf.RoundToInt(frameCount / timer);
-                frameCount = 0;
-                timer -= 1;
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
+                Time.timeScale = 0f;
+                CamRotationScript.enabled = false;
+
+                MainMenuButton.SetActive(true);
+                ExitButton.SetActive(true);
+                BackgroundMenu.SetActive(true);
+                CrossHair.SetActive(false);
+                SpeedText.text = null;
             }
+            else
+            {
+                int FPS = Mathf.RoundToInt(frameCount / timer);
+                if (timer > 1)
+                {
+                    FPS = Mathf.RoundToInt(frameCount / timer);
+                    frameCount = 0;
+                    timer -= 1;
+                }
 
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-            Time.timeScale = 1f;
-            CamRotationScript.enabled = true;
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
+                Time.timeScale = 1f;
+                CamRotationScript.enabled = true;
 
-            MainMenuButton.SetActive(false);
-            ExitButton.SetActive(false);
-            BackgroundMenu.SetActive(false);
-            CrossHair.SetActive(true);
-            Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-            SpeedText.text = "speed: " + Mathf.Round(flatVel.magnitude).ToString()
-                            + "\nHit: " + lookAtScript.getIsHit()
-                            + "\nFPS: " + FPS;
+                MainMenuButton.SetActive(false);
+                ExitButton.SetActive(false);
+                BackgroundMenu.SetActive(false);
+                CrossHair.SetActive(true);
 
-
+                MainMenuButton.SetActive(false);
+                ExitButton.SetActive(false);
+                BackgroundMenu.SetActive(false);
+                CrossHair.SetActive(true);
+                Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+                SpeedText.text = "speed: " + Mathf.Round(flatVel.magnitude).ToString()
+                                + "\nHit: " + lookAtScript.getIsHit()
+                                + "\nFPS: " + FPS;
+            }
         }
 
-
+        lastPauseState = Pause;
     }
 }

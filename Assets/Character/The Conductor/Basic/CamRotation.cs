@@ -22,12 +22,20 @@ public class CamRotation : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private SwitchCharacter switchCharacterScript;
+    [SerializeField] private StringLineAttack[] StringLineAttackScript;
+    [SerializeField] private Transform Conductor;
+    [SerializeField] private Transform Domi;
+    [SerializeField] private Transform Remi;
+
+    private bool DomiLineIsAttached = false;
+    private bool RemiLineIsAttached = false;
+    private Quaternion DomiRotation;
+    private Quaternion RemiRotation;
+
 
     private bool doLerp = false;
     private Vector3 dirToTarget;
 
-    [Space]
-    [SerializeField] private float slowTimeScale = 0.2f;
 
 
     private Quaternion targetRotation;
@@ -43,16 +51,9 @@ public class CamRotation : MonoBehaviour
 
     void LateUpdate()
     {
+        if (Player == null || orientation == null) return;
 
-        // slow time
-        Time.timeScale = slowTimeScale;
-        //also slow the script debug console
-
-
-
-        if (Player == null || orientation == null) return; // Keamanan
-
-        if (isAttackLocked && lockOnTarget != null)
+        if (isAttackLocked && lockOnTarget != null && switchCharacterScript.CurrentPlayer == Conductor)
         {
             dirToTarget = (lockOnTarget.position - transform.position).normalized;
             targetRotation = Quaternion.LookRotation(dirToTarget);
@@ -61,23 +62,46 @@ public class CamRotation : MonoBehaviour
             {
                 smoothLockOnSpeed += Time.deltaTime * 100f;
                 float angleDifference = Quaternion.Angle(transform.rotation, targetRotation);
-
                 if (angleDifference < 0.5f) doLerp = false;
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * smoothLockOnSpeed);
             }
-            else transform.rotation = targetRotation;
+            else
+            {
+                transform.rotation = targetRotation;
+            }
 
             Vector3 currentEuler = transform.rotation.eulerAngles;
             yRotation = currentEuler.y;
             xRotation = currentEuler.x;
             if (xRotation > 180f) xRotation -= 360f;
             xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-
         }
+
+        else if (switchCharacterScript.CurrentPlayer == Domi && DomiLineIsAttached)
+        {
+            transform.rotation = DomiRotation;
+
+            Vector3 currentEuler = transform.rotation.eulerAngles;
+            yRotation = currentEuler.y;
+            xRotation = currentEuler.x;
+            if (xRotation > 180f) xRotation -= 360f;
+            xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+        }
+
+        else if (switchCharacterScript.CurrentPlayer == Remi && RemiLineIsAttached)
+        {
+            transform.rotation = RemiRotation;
+
+            Vector3 currentEuler = transform.rotation.eulerAngles;
+            yRotation = currentEuler.y;
+            xRotation = currentEuler.x;
+            if (xRotation > 180f) xRotation -= 360f;
+            xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+        }
+        // free look
         else
         {
             doLerp = true;
-
             smoothLockOnSpeed = 1f;
 
             float mouseX = Input.GetAxis("Mouse X") * Time.deltaTime * sensX;
@@ -88,20 +112,7 @@ public class CamRotation : MonoBehaviour
             xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
             transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
-
-
         }
-
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            //print("target rotation: " + targetRotation);
-            //print("lockOnTarget.position - transform.position: " + (lockOnTarget.position - transform.position));
-            //print("transform rotation: " + transform.rotation);
-            //print("dirToTarget: " + dirToTarget);
-            print("dolerp: " + doLerp);
-            //print("smoothLockOnSpeed: " + smoothLockOnSpeed);
-        }
-
 
         orientation.rotation = Quaternion.Euler(0, yRotation, 0);
         Player.transform.GetChild(0).rotation = Quaternion.Euler(0, yRotation, 0);
@@ -119,25 +130,44 @@ public class CamRotation : MonoBehaviour
         yRotation = orientation.eulerAngles.y;
 
     }
-    public void LockLookAt(Vector3 targetPoint)
+    public void LockLookAt(Vector3 targetPoint, GameObject character)
     {
         transform.LookAt(targetPoint);
-
         Vector3 currentEuler = transform.rotation.eulerAngles;
 
         float newX = currentEuler.x;
-        if (newX > 180f)
-        {
-            newX -= 360f;
-        }
+        if (newX > 180f) newX -= 360f;
 
         xRotation = Mathf.Clamp(newX, -90f, 90f);
         yRotation = currentEuler.y;
+
+        if (Domi.gameObject == character && !DomiLineIsAttached) // Domi
+        {
+            DomiLineIsAttached = true;
+            DomiRotation = transform.rotation;
+        }
+        else if (Remi.gameObject == character && !RemiLineIsAttached) // Remi
+        {
+            RemiLineIsAttached = true;
+            RemiRotation = transform.rotation;
+        }
 
         if (orientation != null)
             orientation.rotation = Quaternion.Euler(0, yRotation, 0);
         if (Player != null)
             Player.transform.GetChild(0).rotation = Quaternion.Euler(0, yRotation, 0);
+    }
+
+    public void CancelLineAttack(GameObject character)
+    {
+        if (Domi.gameObject == character)
+        {
+            DomiLineIsAttached = false;
+        }
+        else if (Remi.gameObject == character)
+        {
+            RemiLineIsAttached = false;
+        }
     }
 
     public bool IsAttackLocked

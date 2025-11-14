@@ -1,39 +1,35 @@
 using UnityEngine;
+using UnityEngine.UI;
 
-[RequireComponent(typeof(ConductorHP))]
 public class LockToAttack : MonoBehaviour
 {
     [Header("Reference")]
     [SerializeField] private CamRotation camRotationScript;
+    [SerializeField] private Camera playerCamera;
+    [SerializeField] private SwitchCharacter switchCharacterScript;
+    [SerializeField] private ArrowSpawner arrowSpawnerScript;
+    private ConductorAttack conductorAttackScript;
 
     [Header("Lock Settings")]
     [SerializeField] private float maxLockOnDistance = 30f;
-    [SerializeField] private float maxLockOnAngle = 15f;
+    [SerializeField] private float maxLockOnRadius = 2f;
 
+    // Pindahkan referensi ini ke atas agar bisa diakses
     private Transform lockedTarget = null;
-    private Transform Player;
-
-    private float mouseX_whileLocked;
-    private float mouseY_whileLocked;
-
+    private EnemyHealth lockedTargetHealth = null;
     private Transform camTransform;
 
     void Start()
     {
-        Player = GameObject.FindGameObjectWithTag("Player").transform;
         camTransform = camRotationScript.transform;
+        conductorAttackScript = GetComponent<ConductorAttack>();
     }
 
     void Update()
     {
-        // 1. Selalu deteksi input mouse
-        mouseX_whileLocked = Input.GetAxis("Mouse X");
-        mouseY_whileLocked = Input.GetAxis("Mouse Y");
-
-        // 2. Logika untuk memulai dan mengakhiri lock
-        if (Input.GetMouseButtonDown(1)) // Saat tombol kanan mouse DITEKAN
+        // 1. Logika untuk lock/unlock
+        if (Input.GetKeyDown(KeyCode.Mouse1) && switchCharacterScript.CurrentPlayer == transform)
         {
-            // Cek apakah kita sedang lock atau tidak
             if (lockedTarget == null)
             {
                 FindAndLockTargetAtCenter();
@@ -44,98 +40,121 @@ public class LockToAttack : MonoBehaviour
             }
         }
 
-        
-        // 3. Update Tampilan jika sedang locked
+        // 2. Di dalam Update(), HANYA cek jarak jika kita SUDAH lock
         if (lockedTarget != null)
         {
-
-            // Cek jika target terlalu jauh atau mati
-            if (Vector3.Distance(Player.position, lockedTarget.position) > maxLockOnDistance)
+            // Cek jika target terlalu jauh
+            if (Vector3.Distance(transform.position, lockedTarget.position) > maxLockOnDistance)
             {
                 UnlockTarget();
             }
-            
-            
-            
-            // TODO: Tambahkan cek jika musuh mati
-
-
-
-
-
-
-
-
         }
     }
 
     void FindAndLockTargetAtCenter()
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        Transform bestTarget = null;
-        float smallestAngle = maxLockOnAngle; // Mulai dengan sudut toleransi maksimal
+        Transform bestTarget = null; // Gunakan variabel lokal
+
+        float smallestDistanceToRay = maxLockOnRadius;
+        Ray aimRay = new Ray(camTransform.position, camTransform.forward);
 
         foreach (GameObject enemy in enemies)
         {
             Transform enemyTransform = enemy.transform;
 
-            // 1. Cek Jarak
-            float distance = Vector3.Distance(Player.position, enemyTransform.position);
-            if (distance > maxLockOnDistance)
-            {
-                continue; // Terlalu jauh, skip
-            }
+            float distance = Vector3.Distance(transform.position, enemyTransform.position);
+            if (distance > maxLockOnDistance) continue;
 
-            // 2. Cek Angle
-            Vector3 dirToEnemy = (enemyTransform.position - camTransform.position).normalized;
-            float angle = Vector3.Angle(camTransform.forward, dirToEnemy);
+            Vector3 dirToEnemy = (enemyTransform.position - camTransform.position);
+            if (Vector3.Dot(camTransform.forward, dirToEnemy) <= 0) continue;
 
-            if (angle > maxLockOnAngle)
-            {
-                continue;
-            }
+            float distanceToRay = Vector3.Cross(aimRay.direction, enemyTransform.position - aimRay.origin).magnitude;
+            if (distanceToRay > maxLockOnRadius) continue;
 
-            // 3. Cek Tembok (Linecast/Raycast)
             RaycastHit hit;
             if (Physics.Linecast(camTransform.position, enemyTransform.position, out hit))
             {
-                if (hit.transform != enemyTransform)
-                {
-                    continue; // Musuh terhalang, skip
-                }
+                if (hit.transform != enemyTransform) continue;
             }
 
-            // 4. Jika lolos semua cek, bandingkan sudutnya
-            if (angle < smallestAngle)
+            if (distanceToRay < smallestDistanceToRay)
             {
-                smallestAngle = angle;
+                smallestDistanceToRay = distanceToRay;
                 bestTarget = enemyTransform;
             }
         }
 
-        // 5. Kunci target terbaik yang ditemukan
+        // --- INI ADALAH LOGIKA "START ATTACK" YANG DIPINDAHKAN ---
         if (bestTarget != null)
         {
             lockedTarget = bestTarget;
-            camRotationScript.IsAttackLocked = true;
-            camRotationScript.SetLockOnTarget(bestTarget);
+
+            // Ambil health
+            lockedTargetHealth = lockedTarget.GetComponent<EnemyHealth>();
+
+            if (lockedTargetHealth != null)
+            {
+                // 1. Daftar event OnDied SATU KALI
+                lockedTargetHealth.OnDied += HandleTargetDeath;
+
+                // 2. Mulai skrip lain SATU KALI
+                conductorAttackScript.StartAttacking(lockedTargetHealth);
+                arrowSpawnerScript.StartSpawning(lockedTargetHealth, conductorAttackScript);
+
+                // 3. Set kamera SATU KALI
+                camRotationScript.IsAttackLocked = true;
+                camRotationScript.SetLockOnTarget(bestTarget);
+            }
+            else
+            {
+                // Jika target tidak punya health, batalkan lock
+                Debug.LogWarning("Locked target has no EnemyHealth component.");
+                UnlockTarget();
+            }
         }
         else
         {
-            // Tidak menemukan target yang valid
+            // Tidak menemukan target, pastikan unlock
             UnlockTarget();
         }
     }
 
+    /// <summary>
+    /// Dipanggil oleh event OnDied dari musuh
+    /// </summary>
+    void HandleTargetDeath()
+    {
+        Debug.Log("Target has died. Unlocking...");
+        UnlockTarget();
+    }
+
     void UnlockTarget()
     {
-        lockedTarget = null;
+        // Cek ini penting untuk mencegah error jika UnlockTarget dipanggil berkali-kali
+        if (lockedTarget == null) return;
+
+        if (lockedTargetHealth != null)
+        {
+            // Berhenti mendaftar event
+            lockedTargetHealth.OnDied -= HandleTargetDeath;
+        }
+
+        // Hentikan skrip lain
+        conductorAttackScript.StopAttacking();
+        arrowSpawnerScript.StopSpawning();
+
+        // Reset kamera
         camRotationScript.IsAttackLocked = false;
+
+        // Reset variabel
+        lockedTarget = null;
+        lockedTargetHealth = null;
     }
 
     public Transform LockedTarget
     {
         get { return lockedTarget; }
-        set { Transform lockedTarget = value; }
+        set { lockedTarget = value; }
     }
 }
