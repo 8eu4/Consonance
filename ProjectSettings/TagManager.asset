@@ -10,6 +10,7 @@ TagManager:
   - Conductor
   - Domi
   - Remi
+  - NPC
   layers:
   - Default
   - TransparentFX
