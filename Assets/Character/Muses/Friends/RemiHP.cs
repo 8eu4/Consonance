@@ -1,21 +1,10 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class RemiHP : MonoBehaviour
+public class RemiHP : Health
 {
-    private int _HP = 2;
-    private bool _onHit = false;
-
     private void OnCollisionEnter(Collision collision)
     {
 
-    }
-    public bool onHit
-    {
-        get { return _onHit; }
-    }
-    public int HP
-    {
-        get { return _HP; }
-        set { _HP = value; }
     }
 }
