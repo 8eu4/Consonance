@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7394886210372584695}
   - component: {fileID: 7279728556538009903}
   - component: {fileID: 7565923698150537360}
+  - component: {fileID: 6587411939687980735}
   m_Layer: 0
   m_Name: Conductor
   m_TagString: Player
@@ -96,7 +97,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConductorHP
   _MaxHP: 4
-  _CurrentHP: 4
 --- !u!114 &7565923698150537360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -110,16 +110,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   camRotationScript: {fileID: 0}
+  playerCamera: {fileID: 0}
+  switchCharacterScript: {fileID: 0}
+  arrowSpawnerScript: {fileID: 0}
   maxLockOnDistance: 12.5
-  maxLockOnAngle: 20
-  arrowPrefab: {fileID: 0}
-  canvasParentPanel: {fileID: 0}
-  spawnPoint: {fileID: 0}
-  targetPoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  maxLockOnRadius: 2
+--- !u!114 &6587411939687980735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 936051787911710925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24871a68ca6cd9a4ab1b994ee058a7bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ConductorAttack
+  swipeThreshold: 50
 --- !u!1 &3060485669786619265
 GameObject:
   m_ObjectHideFlags: 0

@@ -176,4 +176,6 @@ public class CamRotation : MonoBehaviour
         set { isAttackLocked = value; }
 
     }
+
+    
 }
