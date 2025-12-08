@@ -3,16 +3,16 @@
 public class XyrridMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float moveSpeedX = 2f;
-    public float moveSpeedY = 2f;
-    public float amplitudeX = 1f;
-    public float amplitudeY = 0.5f;
+    public float moveSpeedX = 1f;
+    public float moveSpeedZ = 2f;
+    public float amplitudeX = 3f;
+    public float amplitudeZ = 2f;
 
     [Header("Chase Settings")]
     public Transform player;
-    public float viewRange = 10f;
-    public float stopChaseDistance = 6f;
-    public float chaseSpeed = 3f;
+    public float viewRange = 12f;
+    public float stopChaseDistance = 10f;
+    public float chaseSpeed = 5f;
 
     [Header("Optional Settings")]
     public bool faceDirection = true;
@@ -59,9 +59,9 @@ public class XyrridMovement : MonoBehaviour
         // --- GERAK SINUSOIDAL ---
         float t = Time.time + timeOffset - pauseDuration;
         float x = Mathf.Sin(t * moveSpeedX) * amplitudeX;
-        float y = Mathf.Sin(t * moveSpeedY) * amplitudeY;
+        float z = Mathf.Sin(t * moveSpeedZ) * amplitudeZ;
 
-        Vector3 offset = new Vector3(x, y, 0);
+        Vector3 offset = new Vector3(x, 0, z);
         transform.position = chaseBasePos + offset;
 
         // --- ARAH FACING KE TARGET ---
