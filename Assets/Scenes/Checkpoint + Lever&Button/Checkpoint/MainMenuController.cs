@@ -9,9 +9,19 @@ public class MainMenuController : MonoBehaviour
     {
         if (RespawnManager.Instance != null)
         {
+            // Clear saved checkpoint AND reset semua checkpoint di scene
             RespawnManager.Instance.ClearSavedCheckpoint();
-            // Immediately respawn to default
-            if (playerObject != null) RespawnManager.Instance.RespawnPlayer(playerObject);
+
+            // Find player jika belum di-assign
+            if (playerObject == null)
+            {
+                var p = GameObject.FindGameObjectWithTag("Player");
+                if (p != null) playerObject = p;
+            }
+
+            // Respawn ke default langsung
+            if (playerObject != null)
+                RespawnManager.Instance.RespawnPlayer(playerObject);
         }
     }
 
@@ -31,5 +41,15 @@ public class MainMenuController : MonoBehaviour
                 Debug.Log("Continue used saved checkpoint: " + loaded);
             }
         }
+    }
+
+    public void Option()
+    {
+        // implementasi opsi
+    }
+
+    public void ExitGame()
+    {
+        Application.Quit();
     }
 }
