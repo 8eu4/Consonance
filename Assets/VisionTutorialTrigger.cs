@@ -1,34 +1,38 @@
 using UnityEngine;
-using UnityEngine.Rendering; // Wajib ada untuk Post Processing
+using UnityEngine.Rendering; 
 using TMPro;
-using System.Collections; // Perlu ini untuk Coroutine (Durasi teks)
+using System.Collections; 
 
 public class VisionTutorialTrigger : MonoBehaviour
 {
+    [Header("PENTING: Masukkan Script Jalan Disini")]
+    public MonoBehaviour playerMovementScript; 
+    public MonoBehaviour cameraLookScript;
+
     [Header("UI Settings")]
-    public GameObject tutorialPromptUI; // UI Text "Tekan [V]..."
+    public GameObject tutorialPromptUI; 
     
     [Header("Vision Effects")]
-    public Volume visionVolume;         // Drag "VisionVolume" ke sini
-    public GameObject targetHighlight;  // Drag efek cahaya di Muse ke sini
-    public float effectSpeed = 2.0f;    // Kecepatan transisi layar
+    public Volume visionVolume;         
+    public GameObject targetHighlight;  
+    public float effectSpeed = 2.0f;    
 
     [Header("Camera Cutscene")]
-    public GameObject mainCamera;       // Kamera FPS Player (yang nempel di player)
-    public Transform museFocusPoint;    // Object KOSONG di seberang jurang, tempat kamera akan bergerak (bukan kamera lagi)
-    public GameObject playerObject;     // Drag Player (untuk mematikan gerak sementara, opsional)
-    public float cameraMoveDuration = 2.0f; // Durasi pergerakan kamera ke Muse
+    public GameObject mainCamera;       
+    public Transform museFocusPoint;    
+    public GameObject playerObject;     
+    public float cameraMoveDuration = 2.0f; 
+    public float delayBeforeZoom = 2.0f; 
 
     [Header("Blink Effect")]
-    public CanvasGroup blinkCanvasGroup; // Canvas Group (Panel Hitam full layar) untuk efek kedip
-    public float blinkDuration = 0.5f;   // Durasi kedip
+    public CanvasGroup blinkCanvasGroup; 
+    public float blinkDuration = 0.5f;   
 
     [Header("Monologue Settings")]
-    public GameObject subtitlePanel;       // Drag Subtitle Panel (Background Hitam)
-    public TextMeshProUGUI subtitleText;   // Drag Text Subtitle
-    [TextArea]
-    public string monologueLine = "Ohh aku tahu cahaya itu… Resonant Core";
-    public float textDuration = 4.0f;      // Berapa lama teks & kamera sorot muncul
+    public GameObject subtitlePanel;       
+    public TextMeshProUGUI subtitleText;   
+    [TextArea] public string monologueLine = "Ohh aku tahu cahaya itu… Resonant Core";
+    public float textDuration = 4.0f;      
 
     [Header("Settings")]
     public KeyCode visionKey = KeyCode.V;
@@ -36,42 +40,64 @@ public class VisionTutorialTrigger : MonoBehaviour
 
     private bool playerInside = false;
     private bool tutorialCompleted = false;
-    private bool isVisionActive = false;
-    private Transform originalCameraParent; // Untuk menyimpan parent asli kamera
+    private bool isVisionActive = false; 
+    
+    private bool isFrozen = false; 
+    private Vector3 lockedPosition; 
+
+    private Transform originalCameraParent; 
 
     void Start()
     {
+        // Setup awal UI & Volume
         if (tutorialPromptUI != null) tutorialPromptUI.SetActive(false);
         if (visionVolume != null) visionVolume.weight = 0; 
         if (targetHighlight != null) targetHighlight.SetActive(false);
         if (subtitlePanel != null) subtitlePanel.SetActive(false);
-        
-        // [FIX] Jangan matikan blinkCanvasGroup di sini!
-        // Karena panel ini dipakai bersamaan dengan PrologueDirector saat start.
-        // Biarkan PrologueDirector yang mengontrol kondisi awalnya.
-        /* if (blinkCanvasGroup != null) {
-            blinkCanvasGroup.alpha = 0f; 
-            blinkCanvasGroup.gameObject.SetActive(false); 
-        } 
-        */
 
-        // Pastikan kita punya referensi yang benar
-        if (mainCamera == null) Debug.LogError("LUPA MASUKIN 'Main Camera' DI INSPECTOR VISION TRIGGER!");
-        if (museFocusPoint == null) Debug.LogError("LUPA MASUKIN 'Muse Focus Point' DI INSPECTOR VISION TRIGGER! Ganti MuseCam jadi object kosong biasa.");
+        // Auto-detect script player
+        if (playerMovementScript == null && playerObject != null)
+        {
+            MonoBehaviour[] scripts = playerObject.GetComponentsInChildren<MonoBehaviour>();
+            foreach (var s in scripts) {
+                if (s.GetType().Name.Contains("Command") || s.GetType().Name.Contains("System")) 
+                    playerMovementScript = s;
+            }
+        }
     }
 
     void Update()
     {
-        // Logika Trigger
-        if (playerInside && !tutorialCompleted)
+        // --- JURUS PAKU BUMI (FORCE POSITION) ---
+        if (isFrozen && playerObject != null)
         {
-            if (Input.GetKeyDown(visionKey))
+            playerObject.transform.position = lockedPosition;
+            Rigidbody rb = playerObject.GetComponent<Rigidbody>();
+            if(rb) 
             {
-                ActivateVisionMode();
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero; // Matikan putaran fisika
             }
         }
 
-        // Animasi Smooth Perubahan Layar
+        // 1. Fase Sebelum Vision (Nunggu Input V)
+        if (playerInside && !isVisionActive && !tutorialCompleted)
+        {
+            // Kamera nengok NPC pelan-pelan
+            if (museFocusPoint != null && mainCamera != null)
+            {
+                Vector3 directionToNPC = museFocusPoint.position - mainCamera.transform.position;
+                if (directionToNPC != Vector3.zero)
+                {
+                    Quaternion targetRotation = Quaternion.LookRotation(directionToNPC);
+                    mainCamera.transform.rotation = Quaternion.Slerp(mainCamera.transform.rotation, targetRotation, Time.deltaTime * 5f);
+                }
+            }
+
+            if (Input.GetKeyDown(visionKey)) ActivateVisionMode();
+        }
+
+        // 2. Animasi Volume Vision
         if (visionVolume != null)
         {
             float targetWeight = isVisionActive ? 1.0f : 0.0f;
@@ -79,92 +105,85 @@ public class VisionTutorialTrigger : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if ((other.CompareTag("Player") || other.transform.root.CompareTag("Player")) && !tutorialCompleted)
+        {
+            playerInside = true;
+            if (tutorialPromptUI != null) tutorialPromptUI.SetActive(true);
+
+            // Set Player Object kalau belum ada
+            if (playerObject == null) playerObject = other.transform.root.gameObject;
+
+            lockedPosition = playerObject.transform.position;
+            isFrozen = true;
+            TogglePlayerControl(false); 
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if ((other.CompareTag("Player") || other.transform.root.CompareTag("Player")) && !tutorialCompleted)
+        {
+            playerInside = false;
+            if (tutorialPromptUI != null) tutorialPromptUI.SetActive(false);
+            isFrozen = false;
+            TogglePlayerControl(true); 
+        }
+    }
+
     void ActivateVisionMode()
     {
-        tutorialCompleted = true;
-        isVisionActive = true; 
+        tutorialCompleted = true; 
+        isVisionActive = true;    
 
-        // 1. Sembunyikan UI Prompt "Tekan V"
         if (tutorialPromptUI != null) tutorialPromptUI.SetActive(false);
-
-        // 2. Nyalakan Highlight Muse
         if (targetHighlight != null) targetHighlight.SetActive(true);
-
-        // 3. Matikan Trigger
         if (destroyAfterTrigger) GetComponent<Collider>().enabled = false;
 
-        // 4. Mulai Cutscene (Kamera Gerak & Dialog & Blink)
         StartCoroutine(PlayCutsceneSequence());
-
-        Debug.Log("VISION MODE ON: Layar berubah, kamera bergerak ke Muse!");
     }
 
     IEnumerator PlayCutsceneSequence()
     {
-        // --- 0. PERSIAPAN CUTSCENE ---
-        // Tunggu sebentar untuk transisi efek layar
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(delayBeforeZoom);
 
-        // Matikan Gerakan Player
-        MonoBehaviour[] scripts = null;
-        if (playerObject != null)
-        {
-            scripts = playerObject.GetComponentsInChildren<MonoBehaviour>();
-            foreach(var script in scripts) 
-            {
-                // Matikan script controller/movement/kamera rotation
-                if (script.GetType().Name.Contains("Controller") || script.GetType().Name.Contains("Move") || script.GetType().Name.Contains("Rotation") || script.GetType().Name.Contains("Look"))
-                    script.enabled = false; 
-            }
-        }
-
-        // Simpan posisi & parent asli kamera
-        Vector3 startPos = mainCamera.transform.position; // Posisi Dunia (untuk Lerp)
+        // --- MULAI CUTSCENE ---
+        // Simpan posisi & rotasi awal
+        Vector3 startPos = mainCamera.transform.position;
         Quaternion startRot = mainCamera.transform.rotation;
-        
-        // [PERBAIKAN] Simpan posisi LOKAL juga. Ini kuncinya!
-        // Supaya nanti pas balik, kita reset ke 0,0,0 relatif terhadap CameraHolder
         Vector3 startLocalPos = mainCamera.transform.localPosition;
-        Quaternion startLocalRot = mainCamera.transform.localRotation;
+        
+        // Simpan rotasi lokal awal buat dikembalikan nanti
+        Vector3 startLocalEuler = mainCamera.transform.localEulerAngles;
         
         originalCameraParent = mainCamera.transform.parent;
+        mainCamera.transform.parent = null; // Lepas kamera dari player
 
-        // Lepaskan kamera dari parentnya (biar bisa gerak bebas)
-        mainCamera.transform.parent = null;
-
-
-        // --- 1. KAMERA BERGERAK KE MUSE (LINEAR) ---
+        // ZOOM IN
         float time = 0;
         while (time < cameraMoveDuration)
         {
             time += Time.deltaTime;
-            float t = time / cameraMoveDuration;
-            // Pakai SmoothStep biar gerakannya lebih halus (ada ease-in ease-out)
-            float smoothT = Mathf.SmoothStep(0, 1, t); 
+            float smoothT = Mathf.SmoothStep(0, 1, time / cameraMoveDuration); 
 
             mainCamera.transform.position = Vector3.Lerp(startPos, museFocusPoint.position, smoothT);
             mainCamera.transform.rotation = Quaternion.Slerp(startRot, museFocusPoint.rotation, smoothT);
-
             yield return null;
         }
-        // Pastikan posisi akhir pas di target
         mainCamera.transform.position = museFocusPoint.position;
         mainCamera.transform.rotation = museFocusPoint.rotation;
 
-
-        // --- 2. TAMPILKAN DIALOG DI MUSE ---
+        // DIALOG
         if (subtitlePanel != null && subtitleText != null)
         {
             subtitleText.text = "<i>" + monologueLine + "</i>"; 
             subtitlePanel.SetActive(true);
         }
 
-        // --- TUNGGU DURASI ---
         yield return new WaitForSeconds(textDuration);
 
-
-        // --- 3. EFEK KEDIP (BLINK) UNTUK KEMBALI ---
-        // A. Tutup Mata (Fade Out ke Hitam)
+        // BLINK MEREM
         if (blinkCanvasGroup != null)
         {
             blinkCanvasGroup.gameObject.SetActive(true);
@@ -178,25 +197,41 @@ public class VisionTutorialTrigger : MonoBehaviour
             blinkCanvasGroup.alpha = 1f;
         }
 
-        // B. Kembalikan Posisi Kamera (Saat Gelap)
-        // Sembunyikan dialog dulu
+        // RESET UI & STATE
         if (subtitlePanel != null) subtitlePanel.SetActive(false);
         if (subtitleText != null) subtitleText.text = "";
         
-        // [PERBAIKAN BUG KAMERA MUNDUR/NEMBUS]
-        // 1. Tempelkan dulu ke parent aslinya (CameraHolder)
+        // --- KEMBALIKAN KAMERA KE PEMAIN ---
         mainCamera.transform.parent = originalCameraParent;
-        
-        // 2. Reset posisi LOKAL-nya ke awal (biasanya 0,0,0)
-        // Ini menjamin kamera pas lagi di leher/kepala, gak peduli rotasi badannya gimana
         mainCamera.transform.localPosition = startLocalPos;
-        mainCamera.transform.localRotation = startLocalRot;
+        
+        // BALIKKAN ROTASI KAMERA (TAPI PAKSA TEGAK)
+        // Kita pakai rotasi awal, tapi Z-nya kita matikan total (0)
+        mainCamera.transform.localRotation = Quaternion.Euler(startLocalEuler.x, startLocalEuler.y, 0f);
 
-        // Tunggu sebentar saat gelap (opsional, biar kerasa kedipnya)
-        yield return new WaitForSeconds(0.1f);
+        // --- [FIX MIRING PALING PENTING] LURUSKAN BADAN PLAYER ---
+        if (playerObject != null)
+        {
+            // Ambil rotasi badan saat ini
+            Vector3 currentBodyRot = playerObject.transform.eulerAngles;
+            // Paksa X=0 dan Z=0 (Tegak Lurus Lantai), pertahankan Y (Arah Hadap)
+            playerObject.transform.rotation = Quaternion.Euler(0f, currentBodyRot.y, 0f);
+            
+            // Matikan sisa gaya putar di Rigidbody
+            Rigidbody rb = playerObject.GetComponent<Rigidbody>();
+            if(rb != null)
+            {
+                rb.angularVelocity = Vector3.zero;
+                // KUNCI ROTASI AGAR TIDAK TERGULING LAGI
+                rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezePositionY; 
+                // Note: FreezePositionY opsional, bisa dihapus kalau mau loncat
+                rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            }
+        }
 
+        yield return new WaitForSeconds(0.1f); // Tunggu fisika stabil
 
-        // C. Buka Mata (Fade In dari Hitam)
+        // BLINK MELEK
         if (blinkCanvasGroup != null)
         {
             float blinkTime = 0;
@@ -210,34 +245,51 @@ public class VisionTutorialTrigger : MonoBehaviour
             blinkCanvasGroup.gameObject.SetActive(false);
         }
 
+        // SELESAI
+        isFrozen = false; 
+        TogglePlayerControl(true); 
+    }
 
-        // --- 4. SELESAI CUTSCENE ---
-        // Kembalikan Gerakan Player
-        if (playerObject != null && scripts != null)
+    void TogglePlayerControl(bool enable)
+    {
+        if (playerMovementScript != null) playerMovementScript.enabled = enable;
+        if (cameraLookScript != null) cameraLookScript.enabled = enable;
+
+        if (playerObject != null)
         {
-            foreach(var script in scripts) 
+            Rigidbody rb = playerObject.GetComponent<Rigidbody>();
+            if (rb == null) rb = playerObject.GetComponentInChildren<Rigidbody>();
+
+            if (rb != null) 
             {
-                if (script.GetType().Name.Contains("Controller") || script.GetType().Name.Contains("Move") || script.GetType().Name.Contains("Rotation") || script.GetType().Name.Contains("Look"))
-                    script.enabled = true;
+                if (!enable) 
+                {
+                    // MATIKAN FISIKA SAAT FREEZE
+                    rb.linearVelocity = Vector3.zero; 
+                    rb.angularVelocity = Vector3.zero; 
+                    rb.isKinematic = true; 
+                }
+                else 
+                {
+                    // NYALAKAN LAGI
+                    rb.isKinematic = false; 
+                    rb.WakeUp();
+                    
+                    // --- SAFETY NET TERAKHIR ---
+                    // Paksa tegak sekali lagi saat kontrol dikembalikan
+                    rb.angularVelocity = Vector3.zero;
+                    Vector3 upright = playerObject.transform.eulerAngles;
+                    playerObject.transform.rotation = Quaternion.Euler(0f, upright.y, 0f);
+                }
             }
         }
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if ((other.CompareTag("Player") || other.transform.root.CompareTag("Player")) && !tutorialCompleted)
-        {
-            playerInside = true;
-            if (tutorialPromptUI != null) tutorialPromptUI.SetActive(true);
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if ((other.CompareTag("Player") || other.transform.root.CompareTag("Player")) && !tutorialCompleted)
-        {
-            playerInside = false;
-            if (tutorialPromptUI != null) tutorialPromptUI.SetActive(false);
+        
+        // Stop Animasi
+        Animator anim = playerObject.GetComponent<Animator>();
+        if (anim == null) anim = playerObject.GetComponentInChildren<Animator>();
+        if (anim != null && !enable) {
+             anim.SetFloat("Speed", 0f); 
+             anim.Play("Idle"); 
         }
     }
 }
