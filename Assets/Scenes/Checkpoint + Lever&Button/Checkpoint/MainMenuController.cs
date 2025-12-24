@@ -2,50 +2,70 @@ using UnityEngine;
 
 public class MainMenuController : MonoBehaviour
 {
-    public GameObject playerObject; // assign in inspector if needed
+    [Header("Optional")]
+    public GameObject playerObject; // boleh kosong, akan dicari otomatis
 
-    // Called by "New Game" button
+    // =========================
+    // NEW GAME
+    // =========================
     public void NewGame()
     {
+        // 1. Reset checkpoint system
         if (RespawnManager.Instance != null)
         {
-            // Clear saved checkpoint AND reset semua checkpoint di scene
             RespawnManager.Instance.ClearSavedCheckpoint();
-
-            // Find player jika belum di-assign
-            if (playerObject == null)
-            {
-                var p = GameObject.FindGameObjectWithTag("Player");
-                if (p != null) playerObject = p;
-            }
-
-            // Respawn ke default langsung
-            if (playerObject != null)
-                RespawnManager.Instance.RespawnPlayer(playerObject);
         }
+
+        // 2. Reset Quest UI (Story Objective)
+        if (QuestUIController.Instance != null)
+        {
+            QuestUIController.Instance.ResetQuest();
+        }
+
+        // 3. Pastikan player reference ada
+        EnsurePlayerReference();
+
+        // 4. Respawn player ke default spawn
+        if (RespawnManager.Instance != null && playerObject != null)
+        {
+            RespawnManager.Instance.RespawnPlayer(playerObject);
+        }
+
+        Debug.Log("[MainMenu] New Game started");
     }
 
-    // Called by "Continue" button
+    // =========================
+    // CONTINUE GAME
+    // =========================
     public void ContinueGame()
     {
-        if (RespawnManager.Instance != null)
+        EnsurePlayerReference();
+
+        if (RespawnManager.Instance != null && playerObject != null)
         {
-            if (playerObject == null)
-            {
-                var p = GameObject.FindGameObjectWithTag("Player");
-                if (p != null) playerObject = p;
-            }
-            if (playerObject != null)
-            {
-                bool loaded = RespawnManager.Instance.ContinueGameRespawn(playerObject);
-                Debug.Log("Continue used saved checkpoint: " + loaded);
-            }
+            bool loaded = RespawnManager.Instance.ContinueGameRespawn(playerObject);
+            Debug.Log("[MainMenu] Continue Game used checkpoint: " + loaded);
         }
     }
 
+    // =========================
+    // UTILITIES
+    // =========================
+    void EnsurePlayerReference()
+    {
+        if (playerObject != null) return;
+
+        var p = GameObject.FindGameObjectWithTag("Player");
+        if (p != null)
+            playerObject = p;
+    }
+
+    // =========================
+    // OTHER MENU
+    // =========================
     public void Option()
     {
-        // implementasi opsi
+        // implementasi menu option (audio, graphics, dll)
     }
 
     public void ExitGame()
