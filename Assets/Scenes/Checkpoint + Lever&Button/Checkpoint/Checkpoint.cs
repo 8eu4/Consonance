@@ -23,6 +23,11 @@ public class Checkpoint : MonoBehaviour
     [Header("Optional")]
     public string checkpointName = "";
 
+    [Header("Story Quest")]
+    [TextArea(2, 4)]
+    public string mainObjective;
+
+
     // Visuals: pilih salah satu atau kedua-duanya
     [Header("Visuals (optional)")]
     public Renderer indicatorRenderer;       // world renderer (misalnya mesh)
@@ -66,15 +71,22 @@ public class Checkpoint : MonoBehaviour
 
     public void ActivateCheckpoint()
     {
-        if (state != CheckpointState.Fresh) return; // tidak bisa diaktifkan jika sudah Used/Current
+        if (state != CheckpointState.Fresh) return;
 
         if (RespawnManager.Instance != null)
         {
             RespawnManager.Instance.RegisterCheckpoint(this);
         }
 
+        // UPDATE QUEST UI
+        if (QuestUIController.Instance != null && !string.IsNullOrEmpty(mainObjective))
+        {
+            QuestUIController.Instance.SetQuest(mainObjective);
+        }
+
         Debug.Log($"[Checkpoint] Activated: {(string.IsNullOrEmpty(checkpointName) ? name : checkpointName)} (index {index})");
     }
+
 
     // dipanggil oleh RespawnManager untuk menandai state
     public void MarkAsUsed()
