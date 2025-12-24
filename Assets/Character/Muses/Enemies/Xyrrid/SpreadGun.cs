@@ -41,6 +41,9 @@ public class XyrridSpreadGun : MonoBehaviour
 
     private IEnumerator FireRoutine()
     {
+        // pilih initial reload untuk siklus pertama
+        float reloadTime = Random.Range(reloadTimeRange.x, reloadTimeRange.y);
+
         while (true)
         {
             if (target == null)
@@ -57,7 +60,7 @@ public class XyrridSpreadGun : MonoBehaviour
                 continue;
             }
 
-            float reloadTime = Random.Range(reloadTimeRange.x, reloadTimeRange.y);
+            // tunggu reload sebelum charge (reloadTime ini dipilih di akhir loop sebelumnya)
             yield return new WaitForSeconds(reloadTime);
 
             if (chargeAudio != null)
@@ -79,8 +82,21 @@ public class XyrridSpreadGun : MonoBehaviour
                 yield return null;
             }
 
-            // SHOTGUN MODE — tembak bubble satu-satu tapi menyebar
+            // SHOTGUN MODE ï¿½ tembak bubble satu-satu tapi menyebar
             yield return StartCoroutine(FireShotgun(lockedTargetPos));
+
+            // setelah menembak, tentukan reload time berikutnya
+            float nextReload = Random.Range(reloadTimeRange.x, reloadTimeRange.y);
+
+            // Jika movementScript ada & target TIDAK sedang di-chase, maka lakukan reposition
+            // selama durasi reload berikutnya. Pastikan movement sudah di-resume di FireShotgun().
+            if (movementScript != null && !movementScript.IsChasing())
+            {
+                movementScript.Reposition(nextReload);
+            }
+
+            // set reloadTime untuk siklus berikutnya
+            reloadTime = nextReload;
         }
     }
 
@@ -97,6 +113,9 @@ public class XyrridSpreadGun : MonoBehaviour
 
         if (stopMovementWhileFiring && movementScript != null)
             movementScript.ResumeMovement();
+
+        // Important: DO NOT call Reposition() here ï¿½ FireRoutine will handle
+        // reposition after computing next reloadTime (so reposition lasts exactly reload).
     }
 
     private void ShootWithSpread(Vector3 targetPos)
@@ -109,6 +128,10 @@ public class XyrridSpreadGun : MonoBehaviour
         if (rb == null)
         {
             rb = bubble.AddComponent<Rigidbody>();
+            rb.useGravity = false;
+        }
+        else
+        {
             rb.useGravity = false;
         }
 

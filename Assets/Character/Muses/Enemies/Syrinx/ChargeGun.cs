@@ -25,7 +25,6 @@ public class ChargeGun : MonoBehaviour
 
     [Header("Ranges")]
     public float attackRange = 6f;   // distance to attack
-    //public float viewRange = 10f;    // distance before chasing
 
     [Header("Behavior")]
     public bool stopMovementWhileFiring = true;
@@ -52,22 +51,22 @@ public class ChargeGun : MonoBehaviour
 
             float distance = Vector3.Distance(transform.position, player.position);
 
-            // 🚫 Skip if target too far
+            // Skip if target too far
             if (distance > attackRange)
             {
                 yield return null;
                 continue;
             }
 
-            // ⏳ Random reload before shooting
+            // Random reload before shooting
             float reloadTime = Random.Range(reloadTimeRange.x, reloadTimeRange.y);
             yield return new WaitForSeconds(reloadTime);
 
-            // ⚡ Play charge sound
+            // Play charge audio
             if (chargeAudio != null)
                 chargeAudio.Play();
 
-            // 🎯 Spawn telegraph + sight
+            // Spawn telegraph + sight
             if (laserSightPrefab != null)
                 currentSight = Instantiate(laserSightPrefab).transform;
 
@@ -82,7 +81,7 @@ public class ChargeGun : MonoBehaviour
             float elapsed = 0f;
             bool hasLockedTarget = false;
 
-            // ⚙️ CHARGE PHASE
+            // CHARGE PHASE
             while (elapsed < chargeTime)
             {
                 elapsed += Time.deltaTime;
@@ -118,11 +117,11 @@ public class ChargeGun : MonoBehaviour
                 yield return null;
             }
 
-            // 💥 FIRE LASER
+            // FIRE LASER
             if (laserBeamPrefab != null)
                 yield return StartCoroutine(FireLaserBeam(lockedTargetPos));
 
-            // 🧹 CLEANUP
+            // CLEANUP
             if (currentSight != null)
                 Destroy(currentSight.gameObject);
             if (currentTelegraph != null)
@@ -151,8 +150,13 @@ public class ChargeGun : MonoBehaviour
     {
         if (firePoint == null) yield break;
 
+        // Pause movement while firing
         if (stopMovementWhileFiring && movementScript != null)
             movementScript.PauseMovement();
+
+        // Apply knockback (recoil) away from the target point
+        if (movementScript != null)
+            movementScript.ApplyKnockback(targetPos);
 
         GameObject laser = Instantiate(laserBeamPrefab);
         LineRenderer lr = laser.GetComponent<LineRenderer>();
@@ -178,8 +182,11 @@ public class ChargeGun : MonoBehaviour
         }
 
         lr.SetPosition(1, targetPos);
+
+        // Keep beam active
         yield return new WaitForSeconds(laserTime);
 
+        // Resume movement
         if (stopMovementWhileFiring && movementScript != null)
             movementScript.ResumeMovement();
 

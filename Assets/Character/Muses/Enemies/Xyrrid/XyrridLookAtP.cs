@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class LookAtPlayer : MonoBehaviour
+public class XyrridLookAt : MonoBehaviour
 {
     public Transform playerTarget; // Reference to the player's Transform
     public float rotationSpeed = 3.0f; // Speed of the rotation
@@ -23,7 +23,7 @@ public class LookAtPlayer : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 
             // Alternatively, use Quaternion.RotateTowards to ensure a consistent angular speed
-            // transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
     }
 }
