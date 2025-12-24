@@ -1,9 +1,14 @@
 fileFormatVersion: 2
-guid: a670229aaed8b1f4e8d9a19ebaa4158b
+guid: 6b4de809ef8c9cc4fa70f71f8f319e5d
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: XyrridSkin
+    second: {fileID: 2100000, guid: fada67ed048b1644b9f69efb9556bd64, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
