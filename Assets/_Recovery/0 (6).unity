@@ -6006,29 +6006,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: points
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: amplitude
-      value: 0.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: frequency
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: waveSpeed
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
       propertyPath: camRotation
       value: 
       objectReference: {fileID: 330585548}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: lineSpacing
-      value: 0.1
-      objectReference: {fileID: 0}
     - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
       propertyPath: lineMaterial
       value: 
@@ -6039,64 +6019,12 @@ PrefabInstance:
       objectReference: {fileID: 330585545}
     - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
       propertyPath: lineThickness
-      value: 0.02
-      objectReference: {fileID: 0}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: numberOfLines
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: lineColor.ctime1
-      value: 32768
-      objectReference: {fileID: 0}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: lineColor.ctime2
-      value: 65535
-      objectReference: {fileID: 0}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: lineColor.key0.b
-      value: 0.735849
-      objectReference: {fileID: 0}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: lineColor.key0.g
-      value: 0.735849
-      objectReference: {fileID: 0}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: lineColor.key0.r
-      value: 0.4095763
-      objectReference: {fileID: 0}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: lineColor.key1.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: lineColor.key1.g
-      value: 0.4509434
-      objectReference: {fileID: 0}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: lineColor.key1.r
-      value: 0.5779799
-      objectReference: {fileID: 0}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: lineColor.key2.b
-      value: 0.7372549
-      objectReference: {fileID: 0}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: lineColor.key2.g
-      value: 0.7372549
-      objectReference: {fileID: 0}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: lineColor.key2.r
-      value: 0.4117647
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
       propertyPath: SwitchCharacterScript
       value: 
       objectReference: {fileID: 1643502654}
-    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-      propertyPath: lineColor.m_NumColorKeys
-      value: 3
-      objectReference: {fileID: 0}
     - target: {fileID: 8144940750138787269, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -6343,33 +6271,9 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1782199376976622628, guid: 6fa1638dc356ad94b8ccbb1bfb619a04, type: 3}
-      propertyPath: points
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 1782199376976622628, guid: 6fa1638dc356ad94b8ccbb1bfb619a04, type: 3}
-      propertyPath: amplitude
-      value: 0.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 1782199376976622628, guid: 6fa1638dc356ad94b8ccbb1bfb619a04, type: 3}
-      propertyPath: frequency
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 1782199376976622628, guid: 6fa1638dc356ad94b8ccbb1bfb619a04, type: 3}
-      propertyPath: waveSpeed
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 1782199376976622628, guid: 6fa1638dc356ad94b8ccbb1bfb619a04, type: 3}
-      propertyPath: fadeLength
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1782199376976622628, guid: 6fa1638dc356ad94b8ccbb1bfb619a04, type: 3}
       propertyPath: camRotation
       value: 
       objectReference: {fileID: 330585548}
-    - target: {fileID: 1782199376976622628, guid: 6fa1638dc356ad94b8ccbb1bfb619a04, type: 3}
-      propertyPath: lineSpacing
-      value: 0.1
-      objectReference: {fileID: 0}
     - target: {fileID: 1782199376976622628, guid: 6fa1638dc356ad94b8ccbb1bfb619a04, type: 3}
       propertyPath: lineMaterial
       value: 
@@ -6380,11 +6284,7 @@ PrefabInstance:
       objectReference: {fileID: 330585545}
     - target: {fileID: 1782199376976622628, guid: 6fa1638dc356ad94b8ccbb1bfb619a04, type: 3}
       propertyPath: lineThickness
-      value: 0.02
-      objectReference: {fileID: 0}
-    - target: {fileID: 1782199376976622628, guid: 6fa1638dc356ad94b8ccbb1bfb619a04, type: 3}
-      propertyPath: numberOfLines
-      value: 5
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 1782199376976622628, guid: 6fa1638dc356ad94b8ccbb1bfb619a04, type: 3}
       propertyPath: lineColor.atime1
