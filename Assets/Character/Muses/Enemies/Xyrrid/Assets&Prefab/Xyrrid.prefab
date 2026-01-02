@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 2883871810250628140}
   - component: {fileID: 7211897706007593487}
   - component: {fileID: 2964305845648689352}
+  - component: {fileID: 5522679367533558264}
   m_Layer: 0
   m_Name: Xyrrid
   m_TagString: Enemy
@@ -60,7 +61,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -2.05, y: 1.4999995, z: 8.28}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4924223192780064723}
@@ -79,9 +80,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::XyrridMovement
   moveSpeedX: 1
-  moveSpeedZ: 2
+  moveSpeedZ: 0.5
   amplitudeX: 1
-  amplitudeZ: 0.5
+  amplitudeZ: 3
   player: {fileID: 0}
   viewRange: 12
   stopChaseDistance: 10
@@ -123,7 +124,7 @@ MonoBehaviour:
   movementScript: {fileID: 2883871810250628140}
   reloadTimeRange: {x: 1, y: 4}
   chargeTime: 1.2
-  fixedShootOffset: 0.5
+  shootAnimDelay: 0.1
   bubbleSpeed: 3
   bubbleLifetime: 6
   useArc: 1
@@ -131,8 +132,30 @@ MonoBehaviour:
   pelletCount: 5
   pelletInterval: 0.3
   spreadAngle: 20
-  attackRange: 12
-  stopMovementWhileFiring: 0
+  attackRange: 11
+  stopMovementWhileFiring: 1
+--- !u!95 &5522679367533558264
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7310876051193327072}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: 6b4de809ef8c9cc4fa70f71f8f319e5d, type: 3}
+  m_Controller: {fileID: 9100000, guid: 7cd15dc8764e30742bc108a0023e5d3d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &4890033546096812088
 PrefabInstance:
   m_ObjectHideFlags: 0

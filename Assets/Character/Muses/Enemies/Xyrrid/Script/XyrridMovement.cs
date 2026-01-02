@@ -2,6 +2,9 @@
 
 public class XyrridMovement : MonoBehaviour
 {
+    private Animator anim;
+    private Vector3 lastPosition;
+
     [Header("Movement Settings")]
     public float moveSpeedX = 1f;
     public float moveSpeedZ = 2f;
@@ -42,6 +45,9 @@ public class XyrridMovement : MonoBehaviour
         chaseBasePos = startPos;
         timeOffset = Random.Range(0f, 2f * Mathf.PI);
         strafeDirection = Random.value > 0.5f ? 1f : -1f;
+
+        anim = GetComponent<Animator>(); // Ambil referensi Animator
+        lastPosition = transform.position;
     }
 
     void Update()
@@ -94,6 +100,30 @@ public class XyrridMovement : MonoBehaviour
         // --------------------------------
         if (faceDirection)
             FaceTarget();
+
+        UpdateAnimator(); // Panggil fungsi animasi
+    }
+
+    void UpdateAnimator()
+    {
+        if (anim == null) return;
+
+        // 1. Hitung kecepatan global
+        Vector3 velocity = (transform.position - lastPosition) / Time.deltaTime;
+        lastPosition = transform.position;
+
+        // 2. Ubah kecepatan global menjadi lokal (relatif terhadap arah hadap karakter)
+        //    Agar saat dia menghadap player, gerak ke kiri terbaca sebagai "Kiri" bukan "Barat/Timur"
+        Vector3 localVelocity = transform.InverseTransformDirection(velocity);
+
+        // 3. Normalisasi nilai agar berada di range -1 sampai 1 (untuk Blend Tree)
+        //    Nilai pembagi (5f) disesuaikan dengan rata-rata moveSpeed kamu
+        float inputX = Mathf.Clamp(localVelocity.x / chaseSpeed, -1f, 1f);
+        float inputZ = Mathf.Clamp(localVelocity.z / chaseSpeed, -1f, 1f);
+
+        // 4. Kirim ke Animator (Damped agar transisi halus)
+        anim.SetFloat("InputX", inputX, 0.1f, Time.deltaTime);
+        anim.SetFloat("InputZ", inputZ, 0.1f, Time.deltaTime);
     }
 
     // -----------------------------

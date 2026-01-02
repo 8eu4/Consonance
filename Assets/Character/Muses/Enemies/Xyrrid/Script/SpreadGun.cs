@@ -3,6 +3,8 @@ using System.Collections;
 
 public class XyrridSpreadGun : MonoBehaviour
 {
+    private Animator anim;
+
     [Header("References")]
     public Transform firePoint;
     public Transform target;
@@ -12,8 +14,12 @@ public class XyrridSpreadGun : MonoBehaviour
 
     [Header("Timings")]
     public Vector2 reloadTimeRange = new Vector2(1f, 4f);
-    public float chargeTime = 1.2f;
-    public float fixedShootOffset = 0.5f;
+
+    [Tooltip("Waktu tunggu (aiming) sebelum animasi dimainkan")]
+    public float chargeTime = 1.0f;
+
+    [Tooltip("Delay mikro setelah animasi mulai agar peluru pas keluar saat tangan lurus (misal 0.1 atau 0.2)")]
+    public float shootAnimDelay = 0.1f;
 
     [Header("Bubble Settings")]
     public float bubbleSpeed = 6f;
@@ -22,9 +28,9 @@ public class XyrridSpreadGun : MonoBehaviour
     public float arcHeight = 1.5f;
 
     [Header("Shotgun Settings")]
-    public int pelletCount = 5;          // jumlah tembakan
-    public float pelletInterval = 0.1f;  // delay antar tembakan
-    public float spreadAngle = 20f;      // derajat penyebaran
+    public int pelletCount = 5;
+    public float pelletInterval = 0.1f;
+    public float spreadAngle = 20f;
 
     [Header("Attack Range")]
     public float attackRange = 8f;
@@ -36,86 +42,68 @@ public class XyrridSpreadGun : MonoBehaviour
 
     private void Start()
     {
+        anim = GetComponent<Animator>();
         StartCoroutine(FireRoutine());
     }
 
     private IEnumerator FireRoutine()
     {
-        // pilih initial reload untuk siklus pertama
         float reloadTime = Random.Range(reloadTimeRange.x, reloadTimeRange.y);
 
         while (true)
         {
-            if (target == null)
-            {
-                yield return null;
-                continue;
-            }
-
-            float distance = Vector3.Distance(transform.position, target.position);
-
-            if (distance > attackRange)
-            {
-                yield return null;
-                continue;
-            }
-
-            // tunggu reload sebelum charge (reloadTime ini dipilih di akhir loop sebelumnya)
+            // 1. TUNGGU RELOAD (Cooldown antar serangan)
             yield return new WaitForSeconds(reloadTime);
 
-            if (chargeAudio != null)
-                chargeAudio.Play();
+            // Cek Target & Jarak
+            if (target == null) { yield return null; continue; }
+            float distance = Vector3.Distance(transform.position, target.position);
+            if (distance > attackRange) { yield return null; continue; }
 
-            float elapsed = 0f;
-            bool hasLockedTarget = false;
+            // 2. STOP MOVEMENT & MULAI CHARGE (AIMING)
+            // Musuh diam dulu sejenak (seolah-olah membidik)
+            if (stopMovementWhileFiring && movementScript != null)
+                movementScript.PauseMovement();
 
-            while (elapsed < chargeTime)
-            {
-                elapsed += Time.deltaTime;
+            // Tunggu durasi ChargeTime (Waktu persiapan sebelum animasi)
+            yield return new WaitForSeconds(chargeTime);
 
-                if (!hasLockedTarget && elapsed >= (chargeTime - fixedShootOffset))
-                {
-                    lockedTargetPos = target.position;
-                    hasLockedTarget = true;
-                }
+            // 3. PLAY ANIMASI (EKSEKUSI)
+            // Setelah charge selesai, baru animasi dimainkan
+            if (anim != null) anim.SetTrigger("Shoot");
 
-                yield return null;
-            }
+            // 4. AUDIO & MICRO DELAY
+            if (chargeAudio != null) chargeAudio.Play();
 
-            // SHOTGUN MODE � tembak bubble satu-satu tapi menyebar
+            // Delay sangat singkat (misal 0.1s) biar peluru tidak keluar 
+            // saat tangan masih blending dari posisi Idle.
+            if (shootAnimDelay > 0) yield return new WaitForSeconds(shootAnimDelay);
+
+            // 5. KUNCI TARGET & TEMBAK
+            lockedTargetPos = target.position;
             yield return StartCoroutine(FireShotgun(lockedTargetPos));
 
-            // setelah menembak, tentukan reload time berikutnya
-            float nextReload = Random.Range(reloadTimeRange.x, reloadTimeRange.y);
+            // 6. RESUME MOVEMENT
+            if (stopMovementWhileFiring && movementScript != null)
+                movementScript.ResumeMovement();
 
-            // Jika movementScript ada & target TIDAK sedang di-chase, maka lakukan reposition
-            // selama durasi reload berikutnya. Pastikan movement sudah di-resume di FireShotgun().
+            // 7. SIAPKAN RELOAD BERIKUTNYA
+            float nextReload = Random.Range(reloadTimeRange.x, reloadTimeRange.y);
             if (movementScript != null && !movementScript.IsChasing())
             {
                 movementScript.Reposition(nextReload);
             }
-
-            // set reloadTime untuk siklus berikutnya
             reloadTime = nextReload;
         }
     }
 
     private IEnumerator FireShotgun(Vector3 targetPos)
     {
-        if (stopMovementWhileFiring && movementScript != null)
-            movementScript.PauseMovement();
-
         for (int i = 0; i < pelletCount; i++)
         {
             ShootWithSpread(targetPos);
             yield return new WaitForSeconds(pelletInterval);
         }
-
-        if (stopMovementWhileFiring && movementScript != null)
-            movementScript.ResumeMovement();
-
-        // Important: DO NOT call Reposition() here � FireRoutine will handle
-        // reposition after computing next reloadTime (so reposition lasts exactly reload).
     }
 
     private void ShootWithSpread(Vector3 targetPos)
@@ -125,32 +113,21 @@ public class XyrridSpreadGun : MonoBehaviour
         GameObject bubble = Instantiate(bubblePrefab, firePoint.position, Quaternion.identity);
         Rigidbody rb = bubble.GetComponent<Rigidbody>();
 
-        if (rb == null)
-        {
-            rb = bubble.AddComponent<Rigidbody>();
-            rb.useGravity = false;
-        }
-        else
-        {
-            rb.useGravity = false;
-        }
+        if (rb == null) rb = bubble.AddComponent<Rigidbody>();
+        rb.useGravity = false;
 
-        // arah dasar ke target
         Vector3 dir = (targetPos - firePoint.position).normalized;
 
-        // apply spread random angle (horizontal)
         float angle = Random.Range(-spreadAngle, spreadAngle);
         Quaternion rot = Quaternion.Euler(0, angle, 0);
         dir = rot * dir;
 
-        // straight shot
         if (!useArc)
         {
             rb.linearVelocity = dir * bubbleSpeed;
         }
         else
         {
-            // arc/parabola shot
             Vector3 dirXZ = new Vector3(dir.x, 0, dir.z).normalized;
             Vector3 arcVelocity = dirXZ * bubbleSpeed;
             arcVelocity.y = arcHeight;
