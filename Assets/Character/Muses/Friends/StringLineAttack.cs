@@ -2,8 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// HAPUS using UnityEngine.AI karena kamu tidak pakai NavMesh
-
 public class StringLineAttack : MonoBehaviour
 {
     [Header("Reference")]
@@ -13,21 +11,25 @@ public class StringLineAttack : MonoBehaviour
 
     [Header("Attack Settings")]
     [SerializeField] private float lineSpeed = 25f;
-    [SerializeField] private float maxLineLength = 100f;
+    [SerializeField] private float maxLineLength = 5f;
+    [SerializeField] private float breakDistance = 17f;
     [SerializeField] private float attachDelay = 0.5f;
     [SerializeField] private LayerMask hittableLayers;
+
+    [Header("Smoothness Settings")]
+    [Tooltip("Waktu slide dari titik tembak (hit) ke titik kunci (center).")]
+    [SerializeField] private float slideDuration = 0.3f;
 
     // --- VISUAL SETTINGS ---
     [Header("Visual Settings")]
     [SerializeField] private float textureScrollSpeed = 2f;
     [SerializeField] private Material lineMaterial;
     [SerializeField] private float lineThickness = 0.02f;
-    [SerializeField] private Gradient lineColor; // Warna Normal (Saat terbang/belum kena)
+    [SerializeField] private Gradient lineColor;
 
     [Header("Special Target Settings (Stun & Lock)")]
-    // Karena "Enemy" masuk sini, semua musuh akan kena Stun Kuning
     [SerializeField] private List<string> specialTags = new List<string> { "Remi", "Domi", "Conductor", "Enemy" };
-    [SerializeField] private Gradient specialLineColor; // Warna Spesial (Kuning)
+    [SerializeField] private Gradient specialLineColor;
     [SerializeField] private float stunCoilHeight = 2.0f;
     [SerializeField] private float stunCoilSpeed = 10f;
 
@@ -42,8 +44,7 @@ public class StringLineAttack : MonoBehaviour
     [SerializeField] private float frequency = 3.0f;
     [SerializeField] private float waveSpeed = 6.0f;
 
-    // --- ENEMY RING SETTINGS ---
-    [Header("Visual Stun Settings")]
+    [Header("Enemy Ring Settings")]
     [SerializeField] private float ringRadius = 0.8f;
     [SerializeField] private float ringWidth = 0.1f;
     [SerializeField] private int ringSegments = 50;
@@ -57,8 +58,6 @@ public class StringLineAttack : MonoBehaviour
     [SerializeField] private CapsuleCollider playerCol;
 
     private List<LineRenderer> lineRenderers = new List<LineRenderer>();
-
-    // Variabel Visual
     private LineRenderer ringRenderer;
     private bool showEnemyRing = false;
 
@@ -69,21 +68,23 @@ public class StringLineAttack : MonoBehaviour
     private bool isAttached;
     private bool?[] isAttacking;
 
-    private Vector3 targetPoint;
-    private Vector3 currentTipPosition;
+    private Vector3 targetPoint;       // Posisi tujuan (Center Musuh)
+    private Vector3 currentTipPosition; // Ujung tali visual
+    private Vector3 initialHitPoint;    // Titik awal kena (misal Kepala)
+
+    private Vector3 snapVelocity;
 
     private float startOffset;
     private Collider ignoredCollider;
 
-    // Status Logic
     private bool isTargetSpecial = false;
 
-    // --- VARIABEL LOCKING (IMMOBILIZE) ---
+    // --- VARIABEL LOCKING ---
     private Transform lockedTargetTransform;
     private Vector3 lockedPosition;
     private Quaternion lockedRotation;
-    private Rigidbody cachedRb; // Cukup RB saja tanpa NavMesh
-    private bool wasKinematic;  // Simpan state RB sebelumnya            
+    private Rigidbody cachedRb;
+    private bool wasKinematic;
 
     private int museIdx
     {
@@ -113,15 +114,13 @@ public class StringLineAttack : MonoBehaviour
     void SetupRing()
     {
         if (ringRenderer != null) Destroy(ringRenderer.gameObject);
-
         GameObject ringObj = new GameObject("StunEffectRing");
         ringObj.transform.SetParent(this.transform);
         ringObj.transform.localPosition = Vector3.zero;
 
         ringRenderer = ringObj.AddComponent<LineRenderer>();
         ringRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        // Warna akan di-override saat render nanti
-        ringRenderer.loop = false; // Spiral tidak loop
+        ringRenderer.loop = false;
         ringRenderer.useWorldSpace = true;
         ringRenderer.widthMultiplier = ringWidth;
         ringRenderer.positionCount = ringSegments;
@@ -156,7 +155,6 @@ public class StringLineAttack : MonoBehaviour
     {
         if (normalTexture) Destroy(normalTexture);
         normalTexture = BakeTextureFromGradient(lineColor);
-
         if (specialTexture) Destroy(specialTexture);
         specialTexture = BakeTextureFromGradient(specialLineColor);
     }
@@ -203,35 +201,54 @@ public class StringLineAttack : MonoBehaviour
         {
             isActive = true;
 
-            // --- LOGIKA LOCK (TANPA NAVMESH) ---
+            // 1. CEK JARAK
+            float currentDistance = Vector3.Distance(fireOrigin.position, targetPoint);
+            if (currentDistance > breakDistance)
+            {
+                CancelAttack(museIdx);
+                return;
+            }
+
+            // 2. LOGIKA LOCK (PHYSICS)
             if (isAttached && ignoredCollider != null)
             {
                 if (isTargetSpecial && lockedTargetTransform != null)
                 {
-                    // PAKSA POSISI DIAM SETIAP FRAME
-                    // Ini menggantikan peran NavMesh.isStopped
                     lockedTargetTransform.position = lockedPosition;
                     lockedTargetTransform.rotation = lockedRotation;
-
                     targetPoint = lockedPosition;
-                }
-                else
-                {
-                    // Fallback jika nembak tembok/objek statis
-                    targetPoint = ignoredCollider.bounds.center;
                 }
             }
 
-            endPos = isAttached ? targetPoint : currentTipPosition;
+            // 3. LOGIKA POSISI VISUAL & KAMERA
+            if (isAttached)
+            {
+                // -- FASE 2: SUDAH NEMPEL (SLIDE) --
+                // Tali bergerak halus dari Titik Kena Awal -> Titik Center
+                currentTipPosition = Vector3.SmoothDamp(currentTipPosition, targetPoint, ref snapVelocity, slideDuration);
+                endPos = currentTipPosition;
 
-            if (isAttacking[museIdx] == true) camRotation.LockLookAt(targetPoint, gameObject);
+                // Kamera mengikuti pergerakan halus tali (Slide effect)
+                if (isAttacking[museIdx] == true) camRotation.LockLookAt(endPos, gameObject);
+            }
+            else
+            {
+                // -- FASE 1: SEDANG TERBANG (FLYING) --
+                // Tali mengikuti peluru/ujung visual
+                endPos = currentTipPosition;
+
+                // PERBAIKAN:
+                // Saat terbang, Kamera fokus ke TARGET UTAMA (Crosshair), BUKAN ke ujung tali yang baru keluar dari tangan.
+                // Ini mencegah kamera "nunduk" melihat tangan.
+                if (isAttacking[museIdx] == true) camRotation.LockLookAt(targetPoint, gameObject);
+            }
         }
         else
         {
             camRotation.CancelLineAttack(gameObject);
         }
 
-        // --- RENDER LINES ---
+        // RENDER LINES
         if (isActive && lineRenderers.Count > 0)
         {
             if (!lineRenderers[0].enabled) foreach (var lr in lineRenderers) lr.enabled = true;
@@ -242,16 +259,12 @@ public class StringLineAttack : MonoBehaviour
             if (lineRenderers.Count > 0 && lineRenderers[0].enabled) foreach (var lr in lineRenderers) lr.enabled = false;
         }
 
-        // --- RENDER STUN VISUAL (SPIRAL KUNING SAJA) ---
-        // Karena "Enemy" sudah masuk special, kita tidak butuh logika Ring Merah lagi
+        // RENDER STUN VISUAL
         if (showEnemyRing && isTargetSpecial && ringRenderer != null)
         {
             ringRenderer.enabled = true;
-
-            // Gambar efek lilitan (Stun)
-            DrawStunEffect(targetPoint);
-
-            // Warna Kuning
+            // Gambar ring di posisi endPos (biar ikut slide dari kepala ke badan)
+            DrawStunEffect(endPos);
             ringRenderer.startColor = specialLineColor.Evaluate(0.5f);
             ringRenderer.endColor = specialLineColor.Evaluate(1f);
         }
@@ -263,14 +276,9 @@ public class StringLineAttack : MonoBehaviour
         if (lineObj.activeInHierarchy) UpdateCollider();
     }
 
-    // Fungsi DrawMagicalRing (Merah) SUDAH DIHAPUS
-
-    // Visual Spiral Lilitan ke atas (Stun)
     void DrawStunEffect(Vector3 center)
     {
-        // Pastikan setting visual sesuai
         ringRenderer.loop = false;
-
         int ptCount = ringSegments;
         float heightStep = stunCoilHeight / ptCount;
         float angleStep = 25f;
@@ -338,19 +346,23 @@ public class StringLineAttack : MonoBehaviour
         camRotation.IsAttackLocked = true;
         ResetIgnored();
 
+        snapVelocity = Vector3.zero;
+
         RaycastHit hit;
         if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward, out hit, maxLineLength, hittableLayers))
         {
-            targetPoint = hit.point;
+            targetPoint = hit.point; // Ini titik Center/Hit tujuan
+            initialHitPoint = hit.point; // Simpan titik tabrak awal (misal kepala)
             Ignore(hit.collider);
         }
         else
         {
             targetPoint = playerCamera.transform.position + playerCamera.transform.forward * maxLineLength;
+            initialHitPoint = targetPoint;
         }
 
         lineObj.SetActive(true);
-        currentTipPosition = fireOrigin.position;
+        currentTipPosition = fireOrigin.position; // Tali mulai dari tangan
         fireRoutine = StartCoroutine(FireLine());
     }
 
@@ -360,19 +372,16 @@ public class StringLineAttack : MonoBehaviour
         isAttacking[who] = false;
         isAttached = false;
 
-        // --- RELEASE LOCK ---
-        // Kembalikan kemampuan gerak musuh
+        snapVelocity = Vector3.zero;
+
         if (isTargetSpecial && lockedTargetTransform != null)
         {
-            // Kembalikan Rigidbody ke state asal
             if (cachedRb != null)
             {
                 cachedRb.isKinematic = wasKinematic;
             }
-            // Karena tidak pakai NavMesh, kita cukup berhenti memaksa posisi di LateUpdate
         }
 
-        // Reset Variables
         lockedTargetTransform = null;
         cachedRb = null;
 
@@ -389,17 +398,20 @@ public class StringLineAttack : MonoBehaviour
     private IEnumerator FireLine()
     {
         Vector3 start = fireOrigin.position;
-        float dist = Vector3.Distance(start, targetPoint);
+        // Hitung jarak ke titik tabrak awal (initialHitPoint) bukan targetPoint yang mungkin berubah
+        float dist = Vector3.Distance(start, initialHitPoint);
         float len = 0f;
 
         while (len < dist)
         {
             len = Mathf.Min(len + lineSpeed * Time.deltaTime, dist);
-            Vector3 dir = (targetPoint - start).normalized;
+            Vector3 dir = (initialHitPoint - start).normalized;
             currentTipPosition = start + dir * len;
             yield return null;
         }
-        currentTipPosition = targetPoint;
+
+        // Pastikan ujung tali pas di titik tabrak sebelum logic attached jalan
+        currentTipPosition = initialHitPoint;
 
         if (ignoredCollider)
         {
@@ -422,31 +434,29 @@ public class StringLineAttack : MonoBehaviour
             tagToCheck = col.transform.parent.tag;
         }
 
-        // LOGIKA SIMPEL: Cek apakah tag ada di list special
-        // Karena "Enemy" sudah kamu masukkan ke list ini, dia bakal masuk sini juga.
         if (specialTags.Contains(tagToCheck))
         {
             isTargetSpecial = true;
             showEnemyRing = true;
 
-            // 1. Simpan Transform 
             lockedTargetTransform = col.transform.parent != null ? col.transform.parent : col.transform;
-
-            // 2. Simpan posisi saat ini untuk dikunci
             lockedPosition = lockedTargetTransform.position;
             lockedRotation = lockedTargetTransform.rotation;
 
-            // 3. Matikan Rigidbody physics (Tanpa NavMesh)
+            // Saat attached, targetPoint kita ubah menjadi Pusat Badan (Lock Position)
+            // Tapi currentTipPosition masih di initialHitPoint (Kepala).
+            // LateUpdate akan memuluskan perpindahan dari Kepala -> Pusat Badan.
+            targetPoint = lockedPosition;
+
             cachedRb = lockedTargetTransform.GetComponent<Rigidbody>();
             if (cachedRb != null)
             {
-                wasKinematic = cachedRb.isKinematic; // Ingat state awal
-                cachedRb.isKinematic = true;         // Matikan physics biar ga didorong-dorong
+                wasKinematic = cachedRb.isKinematic;
+                cachedRb.isKinematic = true;
             }
         }
         else
         {
-            // Bukan target yang bisa di-lock (misal tembok)
             isTargetSpecial = false;
             showEnemyRing = false;
             lockedTargetTransform = null;
@@ -456,7 +466,7 @@ public class StringLineAttack : MonoBehaviour
     private void UpdateCollider()
     {
         Vector3 a = fireOrigin.position;
-        Vector3 b = isAttached ? targetPoint : currentTipPosition;
+        Vector3 b = currentTipPosition;
 
         float dist = Vector3.Distance(a, b);
         float colLen = dist - startOffset - colliderEndOffset;
