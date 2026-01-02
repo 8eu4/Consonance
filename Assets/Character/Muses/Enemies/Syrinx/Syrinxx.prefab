@@ -11,11 +11,10 @@ GameObject:
   - component: {fileID: 5254431139536201905}
   - component: {fileID: 4360900637711875080}
   - component: {fileID: 8071871168979499358}
-  - component: {fileID: 6335610400771513758}
-  - component: {fileID: 3198161107642931598}
+  - component: {fileID: 2274142058807003480}
   m_Layer: 0
-  m_Name: Syrinx
-  m_TagString: Untagged
+  m_Name: Syrinxx
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -29,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 2165201664451964528}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.843269, y: 5.98, z: 10.95}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -56,7 +55,9 @@ MonoBehaviour:
   viewRange: 12
   stopChaseDistance: 10
   chaseSpeed: 5
-  faceDirection: 1
+  faceDirection: 0
+  knockbackStrength: 0.25
+  knockbackDuration: 0.5
 --- !u!114 &8071871168979499358
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -76,6 +77,7 @@ MonoBehaviour:
   telegraphPrefab: {fileID: 2511754043124274677, guid: ecaa5bbac34c09645a4b559c7b6b86a5, type: 3}
   chargeAudio: {fileID: 0}
   movementScript: {fileID: 4360900637711875080}
+  lookAtScript: {fileID: 0}
   reloadTimeRange: {x: 2, y: 5}
   chargeTime: 1.5
   fixedShootOffset: 1.5
@@ -85,7 +87,7 @@ MonoBehaviour:
   telegraphFadeSpeed: 1
   attackRange: 9
   stopMovementWhileFiring: 1
---- !u!114 &6335610400771513758
+--- !u!114 &2274142058807003480
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -94,19 +96,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2165201664451964528}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0f6a7a8c3810d0a40863b0b987f5d96e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SyrinxAIController
---- !u!114 &3198161107642931598
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2165201664451964528}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a2708a7c58e3d914ea6301c191a7ba79, type: 3}
+  m_Script: {fileID: 11500000, guid: 27bd3167f07a4424f8b6658f0e088d57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LookAtPlayer
   playerTarget: {fileID: 0}
