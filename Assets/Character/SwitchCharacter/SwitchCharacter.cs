@@ -19,23 +19,46 @@ public class SwitchCharacter : MonoBehaviour
     [SerializeField] private UI_SwitchCharacter uiSwitchCharacterScript;
     [SerializeField] private OffScreenIndicator offScreenIndicatorScript;
 
+    [Header("Level Rules")]
+    [SerializeField] private bool conductorLockedInThisScene = false;
+
+
     private bool _isSwitching = false;
     private Transform _CurrentPlayer;
     void Start()
     {
-        activeCharacterIndex = 0;
-        Domi.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-        Remi.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-        Conductor.transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
-        CurrentPlayer = Conductor.transform;
+        activeCharacterIndex = -1;
+
+        if (conductorLockedInThisScene)
+        {
+            activeCharacterIndex = 2; // Remi
+            ChangeCharacter(2);
+        }
+        else
+        {
+            activeCharacterIndex = 0; // Conductor
+            ChangeCharacter(0);
+        }
+
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1) && activeCharacterIndex != 0) { DelayAndSwitchTo(0); }
-        else if (Input.GetKeyDown(KeyCode.Alpha2) && activeCharacterIndex != 1) { DelayAndSwitchTo(1); }
-        else if (Input.GetKeyDown(KeyCode.Alpha3) && activeCharacterIndex != 2) { DelayAndSwitchTo(2); }
+        if (Input.GetKeyDown(KeyCode.Alpha1) && activeCharacterIndex != 0)
+        {
+            if (conductorLockedInThisScene) return;
+            DelayAndSwitchTo(0);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2) && activeCharacterIndex != 1)
+        {
+            DelayAndSwitchTo(1);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3) && activeCharacterIndex != 2)
+        {
+            DelayAndSwitchTo(2);
+        }
     }
+
 
 
     public void DelayAndSwitchTo(int characterIndex)
@@ -57,6 +80,17 @@ public class SwitchCharacter : MonoBehaviour
 
     void ChangeCharacter(int characterIndex)
     {
+        if (conductorLockedInThisScene && characterIndex == 0)
+        {
+            return;
+        }
+
+
+        if (conductorLockedInThisScene)
+        {
+            Conductor.tag = "Conductor";
+        
+        }
 
         // Set kembali tag Karakter menjadi asli nya
         if (activeCharacterIndex == 0) 
@@ -126,8 +160,21 @@ public class SwitchCharacter : MonoBehaviour
 
         // Ganti orientation di sini
         camRotationScript.UpdateOrientation();
+
+        // FINAL OVERRIDE for rail conductor
+        if (conductorLockedInThisScene)
+        {
+            Rigidbody rb = Conductor.GetComponent<Rigidbody>();
+
+            rb.constraints =
+                RigidbodyConstraints.FreezePositionZ |
+                RigidbodyConstraints.FreezeRotationX |
+                RigidbodyConstraints.FreezeRotationY |
+                RigidbodyConstraints.FreezeRotationZ;
+        }
+
     }
-    
+
     public bool isSwitching 
     {
         get { return _isSwitching; }

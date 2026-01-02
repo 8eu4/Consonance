@@ -1,0 +1,139 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &176832924945163484
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3563056741754653858}
+  - component: {fileID: 3308924194722200995}
+  - component: {fileID: 3054199413897942557}
+  - component: {fileID: 1316424179223869086}
+  - component: {fileID: 5157624809439924641}
+  - component: {fileID: 3323569097382369383}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3563056741754653858
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 176832924945163484}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.24393, y: 1.75179, z: 4.54933}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3308924194722200995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 176832924945163484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 574fa826c3d12aa4eaac01e43fd0c3cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  Conductor: {fileID: 0}
+  Domi: {fileID: 0}
+  Remi: {fileID: 0}
+  camRotationScript: {fileID: 0}
+  camScript: {fileID: 0}
+  uiSwitchCharacterScript: {fileID: 3054199413897942557}
+  offScreenIndicatorScript: {fileID: 5157624809439924641}
+--- !u!114 &3054199413897942557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 176832924945163484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1f7d017c24d1e84398cb045e3a320a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  SwitchCharacterScript: {fileID: 3308924194722200995}
+  UI_ConductorHP: {fileID: 0}
+  UI_DomiHP: {fileID: 0}
+  UI_RemiHP: {fileID: 0}
+  VFX_SwitchCharacter: {fileID: 0}
+  _2ActiveHP: {fileID: 21300000, guid: d6844b2148ee5034e833eed96aa8388e, type: 3}
+  _2UnactiveHP: {fileID: 21300000, guid: a698b01171095b94bbcdf637849bce43, type: 3}
+  _4ActiveHP: {fileID: 21300000, guid: 02af214b2d984fe47bc78dac91681782, type: 3}
+  _4UnactiveHP: {fileID: 21300000, guid: 0a6eecd61571d064a8af982bf806a1a6, type: 3}
+--- !u!114 &1316424179223869086
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 176832924945163484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ec969752f9ed9a478cc74337ff34c6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  ConductorHP_Script: {fileID: 0}
+  DomiHP_Script: {fileID: 0}
+  RemiHP_Script: {fileID: 0}
+  UI_ConductorHP: {fileID: 0}
+  UI_DomiHP: {fileID: 0}
+  UI_RemiHP: {fileID: 0}
+  C_HP1: {fileID: 0}
+  C_HP2: {fileID: 0}
+  C_HP3: {fileID: 0}
+  C_HP4: {fileID: 0}
+  D_HP1: {fileID: 0}
+  D_HP2: {fileID: 0}
+  R_HP1: {fileID: 0}
+  R_HP2: {fileID: 0}
+--- !u!114 &5157624809439924641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 176832924945163484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fed7e8e7c5d4d3548b18f949d63da2b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  targets:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  arrowUI: {fileID: 0}
+  cam: {fileID: 0}
+--- !u!114 &3323569097382369383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 176832924945163484}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e1f6e6c2e551e241aa74027b5771b8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  triggerVFX_Dots: 0
+  triggerVFX_Notes: 0
+  VFX_SwitchCharacter: {fileID: 0}
+  VFX_Dots: 2000
+  VFX_Notes: 100
