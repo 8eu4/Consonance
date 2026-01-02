@@ -6022,6 +6022,10 @@ PrefabInstance:
       value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
+      propertyPath: fadeLength
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7143518729497921828, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
       propertyPath: camRotation
       value: 
       objectReference: {fileID: 330585548}
@@ -6360,7 +6364,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1782199376976622628, guid: 6fa1638dc356ad94b8ccbb1bfb619a04, type: 3}
       propertyPath: fadeLength
-      value: 0.5
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 1782199376976622628, guid: 6fa1638dc356ad94b8ccbb1bfb619a04, type: 3}
       propertyPath: camRotation
