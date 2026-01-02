@@ -11,6 +11,8 @@ TagManager:
   - Domi
   - Remi
   - NPC
+  - FxTemporaire
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -22,7 +24,7 @@ TagManager:
   - 
   - 
   - whatIsGround
-  - 
+  - Glow
   - Muse
   - Highlight
   - 
