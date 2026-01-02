@@ -1,14 +1,9 @@
 fileFormatVersion: 2
-guid: 6b4de809ef8c9cc4fa70f71f8f319e5d
+guid: 07cdb2a0890b39046a62feb278ad7368
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: XyrridSkin
-    second: {fileID: 2100000, guid: fada67ed048b1644b9f69efb9556bd64, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -105,7 +100,7 @@ ModelImporter:
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 2
   humanoidOversampling: 1
-  avatarSetup: 1
+  avatarSetup: 0
   addHumanoidExtraRootOnlyWhenUsingAvatar: 1
   importBlendShapeDeformPercent: 1
   remapMaterialsIfMaterialImportModeIsNone: 0
