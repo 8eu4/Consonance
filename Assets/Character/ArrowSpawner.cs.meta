@@ -1,2 +1,25 @@
 fileFormatVersion: 2
 guid: 98e6fe120ab950a49bf880dbe38b32ab
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - arrowPrefab: {fileID: 5861355375452040185, guid: ba5e11481e1782b40bc7727b252e3154, type: 3}
+  - canvasParentPanel: {instanceID: 0}
+  - upSpawnPoint: {instanceID: 0}
+  - downSpawnPoint: {instanceID: 0}
+  - leftSpawnPoint: {instanceID: 0}
+  - rightSpawnPoint: {instanceID: 0}
+  - upTargetPoint: {instanceID: 0}
+  - downTargetPoint: {instanceID: 0}
+  - leftTargetPoint: {instanceID: 0}
+  - rightTargetPoint: {instanceID: 0}
+  - upExitPoint: {instanceID: 0}
+  - downExitPoint: {instanceID: 0}
+  - leftExitPoint: {instanceID: 0}
+  - rightExitPoint: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
