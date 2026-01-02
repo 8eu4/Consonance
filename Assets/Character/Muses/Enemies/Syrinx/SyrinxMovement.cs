@@ -4,23 +4,23 @@ using System.Collections;
 public class SyrinxMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
-    public float moveSpeedX = 2f;
-    public float moveSpeedY = 2f;
+    public float moveSpeedX = 1f;
+    public float moveSpeedY = 1f;
     public float amplitudeX = 1f;
-    public float amplitudeY = 0.5f;
+    public float amplitudeY = 1f;
 
     [Header("Chase Settings")]
     public Transform player;
-    public float viewRange = 10f;
-    public float stopChaseDistance = 6f;
-    public float chaseSpeed = 3f;
+    public float viewRange = 12f;
+    public float stopChaseDistance = 10f;
+    public float chaseSpeed = 6f;
 
     [Header("Optional Settings")]
     public bool faceDirection = true;
 
     [Header("Knockback Settings")]
-    public float knockbackStrength = 1.5f;   // how strong the recoil is
-    public float knockbackDuration = 0.15f;  // time for knockback to damp out
+    public float knockbackStrength = 0.5f;   // how strong the recoil is
+    public float knockbackDuration = 0.5f;  // time for knockback to damp out
 
     private Vector3 chaseBasePos;
     private float timeOffset;

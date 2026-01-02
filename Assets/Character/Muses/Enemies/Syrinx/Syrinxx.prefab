@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8071871168979499358}
   - component: {fileID: 2274142058807003480}
   m_Layer: 0
-  m_Name: Syrinx
+  m_Name: Syrinxx
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
