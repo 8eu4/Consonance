@@ -1417,11 +1417,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
---- !u!1 &962704639 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4268384759083695531, guid: 6fa1638dc356ad94b8ccbb1bfb619a04, type: 3}
-  m_PrefabInstance: {fileID: 8570560900557706807}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &981702672
 GameObject:
   m_ObjectHideFlags: 0
@@ -2024,11 +2019,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b78067fafad58c34cabe1756957928d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConductorHP
---- !u!1 &1434181010 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3023880196757061427, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
-  m_PrefabInstance: {fileID: 214320001049132631}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1484146862
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2250,10 +2240,11 @@ MonoBehaviour:
   Conductor: {fileID: 2727071740241632953}
   Domi: {fileID: 1062246958159691795}
   Remi: {fileID: 8918859628104381245}
-  s_domi: {fileID: 962704639}
-  s_remi: {fileID: 1434181010}
+  s_domi: {fileID: 8570560900557706808}
+  s_remi: {fileID: 214320001049132632}
   w_domi: {fileID: 1370968777}
   w_remi: {fileID: 788525441}
+  isStringedArea: 1
   camRotationScript: {fileID: 330585548}
   camScript: {fileID: 658124729}
   uiSwitchCharacterScript: {fileID: 1643502656}
@@ -2957,6 +2948,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
+--- !u!1 &214320001049132632 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4584029109402138351, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
+  m_PrefabInstance: {fileID: 214320001049132631}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1062246958159691795 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8585553723523224991, guid: 6fa1638dc356ad94b8ccbb1bfb619a04, type: 3}
@@ -3628,6 +3624,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6fa1638dc356ad94b8ccbb1bfb619a04, type: 3}
+--- !u!1 &8570560900557706808 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8018143751284549749, guid: 6fa1638dc356ad94b8ccbb1bfb619a04, type: 3}
+  m_PrefabInstance: {fileID: 8570560900557706807}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &8918859628104381245 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8253540642516328397, guid: 1161178fee333ea4eb4eee8ccb28013a, type: 3}
