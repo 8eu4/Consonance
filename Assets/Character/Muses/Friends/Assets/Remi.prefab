@@ -348,6 +348,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd23a980e738258459ca6bc1ff751998, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Move
+  animator: {fileID: -6839489246835929686}
   speed: 7
   groundDrag: 5
   jumpForce: 5
@@ -494,6 +495,7 @@ MonoBehaviour:
   fireOrigin: {fileID: 889819047309387080}
   playerCamera: {fileID: 0}
   camRotation: {fileID: 0}
+  animator: {fileID: -6839489246835929686}
   lineSpeed: 15
   maxLineLength: 15
   breakDistance: 17

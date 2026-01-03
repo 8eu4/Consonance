@@ -198,6 +198,7 @@ GameObject:
   - component: {fileID: 4344975305453210229}
   - component: {fileID: 1839236416904105036}
   - component: {fileID: 1782199376976622628}
+  - component: {fileID: -2966014779050874781}
   m_Layer: 11
   m_Name: Domi
   m_TagString: Domi
@@ -264,6 +265,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd23a980e738258459ca6bc1ff751998, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Move
+  animator: {fileID: -2966014779050874781}
   speed: 7
   groundDrag: 5
   jumpForce: 5
@@ -410,6 +412,7 @@ MonoBehaviour:
   fireOrigin: {fileID: 4776118570696509574}
   playerCamera: {fileID: 0}
   camRotation: {fileID: 0}
+  animator: {fileID: -2966014779050874781}
   lineSpeed: 15
   maxLineLength: 15
   breakDistance: 17
@@ -503,6 +506,28 @@ MonoBehaviour:
   colliderEndOffset: 0.1
   safetyMargin: 0.05
   playerCol: {fileID: 6048008349850777846}
+--- !u!95 &-2966014779050874781
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8585553723523224991}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: 547caa0e69136994db413d3a7590e3a1, type: 3}
+  m_Controller: {fileID: 9100000, guid: c1388c01688b2e041a1bf6f6f9b1bd03, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &9181587588334382910
 GameObject:
   m_ObjectHideFlags: 0
@@ -871,6 +896,14 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 547caa0e69136994db413d3a7590e3a1, type: 3}
       propertyPath: m_Name
       value: Muse 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 547caa0e69136994db413d3a7590e3a1, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2825887681507307646, guid: 547caa0e69136994db413d3a7590e3a1, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2825887681507307646, guid: 547caa0e69136994db413d3a7590e3a1, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'

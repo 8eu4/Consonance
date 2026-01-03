@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +8,9 @@ public class StringLineAttack : MonoBehaviour
     [SerializeField] private Transform fireOrigin;
     [SerializeField] private Camera playerCamera;
     [SerializeField] private CamRotation camRotation;
+
+    [Header("Animation")]
+    public Animator animator; // Assign di Inspector
 
     [Header("Attack Settings")]
     [SerializeField] private float lineSpeed = 25f;
@@ -330,6 +333,7 @@ public class StringLineAttack : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            if (animator != null) animator.SetTrigger("Shoot");
             if (camRotation.IsAttackLocked && isAttacking[museIdx] == false) return;
             if (isAttached) CancelAttack(museIdx);
             else if (fireRoutine == null) StartAttack(museIdx);
