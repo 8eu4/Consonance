@@ -1,19 +1,19 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class HideMeshPermanently : MonoBehaviour
 {
     [Header("Setting")]
-    [Tooltip("Masukkan Tag yang digunakan saat karakter sedang dimainkan (FPP)")]
+    [Tooltip("Tag saat karakter dimainkan")]
     public string playerTag = "Player";
 
-    [Tooltip("Jika dicentang, bayangan tetap ada meskipun badannya hilang (Shadows Only)")]
+    [Tooltip("True = Invisible tapi ada bayangan (ShadowsOnly)")]
     public bool keepShadows = true; 
 
     private Renderer myRenderer;
 
     void Start()
     {
-        // Cari komponen Renderer (MeshRenderer atau SkinnedMeshRenderer) di object ini
         myRenderer = GetComponent<Renderer>();
     }
 
@@ -21,38 +21,44 @@ public class HideMeshPermanently : MonoBehaviour
     {
         if (myRenderer == null) return;
 
-        // Cek Tag milik Induk (Root) atau Object ini sendiri
-        // Kita pakai 'root' biar aman kalau script ini ditaruh di anak (Child)
-        bool isControlledByPlayer = transform.root.CompareTag(playerTag) || gameObject.CompareTag(playerTag);
+        // --- PERBAIKAN LOGIC DETEKSI ---
+        bool isControlledByPlayer = false;
 
+        // 1. Cek Object Mesh ini sendiri
+        if (gameObject.CompareTag(playerTag)) isControlledByPlayer = true;
+        
+        // 2. Cek Bapaknya (Parent) langsung <-- INI YANG SERING KELEWAT
+        else if (transform.parent != null && transform.parent.CompareTag(playerTag)) isControlledByPlayer = true;
+        
+        // 3. Cek Root paling atas (Jaga-jaga)
+        else if (transform.root.CompareTag(playerTag)) isControlledByPlayer = true;
+
+
+        // --- EKSEKUSI ---
         if (isControlledByPlayer)
         {
-            // === MODHE FPP (LAGI DIMAINKAN) ===
-            // Kita sembunyikan visualnya biar gak menghalangi kamera
-            
+            // === MODE FPP (LAGI DIMAINKAN) ===
             if (keepShadows)
             {
-                // Cara Pro: Badan hilang, tapi BAYANGAN TETAP ADA
-                myRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
+                if (myRenderer.shadowCastingMode != ShadowCastingMode.ShadowsOnly)
+                    myRenderer.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
             }
             else
             {
-                // Cara Biasa: Hilang total
-                myRenderer.enabled = false;
+                if (myRenderer.enabled) myRenderer.enabled = false;
             }
         }
         else
         {
-            // === MODE IDLE (LAGI JADI NPC/DIAM) ===
-            // Munculkan badannya biar kelihatan sama karakter lain
-            
+            // === MODE IDLE (JADI NPC) ===
             if (keepShadows)
             {
-                myRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+                if (myRenderer.shadowCastingMode != ShadowCastingMode.On)
+                    myRenderer.shadowCastingMode = ShadowCastingMode.On;
             }
             else
             {
-                myRenderer.enabled = true;
+                if (!myRenderer.enabled) myRenderer.enabled = true;
             }
         }
     }

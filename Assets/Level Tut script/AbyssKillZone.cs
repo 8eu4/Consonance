@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic; // Butuh ini buat List
 using System.Linq; 
 
 public class AbyssKillZone : MonoBehaviour
@@ -7,23 +8,35 @@ public class AbyssKillZone : MonoBehaviour
     [Header("--- DETECTION SETTINGS ---")]
     public string[] allowedTags = { "Player", "Muse", "Conductor", "Untagged" }; 
 
-    [Header("--- SETTINGAN RESPAWN ---")]
-    public Transform respawnPoint;
-    public float spawnYOffset = 2.0f; // Tinggi aman
+    [Header("--- SETTINGAN RESPAWN (DEFAULT) ---")]
+    [Tooltip("Titik respawn umum (misal buat Conductor)")]
+    public Transform defaultRespawnPoint; 
+    public float spawnYOffset = 2.0f; 
+
+    // --- TAMBAHAN BARU: DAFTAR RESPAWN KHUSUS ---
+    [System.Serializable] // Biar muncul di Inspector
+    public struct SpecialRespawn
+    {
+        public string characterName; // Contoh: "Remi"
+        public Transform targetPoint; // Drag object titik respawn seberang
+    }
+
+    [Header("--- RESPAWN KHUSUS (REMI/DOMI) ---")]
+    public List<SpecialRespawn> specialRespawns; // Isi di Inspector!
+    // ---------------------------------------------
 
     [Header("--- VISUAL DEATH ---")]
     public CanvasGroup blackScreen; 
-    public float fadeDuration = 0.5f;   
+    public float fadeDuration = 0.5f;    
     
     [Header("--- AUTO DETECT ---")]
     private MonoBehaviour movementScript; 
     
     private bool isRespawning = false;
 
-    // Tambahan Audio & Cam (Opsional)
     [Header("--- EFEK TAMBAHAN ---")]
-    public AudioSource audioSource;     
-    public AudioClip fallSound;         
+    public AudioSource audioSource;      
+    public AudioClip fallSound;          
     public AudioClip respawnSound;
     public CameraShake cameraShake;
 
@@ -38,14 +51,13 @@ public class AbyssKillZone : MonoBehaviour
 
         GameObject playerRoot = other.transform.root.gameObject;
         
-        // Cek apakah target valid
         bool isValidTarget = allowedTags.Contains(playerRoot.tag) || playerRoot.CompareTag("Player");
 
         if (isValidTarget)
         {
             Debug.Log("💀 JATUH: " + playerRoot.name);
             
-            // Cari script gerak 'Move' atau 'Remi'
+            // Cari script gerak
             movementScript = null;
             MonoBehaviour[] scripts = playerRoot.GetComponentsInChildren<MonoBehaviour>();
             foreach (var s in scripts) 
@@ -57,36 +69,55 @@ public class AbyssKillZone : MonoBehaviour
                 }
             }
 
-            StartCoroutine(TeleportSequence(playerRoot));
+            // --- LOGIKA PEMILIHAN TITIK RESPAWN ---
+            Transform targetPoint = defaultRespawnPoint; // Defaultnya ke Conductor/Awal
+
+            // Cek apakah yang jatuh adalah Remi (atau nama lain di list khusus)
+            foreach (var special in specialRespawns)
+            {
+                // Cek apakah nama object mengandung kata kunci (misal "Remi")
+                if (playerRoot.name.Contains(special.characterName))
+                {
+                    targetPoint = special.targetPoint;
+                    Debug.Log("🎯 Respawn Khusus Terdeteksi untuk: " + special.characterName);
+                    break;
+                }
+            }
+
+            // Kirim titik tujuan ke Coroutine
+            StartCoroutine(TeleportSequence(playerRoot, targetPoint));
         }
     }
 
-    IEnumerator TeleportSequence(GameObject player)
+    // Update: Nambah parameter 'destination'
+    IEnumerator TeleportSequence(GameObject player, Transform destination)
     {
         isRespawning = true;
-        if (respawnPoint == null) { Debug.LogError("⛔ ERROR: Respawn Point Kosong!"); isRespawning = false; yield break; }
+        
+        // Safety check kalau lupa ngisi
+        if (destination == null) destination = defaultRespawnPoint;
+        if (destination == null) { Debug.LogError("⛔ ERROR: Tidak ada Respawn Point!"); isRespawning = false; yield break; }
 
-        // 1. MATIKAN SEMUA KONTROL
+        // 1. MATIKAN KONTROL
         if (movementScript != null) movementScript.enabled = false;
 
         Rigidbody rb = player.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.isKinematic = true; // Bekukan fisika
+            rb.isKinematic = true;
             #if UNITY_6000_0_OR_NEWER
             rb.linearVelocity = Vector3.zero;
             #else
             rb.velocity = Vector3.zero;
             #endif
             rb.angularVelocity = Vector3.zero;
-            rb.interpolation = RigidbodyInterpolation.None; // Matikan smoothing visual sementara
+            rb.interpolation = RigidbodyInterpolation.None;
         }
 
-        // Efek Suara/Kamera
         if (audioSource != null && fallSound != null) audioSource.PlayOneShot(fallSound);
         if (cameraShake != null) StartCoroutine(cameraShake.Shake(fadeDuration, 0.3f));
 
-        // 2. FADE OUT (GELAP)
+        // 2. FADE OUT
         if (blackScreen != null)
         {
             blackScreen.gameObject.SetActive(true);
@@ -98,15 +129,13 @@ public class AbyssKillZone : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
 
         // ==========================================================
-        // 🔥 JURUS UTAMA: POSITION LOCKING (Gembok Posisi) 🔥
+        // 🔥 JURUS UTAMA: POSITION LOCKING 🔥
         // ==========================================================
         
-        // Kita hitung posisi target
-        Vector3 targetPos = respawnPoint.position + (Vector3.up * spawnYOffset);
-        float targetRotY = respawnPoint.eulerAngles.y;
+        // Gunakan 'destination' yang sudah dipilih tadi
+        Vector3 targetPos = destination.position + (Vector3.up * spawnYOffset);
+        float targetRotY = destination.eulerAngles.y;
 
-        // Kita PAKSA posisi dia di sana selama 10 frame berturut-turut
-        // Ini biar script 'Move' atau Gravitasi gak bisa narik dia ke bawah
         for (int i = 0; i < 10; i++)
         {
             player.transform.position = targetPos;
@@ -123,14 +152,14 @@ public class AbyssKillZone : MonoBehaviour
                 #endif
             }
             Physics.SyncTransforms(); 
-            yield return new WaitForFixedUpdate(); // Tunggu frame fisika berikutnya
+            yield return new WaitForFixedUpdate();
         }
         
         // ==========================================================
 
-        yield return new WaitForSeconds(0.2f); // Jeda sebentar di posisi aman
+        yield return new WaitForSeconds(0.2f);
 
-        // 3. FADE IN (TERANG)
+        // 3. FADE IN
         if (blackScreen != null)
         {
             float t = 0;
@@ -142,8 +171,8 @@ public class AbyssKillZone : MonoBehaviour
         // 4. HIDUPKAN KEMBALI
         if (rb != null)
         {
-            rb.isKinematic = false; // Hidupkan fisika
-            rb.interpolation = RigidbodyInterpolation.Interpolate; // Nyalakan lagi smoothing (kalau pakai)
+            rb.isKinematic = false;
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
             rb.WakeUp();
         }
 
