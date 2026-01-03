@@ -333,13 +333,14 @@ public class StringLineAttack : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (animator != null) animator.SetTrigger("Shoot");
+            if (animator != null) animator.SetBool("Shoot", true);
             if (camRotation.IsAttackLocked && isAttacking[museIdx] == false) return;
             if (isAttached) CancelAttack(museIdx);
             else if (fireRoutine == null) StartAttack(museIdx);
         }
         else if (Input.GetMouseButtonUp(0))
         {
+            if (animator != null) animator.SetBool("Shoot", false);
             if (fireRoutine != null) CancelAttack(museIdx);
         }
     }
