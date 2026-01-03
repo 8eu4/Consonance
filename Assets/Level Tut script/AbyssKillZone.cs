@@ -1,41 +1,35 @@
 using UnityEngine;
-using UnityEngine.Rendering; // Jika pakai Volume nanti
 using System.Collections;
+using System.Linq; 
 
 public class AbyssKillZone : MonoBehaviour
 {
+    [Header("--- DETECTION SETTINGS ---")]
+    public string[] allowedTags = { "Player", "Muse", "Conductor", "Untagged" }; 
+
     [Header("--- SETTINGAN RESPAWN ---")]
     public Transform respawnPoint;
+    public float spawnYOffset = 2.0f; // Tinggi aman
 
-    [Header("--- VISUAL DEATH (JURANG FEEL) ---")]
+    [Header("--- VISUAL DEATH ---")]
     public CanvasGroup blackScreen; 
-    public float fadeDuration = 0.8f;   // Agak lama biar dramatis
+    public float fadeDuration = 0.5f;   
     
-    [Header("--- CAMERA EFFECTS ---")]
-    public float fallFov = 90f;         // FOV melebar saat jatuh (Kesan ngebut)
-    public float shakePower = 0.3f;     // Getaran saat jatuh
-    public CameraShake cameraShake;     // Script CameraShake yang kamu punya
-
-    [Header("--- AUDIO EFFECTS ---")]
-    public AudioSource audioSource;     // Pasang AudioSource di object Trigger ini
-    public AudioClip fallSound;         // Suara angin/jatuh ("Whoosh")
-    public AudioClip respawnSound;      // Suara nafas/bangun ("Gasp")
-
     [Header("--- AUTO DETECT ---")]
-    public MonoBehaviour movementScript; 
-    public MonoBehaviour cameraScript;
-
+    private MonoBehaviour movementScript; 
+    
     private bool isRespawning = false;
-    private float originalFov;
-    private Camera playerCam;
+
+    // Tambahan Audio & Cam (Opsional)
+    [Header("--- EFEK TAMBAHAN ---")]
+    public AudioSource audioSource;     
+    public AudioClip fallSound;         
+    public AudioClip respawnSound;
+    public CameraShake cameraShake;
 
     private void Start()
     {
-        if (blackScreen != null) 
-        {
-            blackScreen.alpha = 0;
-            blackScreen.gameObject.SetActive(false);
-        }
+        if (blackScreen != null) { blackScreen.alpha = 0; blackScreen.gameObject.SetActive(false); }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -43,141 +37,119 @@ public class AbyssKillZone : MonoBehaviour
         if (isRespawning) return; 
 
         GameObject playerRoot = other.transform.root.gameObject;
+        
+        // Cek apakah target valid
+        bool isValidTarget = allowedTags.Contains(playerRoot.tag) || playerRoot.CompareTag("Player");
 
-        if (playerRoot.CompareTag("Player"))
+        if (isValidTarget)
         {
-            // Auto Detect Script Jalan
-            if (movementScript == null)
+            Debug.Log("💀 JATUH: " + playerRoot.name);
+            
+            // Cari script gerak 'Move' atau 'Remi'
+            movementScript = null;
+            MonoBehaviour[] scripts = playerRoot.GetComponentsInChildren<MonoBehaviour>();
+            foreach (var s in scripts) 
             {
-                MonoBehaviour[] scripts = playerRoot.GetComponentsInChildren<MonoBehaviour>();
-                foreach (var s in scripts) {
-                    if (s.GetType().Name.Contains("Command") || s.GetType().Name.Contains("System") || s.GetType().Name.Contains("Controller")) 
-                        movementScript = s;
+                string sName = s.GetType().Name;
+                if (sName.Contains("Move") || sName.Contains("Remi") || sName.Contains("Controller"))        
+                {
+                    if (s != this && !sName.Contains("Camera")) { movementScript = s; break; }
                 }
-            }
-
-            // Auto Detect Kamera & CameraShake
-            playerCam = playerRoot.GetComponentInChildren<Camera>();
-            if (playerCam != null)
-            {
-                originalFov = playerCam.fieldOfView; // Simpan FOV asli
-                if (cameraShake == null) cameraShake = playerRoot.GetComponentInChildren<CameraShake>();
-                
-                // Cari script controller kamera
-                if (cameraScript == null) cameraScript = playerCam.GetComponent<MonoBehaviour>();
             }
 
             StartCoroutine(TeleportSequence(playerRoot));
         }
     }
 
-   IEnumerator TeleportSequence(GameObject player)
+    IEnumerator TeleportSequence(GameObject player)
     {
         isRespawning = true;
+        if (respawnPoint == null) { Debug.LogError("⛔ ERROR: Respawn Point Kosong!"); isRespawning = false; yield break; }
 
-        if (respawnPoint == null) { Debug.LogError("⚠️ LUPA ISI RESPAWN POINT!"); isRespawning = false; yield break; }
+        // 1. MATIKAN SEMUA KONTROL
+        if (movementScript != null) movementScript.enabled = false;
 
-        // 1. EFEK JATUH (AUDIO & VISUAL)
-        if (audioSource != null && fallSound != null) audioSource.PlayOneShot(fallSound);
-        if (cameraShake != null) StartCoroutine(cameraShake.Shake(fadeDuration, shakePower));
-        
-        // FOV Melebar (Kesan Cepat)
-        if (playerCam != null) StartCoroutine(ChangeFOV(playerCam, fallFov, 0.2f));
-
-        // 2. MATIKAN KONTROL & FISIKA (FREEZE)
-        ToggleControls(false);
-        
         Rigidbody rb = player.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.linearVelocity = Vector3.zero; 
+            rb.isKinematic = true; // Bekukan fisika
+            #if UNITY_6000_0_OR_NEWER
+            rb.linearVelocity = Vector3.zero;
+            #else
+            rb.velocity = Vector3.zero;
+            #endif
             rb.angularVelocity = Vector3.zero;
-            rb.isKinematic = true; 
+            rb.interpolation = RigidbodyInterpolation.None; // Matikan smoothing visual sementara
         }
 
-        CharacterController cc = player.GetComponent<CharacterController>();
-        if (cc != null) cc.enabled = false;
+        // Efek Suara/Kamera
+        if (audioSource != null && fallSound != null) audioSource.PlayOneShot(fallSound);
+        if (cameraShake != null) StartCoroutine(cameraShake.Shake(fadeDuration, 0.3f));
 
-        // 3. FADE OUT (GELAP)
+        // 2. FADE OUT (GELAP)
         if (blackScreen != null)
         {
             blackScreen.gameObject.SetActive(true);
             float t = 0;
-            while(t < 1.0f)
-            {
-                t += Time.deltaTime / fadeDuration;
-                blackScreen.alpha = t;
-                yield return null;
-            }
+            while(t < 1.0f) { t += Time.deltaTime / fadeDuration; blackScreen.alpha = t; yield return null; }
             blackScreen.alpha = 1;
         }
 
-        yield return new WaitForSeconds(0.5f); // Jeda dalam kegelapan
+        yield return new WaitForSeconds(0.2f);
 
-        // 4. TELEPORT & RESET
-        player.transform.position = respawnPoint.position;
-        float targetY = respawnPoint.eulerAngles.y;
-        player.transform.rotation = Quaternion.Euler(0f, targetY, 0f); // Reset Badan
+        // ==========================================================
+        // 🔥 JURUS UTAMA: POSITION LOCKING (Gembok Posisi) 🔥
+        // ==========================================================
+        
+        // Kita hitung posisi target
+        Vector3 targetPos = respawnPoint.position + (Vector3.up * spawnYOffset);
+        float targetRotY = respawnPoint.eulerAngles.y;
 
-        Physics.SyncTransforms(); 
-
-        // ANTI-MIRING & RESET FOV
-        if (playerCam != null)
+        // Kita PAKSA posisi dia di sana selama 10 frame berturut-turut
+        // Ini biar script 'Move' atau Gravitasi gak bisa narik dia ke bawah
+        for (int i = 0; i < 10; i++)
         {
-            Vector3 camEuler = playerCam.transform.localEulerAngles;
-            playerCam.transform.localEulerAngles = new Vector3(0f, camEuler.y, 0f); // Reset Miring
-            playerCam.fieldOfView = originalFov; // Balikin FOV Normal
+            player.transform.position = targetPos;
+            player.transform.rotation = Quaternion.Euler(0f, targetRotY, 0f);
+            
+            if (rb != null)
+            {
+                rb.position = targetPos;
+                rb.rotation = Quaternion.Euler(0f, targetRotY, 0f);
+                #if UNITY_6000_0_OR_NEWER
+                rb.linearVelocity = Vector3.zero;
+                #else
+                rb.velocity = Vector3.zero;
+                #endif
+            }
+            Physics.SyncTransforms(); 
+            yield return new WaitForFixedUpdate(); // Tunggu frame fisika berikutnya
         }
+        
+        // ==========================================================
 
-        // 5. AUDIO RESPAWN (Suara "Hosh" kaget)
-        if (audioSource != null && respawnSound != null) audioSource.PlayOneShot(respawnSound);
+        yield return new WaitForSeconds(0.2f); // Jeda sebentar di posisi aman
 
-        yield return new WaitForSeconds(0.2f); 
-
-        // 6. FADE IN (TERANG)
+        // 3. FADE IN (TERANG)
         if (blackScreen != null)
         {
             float t = 0;
-            while(t < 1.0f)
-            {
-                t += Time.deltaTime / fadeDuration;
-                blackScreen.alpha = 1.0f - t;
-                yield return null;
-            }
+            while(t < 1.0f) { t += Time.deltaTime / fadeDuration; blackScreen.alpha = 1.0f - t; yield return null; }
             blackScreen.alpha = 0;
             blackScreen.gameObject.SetActive(false);
         }
 
-        // 7. NYALAKAN LAGI
-        if (cc != null) cc.enabled = true;
+        // 4. HIDUPKAN KEMBALI
         if (rb != null)
         {
-            rb.isKinematic = false;
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-            player.transform.rotation = Quaternion.Euler(0f, targetY, 0f); // Safety Reset
+            rb.isKinematic = false; // Hidupkan fisika
+            rb.interpolation = RigidbodyInterpolation.Interpolate; // Nyalakan lagi smoothing (kalau pakai)
+            rb.WakeUp();
         }
 
-        ToggleControls(true);
+        if (movementScript != null) movementScript.enabled = true;
+        if (audioSource != null && respawnSound != null) audioSource.PlayOneShot(respawnSound);
+
         isRespawning = false;
-    }
-
-    // Helper ganti FOV
-    IEnumerator ChangeFOV(Camera cam, float targetFov, float duration)
-    {
-        float startFov = cam.fieldOfView;
-        float t = 0;
-        while(t < 1.0f)
-        {
-            t += Time.deltaTime / duration;
-            cam.fieldOfView = Mathf.Lerp(startFov, targetFov, t);
-            yield return null;
-        }
-    }
-
-    void ToggleControls(bool state)
-    {
-        if (movementScript != null) movementScript.enabled = state;
-        if (cameraScript != null && cameraScript.GetType().Name.Contains("Look")) cameraScript.enabled = state; 
     }
 }
