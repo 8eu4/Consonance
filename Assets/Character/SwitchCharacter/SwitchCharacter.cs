@@ -4,11 +4,21 @@ using static UnityEngine.GraphicsBuffer;
 
 public class SwitchCharacter : MonoBehaviour
 {
-    [Header ("Characters")]
+    [Header("Characters")]
     [SerializeField] private GameObject Conductor;
     [SerializeField] private GameObject Domi;
     [SerializeField] private GameObject Remi;
 
+    [Header("Mesh (stringed / woodwind)")]
+    [SerializeField] private GameObject s_domi;
+    [SerializeField] private GameObject s_remi;
+    [Space]
+    [SerializeField] private GameObject w_domi;
+    [SerializeField] private GameObject w_remi;
+
+    [Header("Which Area? (stringed / woodwind)")]
+    [SerializeField] private bool isStringedArea = true;
+    
     private int activeCharacterIndex;
 
     [Header ("Camera Script")]
@@ -102,13 +112,17 @@ public class SwitchCharacter : MonoBehaviour
         else if (activeCharacterIndex == 1) 
         { 
             Domi.tag = "Domi";
-            Domi.transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
+            s_domi.SetActive(isStringedArea);
+            w_domi.SetActive(!isStringedArea);
+            //Domi.transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
             uiSwitchCharacterScript.change2HP(1, false);
         }
         else if (activeCharacterIndex == 2) 
         { 
             Remi.tag = "Remi";
-            Remi.transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
+            s_remi.SetActive(isStringedArea);
+            w_remi.SetActive(!isStringedArea);
+            //Remi.transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
             uiSwitchCharacterScript.change2HP(2, false);
         }
 
@@ -185,7 +199,23 @@ public class SwitchCharacter : MonoBehaviour
     {
         gObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
         gObject.GetComponent<Rigidbody>().constraints = ~RigidbodyConstraints.FreezePosition;
-        gObject.transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
+        
+        if (activeCharacterIndex == 0)
+        {
+            gObject.transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
+        }
+        else if (activeCharacterIndex == 1)
+        {
+            s_domi.SetActive(false);
+            w_domi.SetActive(false);
+        }
+        else if (activeCharacterIndex == 2)
+        {
+            s_remi.SetActive(false);
+            w_remi.SetActive(false);
+        }
+
+        
     }
     public Transform CurrentPlayer
     {

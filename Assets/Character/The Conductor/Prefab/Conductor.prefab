@@ -79,6 +79,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Move
   speed: 7
   groundDrag: 5
+  jumpForce: 5
+  jumpCooldown: 0
   playerHeight: 2
   whatIsGround:
     serializedVersion: 2
@@ -96,7 +98,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConductorHP
   _MaxHP: 4
-  _CurrentHP: 4
 --- !u!114 &7565923698150537360
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -110,16 +111,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   camRotationScript: {fileID: 0}
+  playerCamera: {fileID: 0}
+  switchCharacterScript: {fileID: 0}
+  arrowSpawnerScript: {fileID: 0}
   maxLockOnDistance: 12.5
-  maxLockOnAngle: 20
-  arrowPrefab: {fileID: 0}
-  canvasParentPanel: {fileID: 0}
-  spawnPoint: {fileID: 0}
-  targetPoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  maxLockOnRadius: 2
 --- !u!1 &3060485669786619265
 GameObject:
   m_ObjectHideFlags: 0
@@ -326,6 +322,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: b445325c100aaf243b81477bc609b019, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 4f4b4da80de9ae54ab1c99d98bf857c2, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
