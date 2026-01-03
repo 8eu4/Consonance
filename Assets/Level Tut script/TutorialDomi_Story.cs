@@ -1,159 +1,107 @@
 using UnityEngine;
-using TMPro;
-using System.Collections;
+using TMPro; 
+using System.Collections; 
 
-public class TutorialDomi_Interactive : MonoBehaviour
+public class TutorialDomi_Story : MonoBehaviour
 {
-    [Header("Referensi Object")]
-    public GameObject tutorialPanel; 
-    public TextMeshProUGUI tutorialText; 
+    [Header("--- UI SETTINGS ---")]
+    public GameObject subPanel;     
+    public TextMeshProUGUI subText; 
     
-    public Transform playerCamera;   // Kamera Player (buat nunduk)
-    public Transform handObject;     // Object Tangan/Senjata/Badan yang mau diangkat
+    [Header("--- CONTROLLER ---")]
+    public Transform playerCamera;   
+    public Transform targetLook;     
     
-    [Header("Referensi Script (Untuk Lock Gerak)")]
-    public MonoBehaviour[] scriptsToDisable; // Masukkan Move & CamRotation biar player gabisa lari pas cutscene
+    [Header("--- SCRIPT KAMERA (PENTING) ---")]
+    [Tooltip("Masukkan script 'CamRotation' atau 'MouseLook' dari CameraHolder ke sini")]
+    public MonoBehaviour cameraScript; // <--- SLOT KHUSUS KAMERA
 
-    [Header("Settings Animasi Tangan")]
-    public Vector3 handInspectOffset = new Vector3(-0.2f, -0.3f, 0.4f); // Posisi tangan pas diangkat (relatif ke kamera)
-    public float lookDownAngle = 15f; // Seberapa nunduk kameranya
-    public float animSpeed = 2.0f;    // Kecepatan animasi
+    [Header("--- SCRIPTS TO LOCK (GERAKAN) ---")]
+    [Tooltip("Masukkan Script MOVE Conductor saja")]
+    public MonoBehaviour[] conductorMoveScripts; 
 
-    [Header("Settings Tutorial")]
-    public string playerTag = "Player";
-    
-    private Vector3 initialHandPos;
-    private Quaternion initialHandRot;
-    private Quaternion initialCamRot;
-    private bool hasTriggered = false;
+    [Tooltip("Masukkan Script MOVE Domi saja")]
+    public MonoBehaviour[] domiMoveScripts; 
+
+    [Header("--- SETTING ---")]
+    public string playerTag = "Player"; 
+    public float rotateSpeed = 3.0f;
 
     void Start()
     {
-        if (tutorialPanel != null) tutorialPanel.SetActive(false);
+        if (subPanel != null) subPanel.SetActive(false);
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if (hasTriggered) return;
-
         GameObject hitObject = other.gameObject;
         if (other.attachedRigidbody != null) hitObject = other.attachedRigidbody.gameObject;
 
         if (hitObject.CompareTag(playerTag) || hitObject.name.Contains("Conductor"))
         {
-            hasTriggered = true;
-            StartCoroutine(PlaySequence());
+            Collider col = GetComponent<Collider>();
+            if (col != null) col.enabled = false;
+            StartCoroutine(RunTutorialSequence());
         }
     }
 
-    IEnumerator PlaySequence()
+    IEnumerator RunTutorialSequence()
     {
-        // 1. Kunci Pergerakan Player
-        foreach (var script in scriptsToDisable) if (script != null) script.enabled = false;
-        
-        // Simpan posisi awal biar bisa balikin nanti
-        if (handObject != null)
+        // 1. MATIKAN KAMERA & GERAK CONDUCTOR (Biar fokus ke Domi)
+        if (cameraScript != null) cameraScript.enabled = false;
+        foreach (var s in conductorMoveScripts) if (s != null) s.enabled = false;
+
+        // 2. PUTAR KAMERA OTOMATIS
+        if (playerCamera != null && targetLook != null)
         {
-            initialHandPos = handObject.localPosition;
-            initialHandRot = handObject.localRotation;
-        }
-        if (playerCamera != null) initialCamRot = playerCamera.localRotation;
+            Quaternion startRot = playerCamera.rotation;
+            Vector3 dir = (targetLook.position - playerCamera.position).normalized;
+            Quaternion endRot = Quaternion.LookRotation(dir);
 
-        // --- FASE 1: ANIMASI TANGAN (INSPECT) ---
-        
-        float t = 0;
-        
-        // A. Angkat Tangan & Nunduk
-        while (t < 1f)
-        {
-            t += Time.deltaTime * animSpeed;
-            float smooth = Mathf.SmoothStep(0, 1, t);
-
-            // Kamera Nunduk Dikit
-            if (playerCamera != null)
-                playerCamera.localRotation = Quaternion.Slerp(initialCamRot, initialCamRot * Quaternion.Euler(lookDownAngle, 0, 0), smooth);
-
-            // Tangan Naik ke Depan Muka
-            if (handObject != null)
+            float t = 0;
+            while (t < 1f)
             {
-                // Kita pindahkan tangan ke posisi depan kamera
-                // Note: Ini asumsi handObject adalah anak dari kamera/player yg ikut rotasi
-                handObject.localPosition = Vector3.Lerp(initialHandPos, initialHandPos + handInspectOffset, smooth);
-                
-                // Putar tangan dikit biar kayak ngelihat telapak
-                handObject.localRotation = Quaternion.Slerp(initialHandRot, initialHandRot * Quaternion.Euler(0, 0, 45f), smooth);
+                t += Time.deltaTime * rotateSpeed;
+                playerCamera.rotation = Quaternion.Slerp(startRot, endRot, t);
+                yield return null;
             }
-            yield return null;
         }
 
-        // B. Tahan Sebentar (Lihat Tangan)
-        if (tutorialPanel != null) tutorialPanel.SetActive(true);
-        tutorialText.text = "<i>Tangannya terangkat perlahan...</i>";
-        yield return new WaitForSeconds(2.0f);
-
-        // C. Balik-balik Tangan (Animasi Muter)
-        t = 0;
-        Quaternion inspectRotStart = handObject.localRotation;
-        Quaternion inspectRotEnd = inspectRotStart * Quaternion.Euler(0, 180, 0); // Putar 180 derajat
+        // 3. TUTORIAL SWITCH
+        if (subPanel != null) subPanel.SetActive(true);
+        if (subText != null) subText.text = "Tekan <color=yellow>[2]</color> \nAmbil kendali Muse";
         
-        while (t < 1f)
-        {
-            t += Time.deltaTime * (animSpeed * 0.5f); // Pelan dikit
-            if (handObject != null)
-                handObject.localRotation = Quaternion.Slerp(inspectRotStart, inspectRotEnd, Mathf.SmoothStep(0, 1, t));
-            yield return null;
-        }
-        
-        tutorialText.text = "<i>...seolah merasakan getaran musik.</i>";
-        yield return new WaitForSeconds(1.5f);
-
-        // D. Kembalikan Tangan & Kamera (Balik FPP Normal)
-        t = 0;
-        Vector3 currentHandPos = handObject.localPosition;
-        Quaternion currentHandRot = handObject.localRotation;
-        Quaternion currentCamRot = playerCamera.localRotation;
-
-        while (t < 1f)
-        {
-            t += Time.deltaTime * animSpeed;
-            float smooth = Mathf.SmoothStep(0, 1, t);
-
-            if (playerCamera != null) playerCamera.localRotation = Quaternion.Slerp(currentCamRot, initialCamRot, smooth);
-            if (handObject != null)
-            {
-                handObject.localPosition = Vector3.Lerp(currentHandPos, initialHandPos, smooth);
-                handObject.localRotation = Quaternion.Slerp(currentHandRot, initialHandRot, smooth);
-            }
-            yield return null;
-        }
-
-        // Pastikan posisi presisi balik ke awal (biar ga bug aim)
-        if (handObject != null) { handObject.localPosition = initialHandPos; handObject.localRotation = initialHandRot; }
-        if (playerCamera != null) playerCamera.localRotation = initialCamRot;
-
-        // Buka Kunci Gerak
-        foreach (var script in scriptsToDisable) if (script != null) script.enabled = true;
-        // Khusus CamRotation kita sync ulang
-        foreach (var script in scriptsToDisable) if (script is CamRotation c) c.UpdateOrientation();
-
-
-        // --- FASE 2: TUTORIAL INPUT (SAMA KAYAK TADI) ---
-        
-        tutorialText.text = "Tekan <color=yellow>[2]</color> \nAmbil kendali Muse";
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Alpha2));
+        
+        // --- 🔥 PERBAIKAN DISINI 🔥 ---
+        yield return new WaitForSeconds(0.1f); 
 
-        tutorialText.text = "Klik <color=yellow>[LMB]</color> \nNembak String line";
+        // NYALAKAN LAGI KAMERA (Supaya Domi bisa ngebidik)
+        if (cameraScript != null) cameraScript.enabled = true;
+
+        // TAPI KUNCI KAKINYA DOMI (Supaya diam di tempat)
+        foreach (var s in domiMoveScripts) if (s != null) s.enabled = false;
+
+
+        if (subText != null) subText.text = ""; 
+        yield return new WaitForSeconds(0.5f);
+
+        // --- STEP 2: SHOOT ---
+        if (subText != null) subText.text = "Klik <color=yellow>[LMB]</color> \nNembak String Line";
         yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
 
-        tutorialText.text = "Tekan <color=yellow>[R]</color> \nReload";
-        yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.R));
+    
+        // SELESAI
+       
+        yield return new WaitForSeconds(2.0f);
 
-        tutorialText.text = "Gunakan String Line \nSambungkan line ke sebuah permukaan.";
-        yield return new WaitForSeconds(4.0f);
-
-        // Selesai
-        tutorialText.text = "";
-        if (tutorialPanel != null) tutorialPanel.SetActive(false);
-        Destroy(gameObject);
+        // RESET SEMUA (Nyalakan Semua)
+        if (subPanel != null) subPanel.SetActive(false);
+        
+        if (cameraScript != null) cameraScript.enabled = true; // Pastikan nyala
+        foreach (var s in conductorMoveScripts) if (s != null) s.enabled = true;
+        foreach (var s in domiMoveScripts) if (s != null) s.enabled = true;
+        
+        Destroy(gameObject); 
     }
 }

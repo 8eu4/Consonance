@@ -11,6 +11,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Main Menu/MainMenu.unity
     guid: f44d76fcd973faf458867c0ee01e9514
+  - enabled: 1
+    path: Assets/Scenes/Level Tut.unity
+    guid: 32b253f11ca7db748ae23b18e12d8951
+  - enabled: 1
+    path: Assets/Scenes/Laser.unity
+    guid: dc091a6c8d5f4b9418094539cd4d1c9f
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

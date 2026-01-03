@@ -54,7 +54,7 @@ public class StringLineAttack : MonoBehaviour
 
     [Header("Collider")]
     [SerializeField] private GameObject lineObj;
-    [SerializeField] private CapsuleCollider lineCol;
+    [SerializeField] private BoxCollider lineCol;
     [SerializeField] private float colliderRadius = 0.5f;
     [SerializeField] private float colliderEndOffset = 0.1f;
     [SerializeField] private float safetyMargin = 0.05f;
@@ -468,6 +468,7 @@ public class StringLineAttack : MonoBehaviour
         }
     }
 
+    // --- TIMPA FUNGSI INI ---
     private void UpdateCollider()
     {
         Vector3 a = fireOrigin.position;
@@ -476,11 +477,17 @@ public class StringLineAttack : MonoBehaviour
         float dist = Vector3.Distance(a, b);
         float colLen = dist - startOffset - colliderEndOffset;
 
-        if (colLen <= 0) { lineCol.height = 0; return; }
+        // Kalau belum panjang, sembunyikan
+        if (colLen <= 0) 
+        { 
+            lineCol.size = Vector3.zero; 
+            return; 
+        }
 
-        lineCol.direction = 2;
-        lineCol.radius = colliderRadius;
-        lineCol.height = colLen;
+        // --- LOGIKA BARU (BOX) ---
+        // X & Y = Tebal (2x radius), Z = Panjang
+        lineCol.size = new Vector3(colliderRadius * 2, colliderRadius * 2, colLen);
+        
         lineCol.center = Vector3.zero;
 
         Transform t = lineCol.transform;
