@@ -71,7 +71,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5555872019700422957}
-  - component: {fileID: 1646487078969619492}
   - component: {fileID: 4874153301974228530}
   m_Layer: 0
   m_Name: R_LineColliderObject
@@ -95,29 +94,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 8144940750138787269}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &1646487078969619492
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2597095496149799603}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 1
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &4874153301974228530
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -353,10 +329,10 @@ MonoBehaviour:
   groundDrag: 5
   jumpForce: 5
   jumpCooldown: 0
-  playerHeight: 2
   whatIsGround:
     serializedVersion: 2
     m_Bits: 512
+  grounded: 0
 --- !u!114 &1414129267409350887
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -584,7 +560,7 @@ MonoBehaviour:
   ringWidth: 0.1
   ringSegments: 50
   lineObj: {fileID: 2597095496149799603}
-  lineCol: {fileID: 1646487078969619492}
+  lineCol: {fileID: 0}
   colliderRadius: 0.5
   colliderEndOffset: 0.1
   safetyMargin: 0.05

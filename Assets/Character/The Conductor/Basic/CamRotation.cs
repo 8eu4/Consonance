@@ -1,6 +1,3 @@
-using NUnit.Framework;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 
 public class CamRotation : MonoBehaviour
@@ -13,7 +10,9 @@ public class CamRotation : MonoBehaviour
     float xRotation;
     float yRotation;
 
-    GameObject Player;
+    GameObject Player; // Objek Utama (Root Character)
+    Transform playerModel; // Objek Visual (PlayerObject) yang akan diputar
+
     private bool isAttackLocked = false;
 
     [Header("Lock-On Settings")]
@@ -22,7 +21,7 @@ public class CamRotation : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private SwitchCharacter switchCharacterScript;
-    [SerializeField] private StringLineAttack[] StringLineAttackScript;
+    // [SerializeField] private StringLineAttack[] StringLineAttackScript; // (Tidak dipakai di snippet ini)
     [SerializeField] private Transform Conductor;
     [SerializeField] private Transform Domi;
     [SerializeField] private Transform Remi;
@@ -32,27 +31,24 @@ public class CamRotation : MonoBehaviour
     private Quaternion DomiRotation;
     private Quaternion RemiRotation;
 
-
     private bool doLerp = false;
     private Vector3 dirToTarget;
-
-
-
     private Quaternion targetRotation;
+
     void Start()
     {
-        Player = GameObject.FindGameObjectWithTag("Player");
-        orientation = Player.transform.Find("Orientation").transform;
-
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         targetRotation = transform.rotation;
+
+        // Inisialisasi awal akan dipanggil oleh SwitchCharacter saat Start
     }
 
     void LateUpdate()
     {
-        if (Player == null || orientation == null) return;
+        if (Player == null || orientation == null || playerModel == null) return;
 
+        // --- LOGIKA LOCK ON ---
         if (isAttackLocked && lockOnTarget != null && switchCharacterScript.CurrentPlayer == Conductor)
         {
             dirToTarget = (lockOnTarget.position - transform.position).normalized;
@@ -76,29 +72,19 @@ public class CamRotation : MonoBehaviour
             if (xRotation > 180f) xRotation -= 360f;
             xRotation = Mathf.Clamp(xRotation, -90f, 90f);
         }
-
+        // --- LOGIKA DOMI LINE ---
         else if (switchCharacterScript.CurrentPlayer == Domi && DomiLineIsAttached)
         {
             transform.rotation = DomiRotation;
-
-            Vector3 currentEuler = transform.rotation.eulerAngles;
-            yRotation = currentEuler.y;
-            xRotation = currentEuler.x;
-            if (xRotation > 180f) xRotation -= 360f;
-            xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+            UpdateRotationVars();
         }
-
+        // --- LOGIKA REMI LINE ---
         else if (switchCharacterScript.CurrentPlayer == Remi && RemiLineIsAttached)
         {
             transform.rotation = RemiRotation;
-
-            Vector3 currentEuler = transform.rotation.eulerAngles;
-            yRotation = currentEuler.y;
-            xRotation = currentEuler.x;
-            if (xRotation > 180f) xRotation -= 360f;
-            xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+            UpdateRotationVars();
         }
-        // free look
+        // --- FREE LOOK ---
         else
         {
             doLerp = true;
@@ -114,8 +100,23 @@ public class CamRotation : MonoBehaviour
             transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
         }
 
+        // --- UPDATE ROTASI KARAKTER ---
+        // Putar object Orientation (untuk arah jalan)
         orientation.rotation = Quaternion.Euler(0, yRotation, 0);
-        Player.transform.GetChild(0).rotation = Quaternion.Euler(0, yRotation, 0);
+
+        // Putar Model Visual (PlayerObject)
+        // Kita pakai variabel playerModel yang sudah diset di SetCharacter
+        playerModel.rotation = Quaternion.Euler(0, yRotation, 0);
+    }
+
+    // Helper untuk update variabel rotasi saat dikunci
+    private void UpdateRotationVars()
+    {
+        Vector3 currentEuler = transform.rotation.eulerAngles;
+        yRotation = currentEuler.y;
+        xRotation = currentEuler.x;
+        if (xRotation > 180f) xRotation -= 360f;
+        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
     }
 
     public void SetLockOnTarget(Transform target)
@@ -123,13 +124,40 @@ public class CamRotation : MonoBehaviour
         lockOnTarget = target;
     }
 
-    public void UpdateOrientation()
+    /// <summary>
+    /// FUNGSI BARU: Dipanggil langsung oleh SwitchCharacter.
+    /// Tidak lagi mencari berdasarkan Tag, tapi menerima Transform langsung.
+    /// </summary>
+    public void SetCharacter(Transform newCharacter)
     {
-        Player = GameObject.FindGameObjectWithTag("Player");
-        orientation = Player.transform.Find("Orientation").transform;
-        yRotation = orientation.eulerAngles.y;
+        Player = newCharacter.gameObject;
 
+        // Cari Orientation di dalam player baru
+        Transform findOrientation = Player.transform.Find("Orientation");
+        if (findOrientation != null)
+        {
+            orientation = findOrientation;
+        }
+        else
+        {
+            Debug.LogError($"Object 'Orientation' tidak ditemukan di dalam {Player.name}!");
+        }
+
+        // Ambil Child ke-0 sebagai model yang akan diputar (PlayerObject)
+        if (Player.transform.childCount > 0)
+        {
+            playerModel = Player.transform.GetChild(0);
+        }
+        else
+        {
+            Debug.LogError($"{Player.name} tidak memiliki child untuk diputar!");
+        }
+
+        // Sinkronisasi rotasi awal kamera dengan orientasi karakter baru agar tidak snapping aneh
+        if (orientation != null)
+            yRotation = orientation.eulerAngles.y;
     }
+
     public void LockLookAt(Vector3 targetPoint, GameObject character)
     {
         transform.LookAt(targetPoint);
@@ -154,26 +182,28 @@ public class CamRotation : MonoBehaviour
 
         if (orientation != null)
             orientation.rotation = Quaternion.Euler(0, yRotation, 0);
-        if (Player != null)
-            Player.transform.GetChild(0).rotation = Quaternion.Euler(0, yRotation, 0);
+
+        if (playerModel != null)
+            playerModel.rotation = Quaternion.Euler(0, yRotation, 0);
     }
 
     public void CancelLineAttack(GameObject character)
     {
-        if (Domi.gameObject == character)
-        {
-            DomiLineIsAttached = false;
-        }
-        else if (Remi.gameObject == character)
-        {
-            RemiLineIsAttached = false;
-        }
+        if (Domi.gameObject == character) DomiLineIsAttached = false;
+        else if (Remi.gameObject == character) RemiLineIsAttached = false;
     }
 
     public bool IsAttackLocked
     {
         get { return isAttackLocked; }
         set { isAttackLocked = value; }
+    }
+
+    public void UpdateOrientation()
+    {
+        Player = GameObject.FindGameObjectWithTag("Player");
+        orientation = Player.transform.Find("Orientation").transform;
+        yRotation = orientation.eulerAngles.y;
 
     }
 }

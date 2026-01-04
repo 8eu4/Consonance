@@ -77,6 +77,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd23a980e738258459ca6bc1ff751998, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Move
+  animator: {fileID: 0}
   speed: 7
   groundDrag: 5
   jumpForce: 5

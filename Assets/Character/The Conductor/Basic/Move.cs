@@ -2,19 +2,24 @@
 
 public class Move : MonoBehaviour
 {
-    [Header("Animation")] // TAMBAHAN ANIMATOR
-    public Animator animator; // Drag Animator komponen ke sini di Inspector
+    [Header("Animation")]
+    public Animator animator;
 
-    public float speed;
-    public float groundDrag;
+    [Header("Movement")]
+    public float speed = 7f; 
+    public float groundDrag = 10f; 
 
+    [Header("Jumping & Air Control")]
     public float jumpForce = 5f;
-    public float jumpCooldown = 0f;
-    bool readyToJump = true;
+    public float jumpCooldown = 0.25f;
+    public float airMultiplier = 0.4f;
+    public float airDrag = 1f; // Rem angin 
 
-    public float playerHeight;
+    [Header("Ground Detection (Automatic)")]
     public LayerMask whatIsGround;
-    bool grounded;
+    public bool grounded;
+
+    bool readyToJump = true;
 
     Transform orientation;
 
@@ -23,7 +28,7 @@ public class Move : MonoBehaviour
 
     Vector3 moveDirection;
     Rigidbody rb;
-
+    Collider playerCollider;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -32,15 +37,24 @@ public class Move : MonoBehaviour
 
         // Otomatis cari animator jika lupa assign
         if (animator == null) animator = GetComponentInChildren<Animator>();
+        
+        playerCollider = transform.GetChild(0).GetComponent<Collider>();
+        if (playerCollider == null)
+        {
+            Debug.LogError("Waduh! Karakter ini tidak punya Capsule Collider atau Box Collider!");
+        }
     }
 
     void Update()
     {
+        Vector3 rayOrigin = playerCollider.bounds.center;
+        float rayDistance = playerCollider.bounds.extents.y + 0.1f;
+        grounded = Physics.Raycast(rayOrigin, Vector3.down, rayDistance, whatIsGround);
+        Debug.DrawRay(rayOrigin, Vector3.down * rayDistance, grounded ? Color.green : Color.red);
 
         // ground check
-        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
-        rb.linearDamping = grounded ? groundDrag : 0; // Note: di Unity lama ini namanya 'drag', di Unity 6 'linearDamping'
-        
+        rb.linearDamping = grounded ? groundDrag : airDrag;
+
         if (!gameObject.CompareTag("Player")) return;
 
         myInput();
@@ -52,6 +66,7 @@ public class Move : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (!gameObject.CompareTag("Player")) return;
         movePlayer();
     }
 
@@ -77,26 +92,26 @@ public class Move : MonoBehaviour
     {
         if (animator == null) return;
 
-        // Kirim status Grounded
         animator.SetBool("IsGrounded", grounded);
 
-        // Kirim Speed (gunakan magnitude dari input agar animasi jalan meski tertahan tembok, 
-        // atau gunakan rb.linearVelocity.magnitude untuk kecepatan asli physics)
-
-        // Opsi 1: Berdasarkan Input (lebih responsif)
         float currentSpeed = new Vector2(horizontalInput, verticalInput).magnitude;
 
-        // Opsi 2: Berdasarkan Kecepatan Asli (lebih realistis)
-        // float currentSpeed = new Vector3(rb.linearVelocity.x, 0, rb.linearVelocity.z).magnitude;
-
-        // Jika kamu pakai lari (sprint), kalikan currentSpeed agar mencapai threshold Run
         animator.SetFloat("Speed", currentSpeed);
     }
 
     void movePlayer()
     {
         moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
-        rb.AddForce(moveDirection.normalized * speed * 10f, ForceMode.Force);
+        if (grounded)
+        {
+            // Gerak di tanah (Full Power)
+            rb.AddForce(moveDirection.normalized * speed * 10f, ForceMode.Force);
+        }
+        else
+        {
+            // Gerak di udara (Dikalikan airMultiplier biar ga terlalu ngebut/licin)
+            rb.AddForce(moveDirection.normalized * speed * 10f * airMultiplier, ForceMode.Force);
+        }
     }
 
     void Jump()

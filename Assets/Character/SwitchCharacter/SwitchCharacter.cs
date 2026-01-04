@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public class SwitchCharacter : MonoBehaviour
 {
@@ -18,42 +17,51 @@ public class SwitchCharacter : MonoBehaviour
 
     [Header("Which Area? (stringed / woodwind)")]
     [SerializeField] private bool isStringedArea = true;
-    
+
     private int activeCharacterIndex;
 
-    [Header ("Camera Script")]
+    [Header("Camera Script")]
     [SerializeField] private CamRotation camRotationScript;
     [SerializeField] private Cam camScript;
 
-    [Header ("UI Script")]
+    [Header("UI Script")]
     [SerializeField] private UI_SwitchCharacter uiSwitchCharacterScript;
     [SerializeField] private OffScreenIndicator offScreenIndicatorScript;
 
     [Header("Level Rules")]
     [SerializeField] private bool conductorLockedInThisScene = false;
 
+    [Header("HandObject")]
+    [SerializeField] private GameObject HandObject;
+
+    // Variabel ini akan otomatis berubah isinya sesuai karakter yang aktif
+    [Header("Tidak usah diisi v")]
+    public Move currentMoveScript;
 
     private bool _isSwitching = false;
     private Transform _CurrentPlayer;
+
     void Start()
     {
         activeCharacterIndex = -1;
 
         if (conductorLockedInThisScene)
         {
-            activeCharacterIndex = 2; // Remi
+            activeCharacterIndex = 2;
             ChangeCharacter(2);
         }
         else
         {
-            activeCharacterIndex = 0; // Conductor
+            activeCharacterIndex = 0;
             ChangeCharacter(0);
         }
-
     }
 
     void Update()
     {
+        // Pengecekan Grounded sekarang jadi sangat simpel
+        if (!IsCurrentCharacterGrounded()) return;
+
         if (Input.GetKeyDown(KeyCode.Alpha1) && activeCharacterIndex != 0)
         {
             if (conductorLockedInThisScene) return;
@@ -69,7 +77,16 @@ public class SwitchCharacter : MonoBehaviour
         }
     }
 
-
+    private bool IsCurrentCharacterGrounded()
+    {
+        // Karena currentMoveScript sudah di-update saat ChangeCharacter,
+        // kita tinggal pakai saja, tidak perlu cari-cari lagi.
+        if (currentMoveScript != null)
+        {
+            return currentMoveScript.grounded;
+        }
+        return true; // Default true agar tidak macet jika error
+    }
 
     public void DelayAndSwitchTo(int characterIndex)
     {
@@ -90,48 +107,36 @@ public class SwitchCharacter : MonoBehaviour
 
     void ChangeCharacter(int characterIndex)
     {
-        if (conductorLockedInThisScene && characterIndex == 0)
+        if (conductorLockedInThisScene && characterIndex == 0) return;
+
+        if (conductorLockedInThisScene) Conductor.tag = "Conductor";
+
+        // --- RESET KARAKTER LAMA ---
+        if (activeCharacterIndex == 0)
         {
-            return;
-        }
-
-
-        if (conductorLockedInThisScene)
-        {
-            Conductor.tag = "Conductor";
-        
-        }
-
-        // Set kembali tag Karakter menjadi asli nya
-        if (activeCharacterIndex == 0) 
-        { 
             Conductor.tag = "Conductor";
             Conductor.transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
             uiSwitchCharacterScript.change4HP(false);
         }
-        else if (activeCharacterIndex == 1) 
-        { 
+        else if (activeCharacterIndex == 1)
+        {
             Domi.tag = "Domi";
             s_domi.SetActive(isStringedArea);
             w_domi.SetActive(!isStringedArea);
-            //Domi.transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
             uiSwitchCharacterScript.change2HP(1, false);
         }
-        else if (activeCharacterIndex == 2) 
-        { 
+        else if (activeCharacterIndex == 2)
+        {
             Remi.tag = "Remi";
             s_remi.SetActive(isStringedArea);
             w_remi.SetActive(!isStringedArea);
-            //Remi.transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
             uiSwitchCharacterScript.change2HP(2, false);
         }
 
-
-
-        // Set sekarang Player control siapa?
-        if (characterIndex == 0) 
-        { 
-            Conductor.tag = "Player"; 
+        // --- SET KARAKTER BARU ---
+        if (characterIndex == 0)
+        {
+            Conductor.tag = "Player";
             activeCharacterIndex = 0;
             CurrentPlayer = Conductor.transform;
 
@@ -141,10 +146,11 @@ public class SwitchCharacter : MonoBehaviour
             Domi.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
             Remi.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
 
+            HandObject.SetActive(true);
         }
-        else if (characterIndex == 1) 
-        { 
-            Domi.tag = "Player"; 
+        else if (characterIndex == 1)
+        {
+            Domi.tag = "Player";
             activeCharacterIndex = 1;
             CurrentPlayer = Domi.transform;
 
@@ -154,10 +160,11 @@ public class SwitchCharacter : MonoBehaviour
             Conductor.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
             Remi.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
 
+            HandObject.SetActive(false);
         }
-        else if (characterIndex == 2) 
-        { 
-            Remi.tag = "Player"; 
+        else if (characterIndex == 2)
+        {
+            Remi.tag = "Player";
             activeCharacterIndex = 2;
             CurrentPlayer = Remi.transform;
 
@@ -167,29 +174,29 @@ public class SwitchCharacter : MonoBehaviour
             Conductor.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
             Domi.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
 
+            HandObject.SetActive(false);
         }
 
-        // Ubah posisi kamera sesuai dengan posisi Player
-        camScript.setCameraPosition();
+        // --- LOGIKA BARU: Update Move Script ---
+        // Kita ambil script Move dari karakter yang BARU saja dipilih
+        if (CurrentPlayer != null)
+        {
+            currentMoveScript = CurrentPlayer.GetComponent<Move>();
+        }
 
-        // Ganti orientation di sini
-        camRotationScript.UpdateOrientation();
+        // --- UPDATE KAMERA ---
+        camScript.setCameraPosition();
+        camRotationScript.SetCharacter(CurrentPlayer); // Ini memanggil script CamRotation yang saya kasih sebelumnya
 
         // FINAL OVERRIDE for rail conductor
         if (conductorLockedInThisScene)
         {
             Rigidbody rb = Conductor.GetComponent<Rigidbody>();
-
-            rb.constraints =
-                RigidbodyConstraints.FreezePositionZ |
-                RigidbodyConstraints.FreezeRotationX |
-                RigidbodyConstraints.FreezeRotationY |
-                RigidbodyConstraints.FreezeRotationZ;
+            rb.constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
         }
-
     }
 
-    public bool isSwitching 
+    public bool isSwitching
     {
         get { return _isSwitching; }
         set { _isSwitching = value; }
@@ -199,7 +206,7 @@ public class SwitchCharacter : MonoBehaviour
     {
         gObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
         gObject.GetComponent<Rigidbody>().constraints = ~RigidbodyConstraints.FreezePosition;
-        
+
         if (activeCharacterIndex == 0)
         {
             gObject.transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
@@ -214,9 +221,8 @@ public class SwitchCharacter : MonoBehaviour
             s_remi.SetActive(false);
             w_remi.SetActive(false);
         }
-
-        
     }
+
     public Transform CurrentPlayer
     {
         get { return _CurrentPlayer; }
