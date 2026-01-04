@@ -882,6 +882,7 @@ Transform:
   m_LocalScale: {x: 100, y: 100, z: 100}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 5280577831666834859}
   - {fileID: 1507305920506972332}
   m_Father: {fileID: -8679921383154817045}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1186,6 +1187,37 @@ SkinnedMeshRenderer:
     m_Center: {x: 0.000013614073, y: 0.010472246, z: -0.0000013695098}
     m_Extent: {x: 0.023722328, y: 0.028285451, z: 0.015257735}
   m_DirtyAABB: 0
+--- !u!1 &2845731702921422607
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5280577831666834859}
+  m_Layer: 0
+  m_Name: FirePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5280577831666834859
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2845731702921422607}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.0086, z: 0.0105}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9163833112240920073}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3642812679301905223
 GameObject:
   m_ObjectHideFlags: 0
@@ -1553,7 +1585,7 @@ GameObject:
   - component: {fileID: 8271829300833476519}
   m_Layer: 0
   m_Name: Syrinx
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1586,6 +1618,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4ced61c30d89fc43bfd9efdaa217641, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SyrinxMovement
+  animator: {fileID: 8271829300833476519}
   moveSpeedX: 1
   moveSpeedY: 3
   amplitudeX: 2
@@ -1594,6 +1627,9 @@ MonoBehaviour:
   viewRange: 12
   stopChaseDistance: 11
   chaseSpeed: 6
+  strafeRadius: 7
+  strafeSpeed: 4
+  defaultRepositionDuration: 1.2
   faceDirection: 1
   knockbackStrength: 0.5
   knockbackDuration: 0.5
@@ -1609,7 +1645,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fed6b5b025891c54c8d34607d16c9d9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChargeGun
-  firePoint: {fileID: 0}
+  animator: {fileID: 8271829300833476519}
+  firePoint: {fileID: 5280577831666834859}
   player: {fileID: 0}
   laserSightPrefab: {fileID: 4287167201292015423, guid: dbe3ed161c5fb054fa0e20fdb37a91ed, type: 3}
   laserBeamPrefab: {fileID: 4287167201292015423, guid: 12e1188372e2aae4198370d0f8da834c, type: 3}
@@ -1649,7 +1686,7 @@ Animator:
   m_GameObject: {fileID: 6345715311747222446}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 39a66577aa86ba047b16f1be4568b5d3, type: 3}
-  m_Controller: {fileID: 9100000, guid: 235148756fe885f44a770677e9427871, type: 2}
+  m_Controller: {fileID: 9100000, guid: 82dc84c68abcbe34993d2d4cc6d3898f, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

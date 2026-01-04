@@ -3,6 +3,9 @@ using System.Collections;
 
 public class ChargeGun : MonoBehaviour
 {
+    [Header("Animation")]
+    public Animator animator;
+
     [Header("References")]
     public Transform firePoint;
     public Transform player;
@@ -119,6 +122,7 @@ public class ChargeGun : MonoBehaviour
 
             // FIRE LASER
             if (laserBeamPrefab != null)
+                animator.SetTrigger("Shoot");
                 yield return StartCoroutine(FireLaserBeam(lockedTargetPos));
 
             // CLEANUP
@@ -152,6 +156,7 @@ public class ChargeGun : MonoBehaviour
 
         // Pause movement while firing
         if (stopMovementWhileFiring && movementScript != null)
+            //animator.SetTrigger("Shoot");
             movementScript.PauseMovement();
 
         // Apply knockback (recoil) away from the target point

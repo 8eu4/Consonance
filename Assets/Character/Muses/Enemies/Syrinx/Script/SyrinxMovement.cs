@@ -185,7 +185,7 @@ public class SyrinxMovement : MonoBehaviour
         if (animator == null) return;
         Vector3 localVelocity = transform.InverseTransformDirection(worldMoveDir);
         animator.SetFloat("InputX", localVelocity.x, 0.1f, Time.deltaTime);
-        animator.SetFloat("InputZ", localVelocity.z, 0.1f, Time.deltaTime);
+        animator.SetFloat("InputY", localVelocity.z, 0.1f, Time.deltaTime);
     }
 
     // -----------------------------
@@ -206,7 +206,7 @@ public class SyrinxMovement : MonoBehaviour
         if (animator != null)
         {
             animator.SetFloat("InputX", 0);
-            animator.SetFloat("InputZ", 0);
+            animator.SetFloat("InputY", 0);
         }
     }
 

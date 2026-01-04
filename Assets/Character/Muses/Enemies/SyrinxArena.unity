@@ -18878,8 +18878,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd23a980e738258459ca6bc1ff751998, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Move
+  animator: {fileID: 0}
   speed: 7
   groundDrag: 5
+  jumpForce: 5
+  jumpCooldown: 0
   playerHeight: 2
   whatIsGround:
     serializedVersion: 2
@@ -19964,8 +19967,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd23a980e738258459ca6bc1ff751998, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Move
+  animator: {fileID: 0}
   speed: 7
   groundDrag: 5
+  jumpForce: 5
+  jumpCooldown: 0
   playerHeight: 2
   whatIsGround:
     serializedVersion: 2
@@ -20025,6 +20031,7 @@ MonoBehaviour:
   fireOrigin: {fileID: 1614393492}
   playerCamera: {fileID: 330585545}
   camRotation: {fileID: 0}
+  animator: {fileID: 0}
   lineSpeed: 15
   maxLineLength: 15
   breakDistance: 17
@@ -20997,8 +21004,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd23a980e738258459ca6bc1ff751998, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Move
+  animator: {fileID: 0}
   speed: 7
   groundDrag: 5
+  jumpForce: 5
+  jumpCooldown: 0
   playerHeight: 2
   whatIsGround:
     serializedVersion: 2
@@ -21058,6 +21068,7 @@ MonoBehaviour:
   fireOrigin: {fileID: 1799843704}
   playerCamera: {fileID: 330585545}
   camRotation: {fileID: 0}
+  animator: {fileID: 0}
   lineSpeed: 15
   maxLineLength: 15
   breakDistance: 17
@@ -22433,6 +22444,11 @@ MonoBehaviour:
   Conductor: {fileID: 1408703788}
   Domi: {fileID: 1560295119}
   Remi: {fileID: 1511740197}
+  s_domi: {fileID: 0}
+  s_remi: {fileID: 0}
+  w_domi: {fileID: 0}
+  w_remi: {fileID: 0}
+  isStringedArea: 1
   camRotationScript: {fileID: 330585548}
   camScript: {fileID: 658124729}
   uiSwitchCharacterScript: {fileID: 1643502656}
@@ -29204,38 +29220,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: -1185365101253570638, guid: 71fdf72ffded4354593c00a7c8335994, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -1185365101253570638, guid: 71fdf72ffded4354593c00a7c8335994, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -1185365101253570638, guid: 71fdf72ffded4354593c00a7c8335994, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 3574161123116051260, guid: 71fdf72ffded4354593c00a7c8335994, type: 3}
       propertyPath: player
       value: 
       objectReference: {fileID: 1408703789}
-    - target: {fileID: 3574161123116051260, guid: 71fdf72ffded4354593c00a7c8335994, type: 3}
-      propertyPath: amplitudeX
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 3574161123116051260, guid: 71fdf72ffded4354593c00a7c8335994, type: 3}
-      propertyPath: amplitudeY
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3574161123116051260, guid: 71fdf72ffded4354593c00a7c8335994, type: 3}
-      propertyPath: moveSpeedX
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3574161123116051260, guid: 71fdf72ffded4354593c00a7c8335994, type: 3}
-      propertyPath: moveSpeedY
-      value: 3
-      objectReference: {fileID: 0}
     - target: {fileID: 4513913241554310260, guid: 71fdf72ffded4354593c00a7c8335994, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -29288,10 +29276,6 @@ PrefabInstance:
       propertyPath: playerTarget
       value: 
       objectReference: {fileID: 1408703789}
-    - target: {fileID: 9163833112240920073, guid: 71fdf72ffded4354593c00a7c8335994, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
