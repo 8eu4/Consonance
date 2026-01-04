@@ -52,6 +52,42 @@ PrefabInstance:
       propertyPath: m_Name
       value: lampu atap Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 6796299164327361228, guid: e927862f9ed23f442865a2ab0fcbe57d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.029999733
+      objectReference: {fileID: 0}
+    - target: {fileID: 6796299164327361228, guid: e927862f9ed23f442865a2ab0fcbe57d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.69000006
+      objectReference: {fileID: 0}
+    - target: {fileID: 6796299164327361228, guid: e927862f9ed23f442865a2ab0fcbe57d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.0075938916
+      objectReference: {fileID: 0}
+    - target: {fileID: 6796299164327361228, guid: e927862f9ed23f442865a2ab0fcbe57d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.007594064
+      objectReference: {fileID: 0}
+    - target: {fileID: 6796299164327361228, guid: e927862f9ed23f442865a2ab0fcbe57d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.707066
+      objectReference: {fileID: 0}
+    - target: {fileID: 6796299164327361228, guid: e927862f9ed23f442865a2ab0fcbe57d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.707066
+      objectReference: {fileID: 0}
+    - target: {fileID: 6796299164327361228, guid: e927862f9ed23f442865a2ab0fcbe57d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 91.23102
+      objectReference: {fileID: 0}
+    - target: {fileID: 6796299164327361228, guid: e927862f9ed23f442865a2ab0fcbe57d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 6796299164327361228, guid: e927862f9ed23f442865a2ab0fcbe57d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 90
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
