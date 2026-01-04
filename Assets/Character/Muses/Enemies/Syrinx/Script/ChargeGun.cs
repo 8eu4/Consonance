@@ -195,6 +195,12 @@ public class ChargeGun : MonoBehaviour
         if (stopMovementWhileFiring && movementScript != null)
             movementScript.ResumeMovement();
 
+        float strafe = Random.Range(reloadTimeRange.x, reloadTimeRange.y);
+        if (movementScript != null && !movementScript.IsChasing())
+        {
+            movementScript.Reposition(strafe);
+        }
+
         Destroy(laser);
     }
 
