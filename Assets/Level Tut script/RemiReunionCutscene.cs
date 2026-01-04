@@ -8,8 +8,8 @@ public class RemiReunionCutscene : MonoBehaviour
 {
     [Header("--- UI SETTINGS ---")]
     public CanvasGroup blackScreen;   
-    public GameObject subPanel;       
-    public TextMeshProUGUI subText;   
+    public GameObject subPanel;      // ✅ KEMBALIKAN UI PANEL (Drag SubPanel disini)
+    public TextMeshProUGUI subText;  // ✅ KEMBALIKAN UI TEXT (Drag SubText disini)
     
     [Header("--- ACTORS (KARAKTER) ---")]
     public Transform conductor;
@@ -27,7 +27,7 @@ public class RemiReunionCutscene : MonoBehaviour
 
     [Header("--- SCRIPT PENGGANGGU (WAJIB ISI) ---")]
     [Tooltip("Masukkan script 'Move', 'MouseLook', 'SwitchCharacter' disini biar mati pas cutscene")]
-    public MonoBehaviour[] scriptsToDisable; // <--- INI SOLUSI BIAR GAK GERAK
+    public MonoBehaviour[] scriptsToDisable; 
 
     [Header("--- AUDIO ---")]
     public AudioSource audioSource;
@@ -41,7 +41,7 @@ public class RemiReunionCutscene : MonoBehaviour
     void Start()
     {
         if (blackScreen != null) { blackScreen.alpha = 0; blackScreen.gameObject.SetActive(false); }
-        if (subPanel != null) subPanel.SetActive(false);
+        if (subPanel != null) subPanel.SetActive(false); // Sembunyikan panel di awal
     }
 
     void OnTriggerEnter(Collider other)
@@ -58,18 +58,18 @@ public class RemiReunionCutscene : MonoBehaviour
     {
         sequenceStarted = true;
 
-        // --- STEP 1: REMI SAMPAI ---
-        if (subPanel != null) subPanel.SetActive(true);
-        subText.text = "Remi sampai.\nTekan <color=yellow>[1]</color> Kembali ke Conductor";
+        // --- STEP 1: REMI SAMPAI (PROMPT [1] MUNCUL) ---
+        if (subPanel != null) subPanel.SetActive(true); // ✅ NYALAKAN PANEL
+        subText.text = "Remi sampai.\nTekan <color=yellow>[1]</color> Kembali ke Conductor"; // ✅ TAMPILKAN INSTRUKSI
 
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Alpha1));
 
-        // --- MULAI CUTSCENE: MATIKAN SEMUA GERAKAN ---
-        DisableAllMovement(true); // <--- KUNCI GERAK DISINI
+        // --- MULAI CUTSCENE ---
+        DisableAllMovement(true);
 
         // --- STEP 2: FADE OUT (GELAP) ---
         subText.text = ""; 
-        subPanel.SetActive(false);
+        if (subPanel != null) subPanel.SetActive(false); // ❌ SEMBUNYIKAN PANEL SAAT TRANSISI
         
         if (blackScreen != null)
         {
@@ -79,18 +79,11 @@ public class RemiReunionCutscene : MonoBehaviour
             blackScreen.alpha = 1;
         }
 
-        // --- STEP 3: PINDAHKAN POSISI & BEKUKAN FISIKA ---
-        
-        // Pindahkan Conductor
+        // --- STEP 3: PINDAHKAN POSISI ---
         TeleportActor(conductor, conductorSpot);
-        
-        // Pindahkan Domi
         TeleportActor(domi, domiSpot);
-        
-        // Pindahkan Remi
         TeleportActor(remi, remiSpot);
         
-        // Pindahkan Kamera
         if (mainCamera != null) 
         { 
             mainCamera.position = cameraCloseUpSpot.position; 
@@ -107,21 +100,20 @@ public class RemiReunionCutscene : MonoBehaviour
             blackScreen.alpha = 0;
         }
 
-        // --- STEP 5: DIALOG REMI ---
-        if (subPanel != null) subPanel.SetActive(true);
+        // --- STEP 5: DIALOG REMI (HANYA SUARA, TANPA TEKS) ---
         if (audioSource != null && harpSound != null) audioSource.PlayOneShot(harpSound);
 
-        subText.text = "<color=#FFAAAA>Remi:</color>\n\"Kau… kau menyelamatkanku. \nAku akan ikut bersamamu.\"";
+        // ❌ JANGAN TAMPILKAN SUBTITLE CERITA, BIARKAN LAYAR BERSIH
+        // subText.text = "Bla bla bla..."; (INI DIHAPUS)
 
         yield return new WaitForSeconds(4.0f); 
 
-        // --- STEP 6: PROMPT ---
-        subText.text = ""; 
-        yield return new WaitForSeconds(0.5f);
+        // --- STEP 6: PROMPT LANJUT (PROMPT [E] MUNCUL) ---
+        if (subPanel != null) subPanel.SetActive(true); // ✅ NYALAKAN PANEL LAGI
         
         subText.fontSize = subText.fontSize * 0.8f; 
         subText.fontStyle = FontStyles.Italic;
-        subText.text = "Ikuti <color=yellow>(E)</color>";
+        subText.text = "Ikuti <color=yellow>(E)</color>"; // ✅ TAMPILKAN INSTRUKSI
 
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.E));
 
@@ -137,28 +129,21 @@ public class RemiReunionCutscene : MonoBehaviour
         SceneManager.LoadScene(nextSceneName);
     }
 
-    // --- FUNGSI PEMBANTU (BIAR GAK TENGGELAM) ---
+    // --- FUNGSI PEMBANTU ---
     void TeleportActor(Transform actor, Transform spot)
     {
         if (actor == null || spot == null) return;
-
-        // 1. Matikan CharacterController (Penyebab utama nyangkut)
         CharacterController cc = actor.GetComponent<CharacterController>();
         if (cc != null) cc.enabled = false;
-
-        // 2. Matikan Rigidbody Physic (Biar gak jatuh ke bumi)
         Rigidbody rb = actor.GetComponent<Rigidbody>();
         if (rb != null) rb.isKinematic = true; 
 
-        // 3. Pindahkan
         actor.position = spot.position;
         actor.rotation = spot.rotation;
     }
 
-    // --- FUNGSI PEMBANTU (BIAR GAK GERAK) ---
     void DisableAllMovement(bool disable)
     {
-        // Matikan script yang didaftarkan di inspector
         foreach (var script in scriptsToDisable)
         {
             if (script != null) script.enabled = !disable;

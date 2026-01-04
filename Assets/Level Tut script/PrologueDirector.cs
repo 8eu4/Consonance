@@ -151,18 +151,16 @@ public class PrologueDirector : MonoBehaviour
         
         playerObject.SetActive(true);
         
-        // 🔥 INI BARIS BARU: Mematikan script Move & CamRotation biar gak error
+        // 🔥 Script Move & CamRotation dimatikan dulu
         foreach (var script in scriptsToDisable) 
         {
             if (script != null) script.enabled = false;
         }
-        // -------------------------------------------------------------
 
         // Matikan Rigidbody (Jadi Patung)
         if (playerRigid != null)
         {
             playerRigid.isKinematic = true; 
-            // Cek Versi Unity (Unity 6 pake linearVelocity, Unity lama pake velocity)
             #if UNITY_6000_0_OR_NEWER
             playerRigid.linearVelocity = Vector3.zero; 
             #else
@@ -190,13 +188,17 @@ public class PrologueDirector : MonoBehaviour
             yield return null;
         }
 
-        // --- 2. MONOLOG BISIKAN ---
+        // --- 2. MONOLOG BISIKAN (SUDAH DIHAPUS SUBTITLENYA) ---
+        // Kita matikan UI-nya, tapi Audio Gasp tetap jalan biar kerasa kagetnya
+        if (sfxConductorGasp != null) audioSource.PlayOneShot(sfxConductorGasp);
+        
+        /* ❌ SUBTITLE DIHAPUS SESUAI REQUEST
         if (subtitlePanel != null)
         {
             subtitlePanel.SetActive(true);
             subtitleText.text = "<i>...di mana aku...?</i>";
-            if (sfxConductorGasp != null) audioSource.PlayOneShot(sfxConductorGasp);
         }
+        */
         
         yield return new WaitForSeconds(2.0f);
 
@@ -209,22 +211,25 @@ public class PrologueDirector : MonoBehaviour
             if (playerCameraTransform != null) { playerCameraTransform.localPosition = liePos; playerCameraTransform.localRotation = lieRot; }
             yield return null;
         }
-        subtitleText.text = ""; 
+        
+        // subtitleText.text = ""; // Tidak perlu reset karena tidak muncul
 
         yield return new WaitForSeconds(1.0f);
 
-        // --- 4. TERIAKAN MUSE (TRIGGER) ---
+        // --- 4. TERIAKAN MUSE (TRIGGER) (SUDAH DIHAPUS SUBTITLENYA) ---
         if (museAudioSource != null) 
         {
             if (voiceMuseHelp != null) museAudioSource.PlayOneShot(voiceMuseHelp);
             else museAudioSource.Play(); 
         }
 
+        /* ❌ SUBTITLE DIHAPUS SESUAI REQUEST
         if (subtitlePanel != null)
         {
             subtitlePanel.SetActive(true);
             subtitleText.text = "<color=#FFD700>Muse:</color> Tolong aku! Di seberang jurang!";
         }
+        */
 
         // --- 4.5 KEDIP REFLEKS ---
         blinkT = 0;
@@ -258,7 +263,7 @@ public class PrologueDirector : MonoBehaviour
         introCanvasGroup.gameObject.SetActive(false);
 
         yield return new WaitForSeconds(1.0f); 
-        if (subtitlePanel != null) subtitlePanel.SetActive(false); 
+        // if (subtitlePanel != null) subtitlePanel.SetActive(false); // Tidak perlu karena tidak pernah aktif
 
         // ============================================================
         // 😵‍💫 FASE 3: BANGUN DUDUK
@@ -353,14 +358,12 @@ public class PrologueDirector : MonoBehaviour
         if (playerRigid != null) playerRigid.isKinematic = false;
 
         // 🔥🔥🔥 FIX UTAMA: PAKSA TAG JADI "PLAYER" SEBELUM NYALAKAN SCRIPT 🔥🔥🔥
-        // Ini biar script Move.cs temanmu bisa jalan dan ketemu tag-nya
         if (playerObject != null)
         {
             playerObject.tag = "Player";
         }
-        // --------------------------------------------------------------------------
         
-        // 🔥 INI BARIS BARU: Menghidupkan kembali script temanmu agar Player bisa gerak
+        // 🔥 Menghidupkan kembali script temanmu agar Player bisa gerak
         foreach (var script in scriptsToDisable) {
             if (script != null) {
                 script.enabled = true; 
@@ -372,7 +375,6 @@ public class PrologueDirector : MonoBehaviour
                 }
             }
         }
-        // -------------------------------------------------------------
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;

@@ -14,17 +14,22 @@ public class VisionIntoDizzy : MonoBehaviour
     [Header("--- SETTING VISION (FASE 1) ---")]
     public KeyCode visionKey = KeyCode.V;
     public Transform museFocusPoint;     // Titik cahaya/Core yang dilihat
-    public GameObject targetHighlight;   // (Opsional) Penanda target
+    public GameObject targetHighlight;   // (Opsional) Penanda target di Core
     public float cameraZoomDuration = 1.5f;
 
     [Header("--- SETTING DIZZY (FASE 2) ---")]
     public float dizzyLookDownAngle = 45.0f; // Seberapa nunduk pas pusing
     public float dizzyDuration = 4.0f;
 
-    [Header("--- UI & DIALOG ---")]
+    [Header("--- UI & PROMPTS ---")]
+    // 🔥 INI BARU: Masukkan UI text "Press V" ke sini
+    public GameObject pressV_UI;         
+    public CanvasGroup blackScreen;      // Layar Hitam (CanvasGroup)
+    
+    // Subtitle Panel masih disimpan variabelnya biar gak error kalau lupa hapus reference, 
+    // tapi fungsinya sudah dimatikan.
     public GameObject subtitlePanel;     
     public TextMeshProUGUI subtitleText; 
-    public CanvasGroup blackScreen;      // Layar Hitam (CanvasGroup)
     
     [TextArea] public string dialogVision = "Ohh aku tahu cahaya itu… Resonant Core.";
     [TextArea] public string dialogDizzy = "Agh... kepalaku... berat sekali...";
@@ -40,6 +45,9 @@ public class VisionIntoDizzy : MonoBehaviour
         if (subtitlePanel) subtitlePanel.SetActive(false);
         if (targetHighlight) targetHighlight.SetActive(false);
         if (blackScreen) { blackScreen.alpha = 0; blackScreen.gameObject.SetActive(false); }
+        
+        // Pastikan prompt V mati di awal
+        if (pressV_UI) pressV_UI.SetActive(false);
     }
 
     void Update()
@@ -57,6 +65,9 @@ public class VisionIntoDizzy : MonoBehaviour
 
             if (Input.GetKeyDown(visionKey))
             {
+                // 🔥 Hapus Prompt "Press V" saat tombol ditekan
+                if (pressV_UI) pressV_UI.SetActive(false);
+                
                 StartCoroutine(FullCinematicSequence());
             }
         }
@@ -69,6 +80,10 @@ public class VisionIntoDizzy : MonoBehaviour
         if (other.CompareTag("Player") || other.transform.root.CompareTag("Player"))
         {
             playerInside = true;
+            
+            // 🔥 Munculkan Prompt "Press V" saat masuk area
+            if (pressV_UI) pressV_UI.SetActive(true);
+
             // Cari komponen player otomatis
             if (playerObject == null) playerObject = other.transform.root.gameObject;
             playerRb = playerObject.GetComponent<Rigidbody>();
@@ -90,6 +105,10 @@ public class VisionIntoDizzy : MonoBehaviour
         if (!eventStarted && (other.CompareTag("Player") || other.transform.root.CompareTag("Player")))
         {
             playerInside = false;
+            
+            // 🔥 Sembunyikan Prompt kalau pemain keluar area tanpa tekan V
+            if (pressV_UI) pressV_UI.SetActive(false);
+            
             ToggleControls(true);
         }
     }
@@ -124,10 +143,14 @@ public class VisionIntoDizzy : MonoBehaviour
             yield return null;
         }
 
-        // 2. Dialog
-        ShowSubtitle(dialogVision);
+        // 2. Dialog Vision (SUDAH DIMATIKAN ❌)
+        /* ShowSubtitle(dialogVision);
         yield return new WaitForSeconds(3.0f);
         HideSubtitle();
+        */
+        
+        // Gantinya: Kita kasih jeda diam sejenak biar pemain lihat Core-nya
+        yield return new WaitForSeconds(1.5f);
 
         // 3. Zoom Out (Balik ke Kepala)
         t = 0;
@@ -156,8 +179,10 @@ public class VisionIntoDizzy : MonoBehaviour
         // 😵 FASE 2: DIZZY (GOYANG MANUAL)
         // ==============================================================
 
-        // Dialog Pusing
+        // Dialog Pusing (SUDAH DIMATIKAN ❌)
+        /*
         ShowSubtitle("<i>" + dialogDizzy + "</i>");
+        */
         
         float dizzyTimer = 0;
         
