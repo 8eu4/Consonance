@@ -16,37 +16,40 @@ public class NewLaserScript : MonoBehaviour
 
     void Update()
     {
-        // Titik awal laser
+        // Set titik awal laser
         lr.SetPosition(0, startPoint.position);
 
         RaycastHit hit;
 
-        // Raycast ke arah kiri lokal
+        // Tembak Raycast
         if (Physics.Raycast(transform.position, -transform.right, out hit))
         {
             if (hit.collider)
             {
-                // Jika sinar mengenai sesuatu, set ujung laser di titik tabrakan
+                // 1. Visual: Laser mentok di objek
                 lr.SetPosition(1, hit.point);
 
-                // Jika objek yang terkena memiliki tag "Player", hancurkan objek tersebut
-                if (hit.transform.tag == "Player")
+                // 2. Logic: Cek Tag (Player ATAU Remi ATAU Domi ATAU Conductor)
+                string tagKena = hit.transform.tag;
+
+                if (tagKena == "Player" || 
+                    tagKena == "Remi" || 
+                    tagKena == "Domi" || 
+                    tagKena == "Conductor")
                 {
+                    Debug.Log("Membunuh: " + tagKena);
                     Destroy(hit.transform.gameObject);
+                    
+                    // TIPS: Kalau kamu punya sistem Respawn (bukan destroy),
+                    // Panggil script respawn-nya di sini, jangan Destroy.
+                    // Contoh: hit.transform.GetComponent<HealthSystem>().Die();
                 }
             }
         }
         else
         {
-            // Jika tidak mengenai apa pun, buat laser tetap panjang (misal 5000 satuan)
+            // Jika tidak kena apa-apa, laser tembus panjang
             lr.SetPosition(1, transform.position - transform.right * 5000);
         }
-
-        if (hit.transform.CompareTag("Player"))
-{
-    Debug.Log("Laser hit Player!");
-    Destroy(hit.transform.gameObject);
-}
-
     }
 }
