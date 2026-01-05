@@ -292,7 +292,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6345715311747222446, guid: 71fdf72ffded4354593c00a7c8335994, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8058302176477630447, guid: 71fdf72ffded4354593c00a7c8335994, type: 3}
       propertyPath: playerTarget
@@ -997,6 +997,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 3079771836371541822, guid: bab485147449b8a418c0c3fac9fdc2a0, type: 3}
   m_PrefabInstance: {fileID: 7000004088324163705}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &497182358 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4197348339241540095, guid: 2337118c07520dd47a5a33f46bcfa826, type: 3}
+  m_PrefabInstance: {fileID: 646188992}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93f8b1d100422314595995233de4ee8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NearestTargetDetector
 --- !u!224 &500628039 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1429927680152000100, guid: bab485147449b8a418c0c3fac9fdc2a0, type: 3}
@@ -1143,17 +1154,33 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 658124730}
+    - target: {fileID: 2883871810250628140, guid: 2337118c07520dd47a5a33f46bcfa826, type: 3}
+      propertyPath: targetDetector
+      value: 
+      objectReference: {fileID: 497182358}
     - target: {fileID: 2964305845648689352, guid: 2337118c07520dd47a5a33f46bcfa826, type: 3}
       propertyPath: target
       value: 
       objectReference: {fileID: 658124730}
+    - target: {fileID: 2964305845648689352, guid: 2337118c07520dd47a5a33f46bcfa826, type: 3}
+      propertyPath: targetDetector
+      value: 
+      objectReference: {fileID: 497182358}
     - target: {fileID: 7211897706007593487, guid: 2337118c07520dd47a5a33f46bcfa826, type: 3}
       propertyPath: playerTarget
       value: 
       objectReference: {fileID: 658124730}
+    - target: {fileID: 7211897706007593487, guid: 2337118c07520dd47a5a33f46bcfa826, type: 3}
+      propertyPath: targetDetector
+      value: 
+      objectReference: {fileID: 497182358}
     - target: {fileID: 7310876051193327072, guid: 2337118c07520dd47a5a33f46bcfa826, type: 3}
       propertyPath: m_Name
       value: Xyrrid
+      objectReference: {fileID: 0}
+    - target: {fileID: 7310876051193327072, guid: 2337118c07520dd47a5a33f46bcfa826, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
