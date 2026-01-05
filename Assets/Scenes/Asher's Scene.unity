@@ -3201,7 +3201,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHealthTracker
   targetTag: Enemy
-  heightOffset: 1.1
+  heightOffset: 0.5
   heartIconSize: {x: 0.3, y: 0.3}
   gridHealthPopUpPrefab: {fileID: 3239203753631944084, guid: 6177ca8043c2bf94bab0d0138d563b9e, type: 3}
   heartIconPrefab: {fileID: 8351453044476677710, guid: 52ecf036d1cfee641beec4a2a3a49a39, type: 3}
