@@ -19,6 +19,10 @@ public class VisionMode : MonoBehaviour
         public Color visionColor = Color.cyan; // color when vision mode is on
     }
 
+    private void Start()
+    {
+        highlightCamera.gameObject.SetActive(false);
+    }
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.V))

@@ -378,7 +378,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 2615
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -405,6 +405,7 @@ Transform:
   m_Children:
   - {fileID: 1682905178}
   - {fileID: 368964603}
+  - {fileID: 668492494}
   m_Father: {fileID: 658124730}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &330585547
@@ -423,7 +424,8 @@ MonoBehaviour:
   m_RequiresDepthTextureOption: 2
   m_RequiresOpaqueTextureOption: 2
   m_CameraType: 0
-  m_Cameras: []
+  m_Cameras:
+  - {fileID: 668492499}
   m_RendererIndex: -1
   m_VolumeLayerMask:
     serializedVersion: 2
@@ -1311,7 +1313,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 330585546}
-  - {fileID: 668492494}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &668492493
@@ -1349,7 +1350,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1349517088}
-  m_Father: {fileID: 658124730}
+  m_Father: {fileID: 330585546}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!120 &668492495
 LineRenderer:
@@ -1517,7 +1518,7 @@ MonoBehaviour:
   m_RendererIndex: -1
   m_VolumeLayerMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 0
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 0
@@ -1548,7 +1549,7 @@ Camera:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 668492493}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 4
   m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
@@ -1572,9 +1573,9 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.01
   far clip plane: 1000
-  field of view: 60
+  field of view: 45
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -2830,6 +2831,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 3605759779664184189, guid: bab485147449b8a418c0c3fac9fdc2a0, type: 3}
   m_PrefabInstance: {fileID: 7000004088324163705}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1378533357 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 939689284390571379, guid: a47807017e8c84c45a0afccd33810f9b, type: 3}
+  m_PrefabInstance: {fileID: 424489194}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
 --- !u!114 &1408703792 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7279728556538009903, guid: 9f99597e967210045adac6475dae0dd4, type: 3}
@@ -2854,7 +2866,19 @@ PrefabInstance:
       value: Vision Mode
       objectReference: {fileID: 0}
     - target: {fileID: 5250892442988856157, guid: 577f413ece15b64449c35f68a7f97310, type: 3}
+      propertyPath: visionVolume
+      value: 
+      objectReference: {fileID: 1378533357}
+    - target: {fileID: 5250892442988856157, guid: 577f413ece15b64449c35f68a7f97310, type: 3}
+      propertyPath: visionEmission
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5250892442988856157, guid: 577f413ece15b64449c35f68a7f97310, type: 3}
       propertyPath: HighlightCamera
+      value: 
+      objectReference: {fileID: 668492499}
+    - target: {fileID: 5250892442988856157, guid: 577f413ece15b64449c35f68a7f97310, type: 3}
+      propertyPath: highlightCamera
       value: 
       objectReference: {fileID: 668492499}
     - target: {fileID: 8433817087354991290, guid: 577f413ece15b64449c35f68a7f97310, type: 3}
