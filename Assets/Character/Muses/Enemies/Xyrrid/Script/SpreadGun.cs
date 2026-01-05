@@ -8,6 +8,7 @@ public class XyrridSpreadGun : MonoBehaviour
     [Header("References")]
     public Transform firePoint;
     public Transform target;
+    public NearestTargetDetector targetDetector;
     public GameObject bubblePrefab;
     public AudioSource chargeAudio;
     public XyrridMovement movementScript;
@@ -54,6 +55,10 @@ public class XyrridSpreadGun : MonoBehaviour
         {
             // 1. TUNGGU RELOAD (Cooldown antar serangan)
             yield return new WaitForSeconds(reloadTime);
+
+            if (targetDetector != null)
+                target = targetDetector.currentTarget;
+
 
             // Cek Target & Jarak
             if (target == null) { yield return null; continue; }
