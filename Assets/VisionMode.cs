@@ -9,6 +9,8 @@ public class VisionMode : MonoBehaviour
     public float normalEmission = 0f;
     public float visionEmission = 5f;
     private bool isVisionOn = false;
+    public Camera highlightCamera;
+
 
     [System.Serializable]
     public class HighlightTarget
@@ -29,23 +31,29 @@ public class VisionMode : MonoBehaviour
     {
         isVisionOn = !isVisionOn;
 
+        // Toggle post-processing volume (greyscale, etc)
         if (visionVolume != null)
             visionVolume.enabled = isVisionOn;
 
+        // Toggle highlight camera
+        if (highlightCamera != null)
+            highlightCamera.gameObject.SetActive(isVisionOn);
+
+        // Toggle emission on highlighted objects
         foreach (HighlightTarget target in highlights)
         {
             if (isVisionOn)
             {
-                // Use bright vibrant emission color
+                target.material.EnableKeyword("_EMISSION");
                 target.material.SetColor("_EmissionColor", target.visionColor * visionEmission);
             }
             else
             {
-                // Turn emission off
-                target.material.SetColor("_EmissionColor", target.visionColor * normalEmission);
+                target.material.SetColor("_EmissionColor", Color.black);
             }
         }
 
         DynamicGI.UpdateEnvironment();
     }
+
 }
