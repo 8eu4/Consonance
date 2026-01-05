@@ -31,7 +31,7 @@ public class StringLineAttack : MonoBehaviour
     [SerializeField] private Gradient lineColor;
 
     [Header("Special Target Settings (Stun & Lock)")]
-    [SerializeField] private List<string> specialTags = new List<string> { "Remi", "Domi", "Conductor", "Enemy" };
+    [SerializeField] private List<string> specialTags = new List<string> { "Remi", "Domi", "Enemy" };
     [SerializeField] private Gradient specialLineColor;
     [SerializeField] private float stunCoilHeight = 2.0f;
     [SerializeField] private float stunCoilSpeed = 10f;
@@ -93,8 +93,8 @@ public class StringLineAttack : MonoBehaviour
     {
         get
         {
-            if (CompareTag("Domi")) return 0;
-            else if (CompareTag("Remi")) return 1;
+            if (gameObject.transform.parent.parent.CompareTag("Domi")) return 0;
+            else if (gameObject.transform.parent.parent.CompareTag("Remi")) return 1;
             else return 2;
         }
     }
@@ -192,7 +192,7 @@ public class StringLineAttack : MonoBehaviour
             }
         }
 
-        if (CompareTag("Player")) HandleInput();
+        if (gameObject.transform.parent.parent.CompareTag("Player")) HandleInput();
     }
 
     void LateUpdate()
@@ -200,8 +200,11 @@ public class StringLineAttack : MonoBehaviour
         bool isActive = false;
         Vector3 endPos = Vector3.zero;
 
+
         if (isAttacking[museIdx] == true || isAttached)
         {
+            
+            if (animator != null && gameObject.transform.parent.parent.CompareTag("Player")) animator.SetBool("Shoot", true);
             isActive = true;
 
             // 1. CEK JARAK
@@ -248,6 +251,7 @@ public class StringLineAttack : MonoBehaviour
         }
         else
         {
+            if (animator != null && gameObject.transform.parent.parent.CompareTag("Player")) animator.SetBool("Shoot", false);
             camRotation.CancelLineAttack(gameObject);
         }
 
@@ -333,14 +337,14 @@ public class StringLineAttack : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (animator != null) animator.SetBool("Shoot", true);
+            //if (animator != null) animator.SetBool("Shoot", true);
             if (camRotation.IsAttackLocked && isAttacking[museIdx] == false) return;
             if (isAttached) CancelAttack(museIdx);
             else if (fireRoutine == null) StartAttack(museIdx);
         }
         else if (Input.GetMouseButtonUp(0))
         {
-            if (animator != null) animator.SetBool("Shoot", false);
+            //if (animator != null) animator.SetBool("Shoot", false);
             if (fireRoutine != null) CancelAttack(museIdx);
         }
     }
