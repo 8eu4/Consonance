@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7394886210372584695}
   - component: {fileID: 7279728556538009903}
   - component: {fileID: 7565923698150537360}
+  - component: {fileID: 2925964894526973202}
   m_Layer: 0
   m_Name: Conductor
   m_TagString: Player
@@ -77,15 +78,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd23a980e738258459ca6bc1ff751998, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Move
-  animator: {fileID: 0}
+  animator: {fileID: 6546954867404668124}
   speed: 7
-  groundDrag: 5
+  groundDrag: 10
   jumpForce: 5
-  jumpCooldown: 0
-  playerHeight: 2
+  jumpCooldown: 0.25
+  airMultiplier: 0.4
+  airDrag: 1
   whatIsGround:
     serializedVersion: 2
     m_Bits: 512
+  grounded: 0
 --- !u!114 &7279728556538009903
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117,6 +120,20 @@ MonoBehaviour:
   arrowSpawnerScript: {fileID: 0}
   maxLockOnDistance: 12.5
   maxLockOnRadius: 2
+--- !u!114 &2925964894526973202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 936051787911710925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24871a68ca6cd9a4ab1b994ee058a7bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ConductorAttack
+  handAnimator: {fileID: 0}
+  swipeThreshold: 50
 --- !u!1 &3060485669786619265
 GameObject:
   m_ObjectHideFlags: 0
@@ -158,7 +175,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3060485669786619265}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 432992bce178c1b47a5c1397f5fdde75, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -335,5 +352,10 @@ PrefabInstance:
 --- !u!4 &881395009051862694 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: b445325c100aaf243b81477bc609b019, type: 3}
+  m_PrefabInstance: {fileID: 842702451683082573}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &6546954867404668124 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: b445325c100aaf243b81477bc609b019, type: 3}
   m_PrefabInstance: {fileID: 842702451683082573}
   m_PrefabAsset: {fileID: 0}
