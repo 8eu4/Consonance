@@ -8,43 +8,28 @@ public class EnemyHealthTracker : MonoBehaviour
     public string targetTag = "Enemy";
 
     [Header("Settings")]
-    public float heightOffset = 0.5f;
-    public int fallbackHealth = 5; // Dipakai kalau MaxHP di musuh 0/Error
-
-    [Header("Dynamic Scale")]
-    public float baseScale = 0.01f;
-    public float minScale = 0.005f;
-    public float maxScale = 0.03f;
-    public float cullDistance = 50f;
+    public float heightOffset = 0.5f; // Jarak dari titik tertinggi Mesh (Visual)
+    public Vector2 heartIconSize = new Vector2(0.5f, 0.5f);
 
     [Header("References")]
-    public GameObject gridHealthPopUp;
-    public GameObject heartPopUpIconPrefab;
+    public GameObject gridHealthPopUpPrefab;
+    public GameObject heartIconPrefab;
 
     private Camera mainCam;
-
-    // List musuh yang sedang kita tampilkan UI-nya
-    private List<EnemyUIData> trackedEnemies = new List<EnemyUIData>();
-
-    // Daftar ID musuh biar gak double create UI
-    private HashSet<int> registeredEnemyIDs = new HashSet<int>();
+    private Dictionary<int, EnemyUIData> trackedEnemies = new Dictionary<int, EnemyUIData>();
 
     class EnemyUIData
     {
-        public int instanceID; // ID unik game object
-        public Transform target;
-        public Collider targetCollider;
+        public Transform enemyTransform;
         public GameObject uiInstance;
-        public RectTransform uiRect;
-        public List<GameObject> heartIcons = new List<GameObject>();
+        public List<GameObject> hearts = new List<GameObject>();
+        // Kita simpan list renderer biar tidak GetComponent ulang terus menerus (berat)
+        public Renderer[] cachedRenderers;
     }
 
     void Start()
     {
         mainCam = Camera.main;
-
-        // PENTING: Jalanin scan setiap 0.5 detik. 
-        // Jadi kalau ada musuh baru di-spawn (Wave), UI otomatis muncul.
         InvokeRepeating(nameof(ScanForEnemies), 0f, 0.5f);
     }
 
@@ -56,112 +41,120 @@ public class EnemyHealthTracker : MonoBehaviour
         {
             int id = enemy.GetInstanceID();
 
-            // 1. Cek apakah musuh ini sudah punya UI? Kalau sudah, skip.
-            if (registeredEnemyIDs.Contains(id)) continue;
+            if (trackedEnemies.ContainsKey(id)) continue;
 
-            // 2. Cek apakah dia punya script EnemyHealth?
             EnemyHealth healthScript = enemy.GetComponent<EnemyHealth>();
-
-            if (healthScript == null)
+            if (healthScript != null && healthScript.CurrentHP > 0)
             {
-                // Debugging biar kamu tau object mana yang error
-                // Debug.LogWarning($"Object '{enemy.name}' punya tag Enemy tapi TIDAK ADA script EnemyHealth!");
-                continue;
+                CreateUI(enemy, healthScript, id);
             }
-
-            // --- BIKIN UI BARU ---
-            RegisterNewEnemy(enemy, healthScript, id);
         }
     }
 
-    void RegisterNewEnemy(GameObject enemy, EnemyHealth healthScript, int id)
+    void CreateUI(GameObject enemy, EnemyHealth healthScript, int id)
     {
-        GameObject ui = Instantiate(gridHealthPopUp);
         EnemyUIData data = new EnemyUIData();
+        data.enemyTransform = enemy.transform;
 
-        data.instanceID = id;
-        data.target = enemy.transform;
-        Collider col = enemy.GetComponent<Collider>();
-        if (col == null) col = enemy.GetComponentInChildren<Collider>();
-        data.targetCollider = col;
-        data.uiInstance = ui;
-        data.uiRect = ui.GetComponent<RectTransform>();
+        // --- CARI SEMUA MESH (Visual) ---
+        // Kita ambil semua renderer di anak-anak object juga (misal: pedang, kepala, armor)
+        List<Renderer> validRenderers = new List<Renderer>();
+        Renderer[] allRenderers = enemy.GetComponentsInChildren<Renderer>();
 
-        // Cek Max HP
-        int maxHP = healthScript.MaxHP;
-        if (maxHP <= 0) maxHP = fallbackHealth; // Pake fallback kalau lupa setting
-
-        int currentHP = healthScript.CurrentHP;
-        if (currentHP <= 0 && maxHP > 0) currentHP = maxHP;
-
-        // Spawn Hati
-        for (int i = 0; i < maxHP; i++)
+        foreach (var r in allRenderers)
         {
-            GameObject heart = Instantiate(heartPopUpIconPrefab, ui.transform);
-            data.heartIcons.Add(heart);
+            // PENTING: Jangan hitung Particle System (efek asap/api) atau Trail
+            // Kita cuma mau MeshRenderer (bangunan/prop) atau SkinnedMeshRenderer (karakter animasi)
+            if (r is ParticleSystemRenderer || r is TrailRenderer || r is LineRenderer)
+                continue;
+
+            validRenderers.Add(r);
         }
 
-        UpdateHearts(data, currentHP);
+        data.cachedRenderers = validRenderers.ToArray();
+        // --------------------------------
 
-        // Subscribe Event
-        healthScript.OnHealthChanged += (newVal) => UpdateHearts(data, newVal);
+        GameObject ui = Instantiate(gridHealthPopUpPrefab);
+        data.uiInstance = ui;
 
-        // Masukkan ke daftar tracking
-        trackedEnemies.Add(data);
-        registeredEnemyIDs.Add(id);
+        GridLayoutGroup grid = ui.GetComponent<GridLayoutGroup>();
+        if (grid != null) grid.cellSize = heartIconSize;
+
+        for (int i = 0; i < healthScript.MaxHP; i++)
+        {
+            GameObject heart = Instantiate(heartIconPrefab, ui.transform);
+            data.hearts.Add(heart);
+        }
+
+        UpdateHeartVisuals(data, healthScript.CurrentHP);
+
+        healthScript.OnHealthChanged += (currentHP, maxHP) =>
+        {
+            if (trackedEnemies.ContainsKey(id))
+                UpdateHeartVisuals(data, currentHP);
+        };
+
+        trackedEnemies.Add(id, data);
     }
 
-    void UpdateHearts(EnemyUIData data, int currentHP)
+    void UpdateHeartVisuals(EnemyUIData data, int currentHP)
     {
-        if (data.uiInstance == null) return;
-
-        for (int i = 0; i < data.heartIcons.Count; i++)
+        for (int i = 0; i < data.hearts.Count; i++)
         {
-            if (i < currentHP)
-                data.heartIcons[i].SetActive(true);
-            else
-                data.heartIcons[i].SetActive(false);
+            data.hearts[i].SetActive(i < currentHP);
         }
     }
 
     void LateUpdate()
     {
-        if (mainCam == null) return;
+        List<int> toRemove = new List<int>();
 
-        for (int i = trackedEnemies.Count - 1; i >= 0; i--)
+        foreach (var kvp in trackedEnemies)
         {
-            EnemyUIData data = trackedEnemies[i];
+            EnemyUIData data = kvp.Value;
 
-            // Kalau musuh mati/destroy, hapus UI-nya
-            if (data.target == null)
+            if (data.enemyTransform == null)
             {
                 if (data.uiInstance != null) Destroy(data.uiInstance);
-                registeredEnemyIDs.Remove(data.instanceID); // Hapus dari daftar ID biar bersih
-                trackedEnemies.RemoveAt(i);
+                toRemove.Add(kvp.Key);
                 continue;
             }
 
-            Vector3 topPos = data.target.position;
-            if (data.targetCollider != null)
-                topPos = new Vector3(data.target.position.x, data.targetCollider.bounds.max.y, data.target.position.z);
+            // --- HITUNG POSISI BERDASARKAN VISUAL MESH ---
 
-            Vector3 finalPos = topPos + Vector3.up * heightOffset;
-            float dist = Vector3.Distance(finalPos, mainCam.transform.position);
+            Vector3 topPosition = data.enemyTransform.position;
+            Vector3 centerPosition = data.enemyTransform.position;
 
-            if (dist > cullDistance)
+            if (data.cachedRenderers != null && data.cachedRenderers.Length > 0)
             {
-                if (data.uiInstance.activeSelf) data.uiInstance.SetActive(false);
-                continue;
+                // Inisialisasi bounds dengan renderer pertama
+                Bounds combinedBounds = data.cachedRenderers[0].bounds;
+
+                // Gabungkan sisa renderer lain (misal: gabungkan bounds badan + bounds kepala)
+                for (int i = 1; i < data.cachedRenderers.Length; i++)
+                {
+                    combinedBounds.Encapsulate(data.cachedRenderers[i].bounds);
+                }
+
+                // Ambil titik teratas visual & titik tengah visual
+                topPosition = new Vector3(combinedBounds.center.x, combinedBounds.max.y, combinedBounds.center.z);
+            }
+            else
+            {
+                // Fallback kalau musuh invisible (tak punya mesh)
+                topPosition += Vector3.up * 2.0f;
             }
 
-            if (!data.uiInstance.activeSelf) data.uiInstance.SetActive(true);
-            data.uiInstance.transform.position = finalPos;
-            data.uiInstance.transform.LookAt(data.uiInstance.transform.position + mainCam.transform.rotation * Vector3.forward,
-                                             mainCam.transform.rotation * Vector3.up);
+            // Posisi UI = Di atas titik tertinggi visual + Offset
+            data.uiInstance.transform.position = new Vector3(topPosition.x, topPosition.y + heightOffset, topPosition.z);
 
-            float targetScale = baseScale * (dist * 0.1f);
-            targetScale = Mathf.Clamp(targetScale, minScale, maxScale);
-            data.uiRect.localScale = new Vector3(targetScale, targetScale, 1f);
+            // Rotasi Billboard
+            data.uiInstance.transform.rotation = mainCam.transform.rotation;
+        }
+
+        foreach (int id in toRemove)
+        {
+            trackedEnemies.Remove(id);
         }
     }
 }
