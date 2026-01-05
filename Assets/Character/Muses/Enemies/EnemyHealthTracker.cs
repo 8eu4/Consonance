@@ -30,24 +30,20 @@ public class EnemyHealthTracker : MonoBehaviour
     void Start()
     {
         mainCam = Camera.main;
-        InvokeRepeating(nameof(ScanForEnemies), 0f, 0.5f);
     }
-
-    void ScanForEnemies()
+    public void ShowHealthForEnemy(GameObject specificEnemy)
     {
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag(targetTag);
+        int id = specificEnemy.GetInstanceID();
 
-        foreach (GameObject enemy in enemies)
+        // Jika sudah ada UI-nya, return (tidak perlu buat lagi)
+        if (trackedEnemies.ContainsKey(id)) return;
+
+        EnemyHealth healthScript = specificEnemy.GetComponent<EnemyHealth>();
+
+        // Pastikan punya script health dan darah > 0
+        if (healthScript != null && healthScript.CurrentHP > 0)
         {
-            int id = enemy.GetInstanceID();
-
-            if (trackedEnemies.ContainsKey(id)) continue;
-
-            EnemyHealth healthScript = enemy.GetComponent<EnemyHealth>();
-            if (healthScript != null && healthScript.CurrentHP > 0)
-            {
-                CreateUI(enemy, healthScript, id);
-            }
+            CreateUI(specificEnemy, healthScript, id);
         }
     }
 

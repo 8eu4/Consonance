@@ -2866,6 +2866,22 @@ PrefabInstance:
       value: Vision Mode
       objectReference: {fileID: 0}
     - target: {fileID: 5250892442988856157, guid: 577f413ece15b64449c35f68a7f97310, type: 3}
+      propertyPath: mainCamera
+      value: 
+      objectReference: {fileID: 330585545}
+    - target: {fileID: 5250892442988856157, guid: 577f413ece15b64449c35f68a7f97310, type: 3}
+      propertyPath: baseColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5250892442988856157, guid: 577f413ece15b64449c35f68a7f97310, type: 3}
+      propertyPath: baseColor.g
+      value: 0.89879215
+      objectReference: {fileID: 0}
+    - target: {fileID: 5250892442988856157, guid: 577f413ece15b64449c35f68a7f97310, type: 3}
+      propertyPath: baseColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5250892442988856157, guid: 577f413ece15b64449c35f68a7f97310, type: 3}
       propertyPath: visionVolume
       value: 
       objectReference: {fileID: 1378533357}
@@ -2881,6 +2897,10 @@ PrefabInstance:
       propertyPath: highlightCamera
       value: 
       objectReference: {fileID: 668492499}
+    - target: {fileID: 5250892442988856157, guid: 577f413ece15b64449c35f68a7f97310, type: 3}
+      propertyPath: switchCharacterScript
+      value: 
+      objectReference: {fileID: 1643502654}
     - target: {fileID: 8433817087354991290, guid: 577f413ece15b64449c35f68a7f97310, type: 3}
       propertyPath: m_LocalPosition.x
       value: -4.15683

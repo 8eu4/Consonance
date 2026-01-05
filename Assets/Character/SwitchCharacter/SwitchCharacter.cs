@@ -223,6 +223,10 @@ public class SwitchCharacter : MonoBehaviour
         }
     }
 
+    public int GetActiveCharacterIndex()
+    {
+        return activeCharacterIndex;
+    }
     public Transform CurrentPlayer
     {
         get { return _CurrentPlayer; }
