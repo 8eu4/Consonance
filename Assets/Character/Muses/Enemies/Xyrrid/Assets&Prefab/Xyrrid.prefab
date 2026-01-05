@@ -87,12 +87,12 @@ MonoBehaviour:
   amplitudeX: 1
   amplitudeZ: 3
   player: {fileID: 0}
-  targetDetector: {fileID: 0}
-  viewRange: 12
-  stopChaseDistance: 10
-  chaseSpeed: 3
+  targetDetector: {fileID: 4197348339241540095}
+  viewRange: 24
+  stopChaseDistance: 16
+  chaseSpeed: 4
   faceDirection: 0
-  strafeRadius: 7
+  strafeRadius: 14
   strafeSpeed: 4
   repositionDuration: 3
 --- !u!114 &7211897706007593487
@@ -108,8 +108,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::XyrridLookAt
   playerTarget: {fileID: 0}
-  targetDetector: {fileID: 0}
-  rotationSpeed: 2
+  targetDetector: {fileID: 4197348339241540095}
+  rotationSpeed: 4
 --- !u!114 &2964305845648689352
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -124,21 +124,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::XyrridSpreadGun
   firePoint: {fileID: 7958940094633027848}
   target: {fileID: 0}
-  targetDetector: {fileID: 0}
+  targetDetector: {fileID: 4197348339241540095}
   bubblePrefab: {fileID: 5341436306426903527, guid: 08d3d205c1250654e9e36a71ccb00fe4, type: 3}
   chargeAudio: {fileID: 0}
   movementScript: {fileID: 2883871810250628140}
   reloadTimeRange: {x: 1, y: 4}
   chargeTime: 1.2
   shootAnimDelay: 0.1
-  bubbleSpeed: 3
-  bubbleLifetime: 6
+  bubbleSpeed: 5
+  bubbleLifetime: 8
   useArc: 1
   arcHeight: 0
   pelletCount: 5
   pelletInterval: 0.3
   spreadAngle: 20
-  attackRange: 11
+  attackRange: 19
   stopMovementWhileFiring: 1
 --- !u!114 &4197348339241540095
 MonoBehaviour:
@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93f8b1d100422314595995233de4ee8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NearestTargetDetector
-  viewRange: 12
+  viewRange: 24
   targetTags:
   - Player
   - Conductor
