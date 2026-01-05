@@ -716,7 +716,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 127852961}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aa935b9d6a6259b4280d7085fcb6847e, type: 3}
   m_Name: 
@@ -740,8 +740,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CamRotation
   sensX: 400
   sensY: 400
+  smoothLockOnSpeed: 1
   switchCharacterScript: {fileID: 1643502654}
-  isAttackLocked: 0
+  StringLineAttackScript: []
+  Conductor: {fileID: 1408703789}
+  Domi: {fileID: 1560295120}
+  Remi: {fileID: 1511740198}
 --- !u!114 &127852966
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -793,7 +797,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 127852961}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &127852968
 Camera:
   m_ObjectHideFlags: 0
@@ -1477,8 +1481,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CamRotation
   sensX: 400
   sensY: 400
+  smoothLockOnSpeed: 1
   switchCharacterScript: {fileID: 1643502654}
-  isAttackLocked: 0
+  StringLineAttackScript: []
+  Conductor: {fileID: 1408703789}
+  Domi: {fileID: 1560295120}
+  Remi: {fileID: 1511740198}
 --- !u!120 &330585549
 LineRenderer:
   serializedVersion: 2
@@ -4388,7 +4396,6 @@ GameObject:
   - component: {fileID: 1408703789}
   - component: {fileID: 1408703791}
   - component: {fileID: 1408703792}
-  - component: {fileID: 1408703793}
   m_Layer: 0
   m_Name: Conductor
   m_TagString: Player
@@ -4459,18 +4466,6 @@ MonoBehaviour:
   whatIsGround:
     serializedVersion: 2
     m_Bits: 512
---- !u!114 &1408703793
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1408703788}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44fb4e9c9cfe50a4fae92b5caf5ca859, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
 --- !u!1 &1462533484
 GameObject:
   m_ObjectHideFlags: 0
@@ -4715,6 +4710,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c94d3d6c8ca28a41ac310885b48a62e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  _MaxHP: 2
 --- !u!114 &1511740202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4729,7 +4725,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StringLineAttack
   fireOrigin: {fileID: 1614393492}
   playerCamera: {fileID: 330585545}
-  camRotationScript: {fileID: 330585548}
+  camRotation: {fileID: 330585548}
+  SwitchCharacterScript: {fileID: 1643502654}
   lineSpeed: 15
   maxLineLength: 15
   attachDelay: 1.5
@@ -4737,12 +4734,50 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   textureScrollSpeed: 2
-  lineColliderGameObject: {fileID: 1073699404}
-  lineCollider: {fileID: 1073699409}
+  lineMaterial: {fileID: 2100000, guid: 9696e3ded674ebc4cae3a12b7c858419, type: 2}
+  lineThickness: 0.02
+  lineColor:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  numberOfLines: 5
+  lineSpacing: 0.1
+  points: 100
+  amplitude: 0.25
+  frequency: 3
+  waveSpeed: 6
+  lineObj: {fileID: 1073699404}
+  lineCol: {fileID: 1073699409}
   colliderRadius: 0.5
   colliderEndOffset: 0.1
   safetyMargin: 0.05
-  playerCollider: {fileID: 1073699409}
+  playerCol: {fileID: 870945797}
 --- !u!120 &1511740203
 LineRenderer:
   serializedVersion: 2
@@ -5042,6 +5077,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cb4d54d6f6343845ab54c44a0ed4045, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  _MaxHP: 2
 --- !u!114 &1560295124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5056,7 +5092,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StringLineAttack
   fireOrigin: {fileID: 1799843704}
   playerCamera: {fileID: 330585545}
-  camRotationScript: {fileID: 330585548}
+  camRotation: {fileID: 330585548}
+  SwitchCharacterScript: {fileID: 1643502654}
   lineSpeed: 15
   maxLineLength: 15
   attachDelay: 1.5
@@ -5064,12 +5101,50 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   textureScrollSpeed: 2
-  lineColliderGameObject: {fileID: 187232405}
-  lineCollider: {fileID: 187232409}
+  lineMaterial: {fileID: 2100000, guid: 9696e3ded674ebc4cae3a12b7c858419, type: 2}
+  lineThickness: 0.02
+  lineColor:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  numberOfLines: 5
+  lineSpacing: 0.1
+  points: 100
+  amplitude: 0.25
+  frequency: 3
+  waveSpeed: 6
+  lineObj: {fileID: 187232405}
+  lineCol: {fileID: 187232409}
   colliderRadius: 0.5
   colliderEndOffset: 0.1
   safetyMargin: 0.05
-  playerCollider: {fileID: 187232409}
+  playerCol: {fileID: 1462533485}
 --- !u!120 &1560295125
 LineRenderer:
   serializedVersion: 2
@@ -5498,6 +5573,7 @@ MonoBehaviour:
   camScript: {fileID: 658124729}
   uiSwitchCharacterScript: {fileID: 1643502656}
   offScreenIndicatorScript: {fileID: 1643502658}
+  conductorLockedInThisScene: 0
 --- !u!4 &1643502655
 Transform:
   m_ObjectHideFlags: 0
@@ -5546,12 +5622,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ec969752f9ed9a478cc74337ff34c6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  ConductorHP_Script: {fileID: 1408703793}
+  ConductorHP_Script: {fileID: 0}
   DomiHP_Script: {fileID: 1560295123}
   RemiHP_Script: {fileID: 1511740201}
   UI_ConductorHP: {fileID: 1711027885}
   UI_DomiHP: {fileID: 851773765}
   UI_RemiHP: {fileID: 1152841588}
+  C_HP1: {fileID: 0}
+  C_HP2: {fileID: 0}
+  C_HP3: {fileID: 0}
+  C_HP4: {fileID: 0}
+  D_HP1: {fileID: 0}
+  D_HP2: {fileID: 0}
+  R_HP1: {fileID: 0}
+  R_HP2: {fileID: 0}
 --- !u!114 &1643502658
 MonoBehaviour:
   m_ObjectHideFlags: 0
