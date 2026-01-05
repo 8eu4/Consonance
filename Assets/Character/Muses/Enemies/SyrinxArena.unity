@@ -1751,7 +1751,6 @@ MonoBehaviour:
   sensY: 400
   smoothLockOnSpeed: 1
   switchCharacterScript: {fileID: 1643502654}
-  StringLineAttackScript: []
   Conductor: {fileID: 0}
   Domi: {fileID: 0}
   Remi: {fileID: 0}
@@ -4696,7 +4695,6 @@ MonoBehaviour:
   sensY: 400
   smoothLockOnSpeed: 1
   switchCharacterScript: {fileID: 1643502654}
-  StringLineAttackScript: []
   Conductor: {fileID: 0}
   Domi: {fileID: 0}
   Remi: {fileID: 0}
@@ -18957,10 +18955,12 @@ MonoBehaviour:
   groundDrag: 5
   jumpForce: 5
   jumpCooldown: 0
-  playerHeight: 2
+  airMultiplier: 0.4
+  airDrag: 1
   whatIsGround:
     serializedVersion: 2
     m_Bits: 0
+  grounded: 0
 --- !u!114 &1408703793
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20046,10 +20046,12 @@ MonoBehaviour:
   groundDrag: 5
   jumpForce: 5
   jumpCooldown: 0
-  playerHeight: 2
+  airMultiplier: 0.4
+  airDrag: 1
   whatIsGround:
     serializedVersion: 2
     m_Bits: 512
+  grounded: 0
 --- !u!54 &1511740200
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -21083,10 +21085,12 @@ MonoBehaviour:
   groundDrag: 5
   jumpForce: 5
   jumpCooldown: 0
-  playerHeight: 2
+  airMultiplier: 0.4
+  airDrag: 1
   whatIsGround:
     serializedVersion: 2
     m_Bits: 512
+  grounded: 0
 --- !u!54 &1560295122
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -22528,6 +22532,8 @@ MonoBehaviour:
   uiSwitchCharacterScript: {fileID: 1643502656}
   offScreenIndicatorScript: {fileID: 1643502658}
   conductorLockedInThisScene: 0
+  HandObject: {fileID: 0}
+  currentMoveScript: {fileID: 0}
 --- !u!4 &1643502655
 Transform:
   m_ObjectHideFlags: 0
@@ -29298,14 +29304,6 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 1408703789}
-    - target: {fileID: 3574161123116051260, guid: 71fdf72ffded4354593c00a7c8335994, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3574161123116051260, guid: 71fdf72ffded4354593c00a7c8335994, type: 3}
-      propertyPath: faceDirection
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4513913241554310260, guid: 71fdf72ffded4354593c00a7c8335994, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -29350,10 +29348,6 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 1408703789}
-    - target: {fileID: 5353013003396030654, guid: 71fdf72ffded4354593c00a7c8335994, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6345715311747222446, guid: 71fdf72ffded4354593c00a7c8335994, type: 3}
       propertyPath: m_Name
       value: Syrinx
