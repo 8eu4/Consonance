@@ -859,6 +859,37 @@ Transform:
   - {fileID: 5387294945253837361}
   m_Father: {fileID: 5113333522382531430}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3912725177330516854
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2236571684497162437}
+  m_Layer: 0
+  m_Name: Firepoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2236571684497162437
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3912725177330516854}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.00707, z: -0.01301}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4436485128889216120}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3935749144118450670
 GameObject:
   m_ObjectHideFlags: 0
@@ -1264,10 +1295,10 @@ MonoBehaviour:
   viewRange: 12
   stopChaseDistance: 11
   chaseSpeed: 6
-  strafeRadius: 7
+  strafeRadius: 12
   strafeSpeed: 4
   defaultRepositionDuration: 1.2
-  faceDirection: 1
+  faceDirection: 0
   knockbackStrength: 0.5
   knockbackDuration: 0.5
 --- !u!114 &5353013003396030654
@@ -1283,7 +1314,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChargeGun
   animator: {fileID: 8271829300833476519}
-  firePoint: {fileID: 0}
+  firePoint: {fileID: 2236571684497162437}
   player: {fileID: 0}
   laserSightPrefab: {fileID: 4287167201292015423, guid: dbe3ed161c5fb054fa0e20fdb37a91ed, type: 3}
   laserBeamPrefab: {fileID: 4287167201292015423, guid: 12e1188372e2aae4198370d0f8da834c, type: 3}
@@ -1322,7 +1353,7 @@ Animator:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6345715311747222446}
   m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: 39a66577aa86ba047b16f1be4568b5d3, type: 3}
+  m_Avatar: {fileID: 9000000, guid: 735ef8b379c6c7545b299de159aff80f, type: 3}
   m_Controller: {fileID: 9100000, guid: 82dc84c68abcbe34993d2d4cc6d3898f, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
@@ -1809,7 +1840,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 100, y: 100, z: 100}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2236571684497162437}
   m_Father: {fileID: -8679921383154817045}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!137 &5950154727547788308
