@@ -32,9 +32,6 @@ public class EnemyHealth : Health
             Instantiate(deathEffectPrefab, transform.position, transform.rotation);
         }
 
-        //Debug.Log(gameObject.name + " died!"); // Log message for debugging
-        //Destroy(gameObject); // Destroy the entire enemy GameObject
         Destroy(gameObject, destroyDelay);
-
     }
 }

@@ -1251,13 +1251,15 @@ GameObject:
   - component: {fileID: 5353013003396030654}
   - component: {fileID: 8058302176477630447}
   - component: {fileID: 8271829300833476519}
-  m_Layer: 0
+  - component: {fileID: 7010579610378623072}
+  - component: {fileID: 8535296901075370723}
+  m_Layer: 11
   m_Name: Syrinx
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4513913241554310260
 Transform:
   m_ObjectHideFlags: 0
@@ -1366,6 +1368,44 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7010579610378623072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6345715311747222446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48e782abb88fe584795f2dc700245df1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
+  _MaxHP: 1
+  deathEffectPrefab: {fileID: 6306435313413162683, guid: 7d0be088a840eac4f80d8356c083deb8, type: 3}
+  destroyDelay: 0.1
+--- !u!136 &8535296901075370723
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6345715311747222446}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1
+  m_Height: 5
+  m_Direction: 1
+  m_Center: {x: 0, y: -1.64, z: 0}
 --- !u!1 &6418664940175090718
 GameObject:
   m_ObjectHideFlags: 0
