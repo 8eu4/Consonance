@@ -3,17 +3,14 @@ using UnityEngine;
 
 public class EnemyHealth : Health
 {
-    public event Action<int> OnHealthChanged;
     public void TakeDamage(int amount)
     {
         CurrentHP -= amount;
         Debug.Log($"{gameObject.name} took {amount} damage, HP is now {CurrentHP}");
-        OnHealthChanged?.Invoke(CurrentHP);
     }
     public void Heal(int amount)
     {
         CurrentHP += amount;
         Debug.Log($"{gameObject.name} healed {amount}, HP is now {CurrentHP}");
-        OnHealthChanged?.Invoke(CurrentHP);
     }
 }
