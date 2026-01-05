@@ -8,10 +8,11 @@ public class XyrridLookAt : MonoBehaviour
 
     void Update()
     {
+        if (targetDetector != null)
+            playerTarget = targetDetector.currentTarget;
+
         if (playerTarget != null)
         {
-            if (targetDetector != null)
-                playerTarget = targetDetector.currentTarget;
 
             // 1. Calculate the direction from the character to the player
             Vector3 direction = playerTarget.position - transform.position;
