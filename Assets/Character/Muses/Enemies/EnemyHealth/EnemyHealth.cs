@@ -1,12 +1,12 @@
 using System;
 using UnityEngine;
 
-
-
 public class EnemyHealth : Health
 {
     public GameObject deathEffectPrefab; // Drag your death animation/particle prefab here in the Inspector
     public float destroyDelay = 0.1f; // Adjust to match your death animation/effect duration
+
+    public event Action<int> OnHealthChanged;
 
     public void TakeDamage(int amount)
     {
@@ -14,7 +14,9 @@ public class EnemyHealth : Health
 
         Debug.Log($"{gameObject.name} took {amount} damage, HP is now {CurrentHP}");
 
-        if( CurrentHP == 0)
+        OnHealthChanged?.Invoke(CurrentHP);
+
+        if ( CurrentHP == 0)
         {
             Die();
         }
@@ -23,6 +25,7 @@ public class EnemyHealth : Health
     {
         CurrentHP += amount;
         Debug.Log($"{gameObject.name} healed {amount}, HP is now {CurrentHP}");
+        OnHealthChanged?.Invoke(CurrentHP);
     }
 
     void Die()

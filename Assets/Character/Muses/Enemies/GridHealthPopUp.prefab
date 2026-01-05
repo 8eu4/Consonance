@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4993754523365736262}
   - component: {fileID: 1460223677602500974}
   - component: {fileID: -4212229726029171503}
-  - component: {fileID: -3826527519299811485}
+  - component: {fileID: 6611453378499067906}
   m_Layer: 5
   m_Name: GridHealthPopUp
   m_TagString: Untagged
@@ -85,7 +85,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
   m_HorizontalFit: 2
   m_VerticalFit: 2
---- !u!223 &-3826527519299811485
+--- !u!223 &6611453378499067906
 Canvas:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
