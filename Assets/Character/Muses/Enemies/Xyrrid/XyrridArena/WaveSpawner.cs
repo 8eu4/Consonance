@@ -3,31 +3,41 @@ using System.Collections;
 
 public class WaveSpawner : MonoBehaviour
 {
-    // Class kecil untuk mengatur settingan per wave di Inspector
+    // Singleton agar EnemyHealth bisa melapor tanpa ribet
+    public static WaveSpawner instance;
+
+    private void Awake()
+    {
+        if (instance == null) instance = this;
+    }
+
     [System.Serializable]
     public class Wave
     {
         public string waveName;
         public GameObject enemyPrefab;
         public int count;
-        public float rate; // Jarak waktu spawn antar musuh
+        public float rate;
     }
 
     public enum SpawnState { SPAWNING, WAITING, COUNTING }
 
     [Header("Settings")]
-    public Wave[] waves; // List wave yang dinamis
-    public Transform[] spawnPoints; // Titik-titik spawn musuh
+    public Wave[] waves;
+    public Transform[] spawnPoints;
     public float timeBetweenWaves = 5f;
 
-    [Header("Item Drop")]
-    public GameObject keyItemPrefab; // Drag prefab Kunci/Item ke sini
+    [Header("Key Item")]
+    public GameObject keyItemPrefab; // Drag Item Kunci ke sini
 
-    [Header("Status (Don't Edit)")]
+    [Header("Status")]
     public float waveCountdown;
     public SpawnState state = SpawnState.COUNTING;
+
     private int nextWave = 0;
-    private float searchCountdown = 1f;
+
+    // Variable untuk melacak jumlah musuh yang masih hidup/belum mati
+    private int enemiesAlive = 0;
 
     void Start()
     {
@@ -36,31 +46,53 @@ public class WaveSpawner : MonoBehaviour
 
     void Update()
     {
-        // Cek apakah musuh sudah habis (hanya saat status WAITING)
         if (state == SpawnState.WAITING)
         {
-            if (!EnemyIsAlive())
+            // Kita tidak perlu lagi mengecek setiap frame dengan FindObject
+            // Karena musuh akan melapor saat mati (Event Driven)
+            if (enemiesAlive == 0)
             {
                 WaveCompleted();
             }
             else
             {
-                return; // Masih ada musuh, jangan lanjut code di bawah
+                return;
             }
         }
 
-        // Hitung mundur untuk wave berikutnya
         if (waveCountdown <= 0)
         {
             if (state != SpawnState.SPAWNING)
             {
-                // Mulai spawn wave
                 StartCoroutine(SpawnWave(waves[nextWave]));
             }
         }
         else
         {
             waveCountdown -= Time.deltaTime;
+        }
+    }
+
+    // Fungsi ini DIPANGGIL oleh EnemyHealth saat musuh mati
+    public void OnEnemyKilled(Vector3 deathPosition)
+    {
+        // Kurangi jumlah musuh hidup
+        enemiesAlive--;
+
+        // LOGIC DROP KEY
+        // Jika musuh habis (0) DAN ini adalah Wave Terakhir
+        if (enemiesAlive <= 0 && nextWave == waves.Length - 1)
+        {
+            DropKey(deathPosition);
+        }
+    }
+
+    void DropKey(Vector3 pos)
+    {
+        if (keyItemPrefab != null)
+        {
+            Instantiate(keyItemPrefab, pos, Quaternion.identity);
+            Debug.Log("Last Enemy Killed! Key Dropped at " + pos);
         }
     }
 
@@ -73,8 +105,8 @@ public class WaveSpawner : MonoBehaviour
         if (nextWave + 1 > waves.Length - 1)
         {
             Debug.Log("ALL WAVES COMPLETE! Level Finished.");
-            // Logic untuk menang level bisa ditaruh di sini
-            // enabled = false; // Matikan spawner
+            // nextWave = 0; // Uncomment jika ingin looping dari awal
+            enabled = false; // Uncomment jika ingin stop script
         }
         else
         {
@@ -82,37 +114,17 @@ public class WaveSpawner : MonoBehaviour
         }
     }
 
-    bool EnemyIsAlive()
-    {
-        // Cek musuh setiap 1 detik agar tidak berat performanya
-        searchCountdown -= Time.deltaTime;
-        if (searchCountdown <= 0f)
-        {
-            searchCountdown = 1f;
-            if (GameObject.FindGameObjectWithTag("Enemy") == null)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
     IEnumerator SpawnWave(Wave _wave)
     {
         Debug.Log("Spawning Wave: " + _wave.waveName);
         state = SpawnState.SPAWNING;
 
-        // Loop sebanyak jumlah musuh di wave tersebut
+        // Set jumlah musuh yang harus dibunuh player
+        enemiesAlive = _wave.count;
+
         for (int i = 0; i < _wave.count; i++)
         {
-            // Cek Logic Kunci:
-            // Apakah ini Wave Terakhir? DAN Apakah ini Musuh Terakhir di loop?
-            bool isLastWave = (nextWave == waves.Length - 1);
-            bool isLastEnemy = (i == _wave.count - 1);
-            bool shouldDropKey = (isLastWave && isLastEnemy);
-
-            SpawnEnemy(_wave.enemyPrefab, shouldDropKey);
-
+            SpawnEnemy(_wave.enemyPrefab);
             yield return new WaitForSeconds(1f / _wave.rate);
         }
 
@@ -120,27 +132,9 @@ public class WaveSpawner : MonoBehaviour
         yield break;
     }
 
-    void SpawnEnemy(GameObject _enemy, bool dropsKey)
+    void SpawnEnemy(GameObject _enemy)
     {
-        // Pilih spawn point secara acak
         Transform _sp = spawnPoints[Random.Range(0, spawnPoints.Length)];
-
-        // Instantiate musuh
-        GameObject newEnemy = Instantiate(_enemy, _sp.position, _sp.rotation);
-
-        // Jika ini musuh penentu, kita inject item kuncinya ke script EnemyHealth
-        if (dropsKey)
-        {
-            EnemyHealth eHealth = newEnemy.GetComponent<EnemyHealth>();
-            if (eHealth != null)
-            {
-                eHealth.itemToDrop = keyItemPrefab;
-                Debug.Log("Key has been injected to the final enemy!");
-            }
-            else
-            {
-                Debug.LogWarning("Enemy tidak punya script EnemyHealth!");
-            }
-        }
+        Instantiate(_enemy, _sp.position, _sp.rotation);
     }
 }
