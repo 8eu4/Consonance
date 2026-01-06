@@ -118,7 +118,9 @@ MonoBehaviour:
   playerCamera: {fileID: 0}
   switchCharacterScript: {fileID: 0}
   arrowSpawnerScript: {fileID: 0}
+  visionModeScript: {fileID: 0}
   maxLockOnDistance: 12.5
+  breakLockDistance: 18
   maxLockOnRadius: 2
 --- !u!114 &2925964894526973202
 MonoBehaviour:
@@ -134,6 +136,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ConductorAttack
   handAnimator: {fileID: 0}
   swipeThreshold: 50
+  isAttacking: 0
 --- !u!1 &3060485669786619265
 GameObject:
   m_ObjectHideFlags: 0
@@ -188,7 +191,7 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.35
-  m_Height: 2.19
+  m_Height: 2.1
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &4011194941361785738

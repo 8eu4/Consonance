@@ -16,7 +16,7 @@ public class LockToAttack : MonoBehaviour
     [SerializeField] private float maxLockOnDistance = 30f;
 
     [Tooltip("Jarak otomatis CANCEL jika musuh menjauh melebihi angka ini")]
-    [SerializeField] private float breakLockDistance = 9f;
+    [SerializeField] private float breakLockDistance = 18f;
 
     [SerializeField] private float maxLockOnRadius = 2f;
 

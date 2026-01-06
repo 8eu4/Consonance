@@ -9,7 +9,7 @@ public class UI_SwitchCharacter : MonoBehaviour
     [SerializeField] private Image UI_ConductorHP;
     [SerializeField] private Image UI_DomiHP;
     [SerializeField] private Image UI_RemiHP;
-    [SerializeField] private VisualEffect VFX_SwitchCharacter;    
+    [SerializeField] private VisualEffect VFX_SwitchCharacter;
 
     [Header("UI Elements")]
     [SerializeField] private Sprite _2ActiveHP;
@@ -47,7 +47,7 @@ public class UI_SwitchCharacter : MonoBehaviour
     public void change2HP(int Muse, bool isActive)
     {
         Image HP1 = null;
-        Image HP2 = null;   
+        Image HP2 = null;
 
         if (Muse == 1)
         {
@@ -72,28 +72,48 @@ public class UI_SwitchCharacter : MonoBehaviour
         }
     }
 
+    // --- REVISI: Mengubah warna Induk BESERTA Anak-anaknya (HP Bars) ---
     public void SetLockedVisuals(bool isLocked, int activeCharIndex)
     {
-        // Tentukan warna target: Jika Locked = Merah, Jika Tidak = Putih (Normal)
         Color targetColor = isLocked ? lockedColor : normalColor;
 
-        // Kita hanya ubah warna karakter yang TIDAK AKTIF.
-        // Karakter yang sedang dipakai (Active) biarkan tetap Putih/Normal.
+        // Helper function kecil biar kodenya rapi
+        void ApplyColorToHierarchy(Image parentImage, Color color)
+        {
+            // Ubah warna parent (Icon Karakter)
+            parentImage.color = color;
 
-        if (activeCharIndex != 0) // Jika Conductor BUKAN karakter aktif
-            UI_ConductorHP.color = targetColor;
-        else
-            UI_ConductorHP.color = normalColor;
+            // Ubah warna semua anak (HP Bars: C_HP1, C_HP2, dst)
+            foreach (Transform child in parentImage.transform)
+            {
+                Image childImg = child.GetComponent<Image>();
+                if (childImg != null)
+                {
+                    childImg.color = color;
+                }
+            }
+        }
 
-        if (activeCharIndex != 1) // Jika Domi BUKAN karakter aktif
-            UI_DomiHP.color = targetColor;
-        else
-            UI_DomiHP.color = normalColor;
+        // Logic Utama: Hanya ubah karakter yang TIDAK AKTIF
+        // Karakter aktif tetap warna normal (putih)
 
-        if (activeCharIndex != 2) // Jika Remi BUKAN karakter aktif
-            UI_RemiHP.color = targetColor;
+        // 1. CONDUCTOR
+        if (activeCharIndex != 0)
+            ApplyColorToHierarchy(UI_ConductorHP, targetColor);
         else
-            UI_RemiHP.color = normalColor;
+            ApplyColorToHierarchy(UI_ConductorHP, normalColor);
+
+        // 2. DOMI
+        if (activeCharIndex != 1)
+            ApplyColorToHierarchy(UI_DomiHP, targetColor);
+        else
+            ApplyColorToHierarchy(UI_DomiHP, normalColor);
+
+        // 3. REMI
+        if (activeCharIndex != 2)
+            ApplyColorToHierarchy(UI_RemiHP, targetColor);
+        else
+            ApplyColorToHierarchy(UI_RemiHP, normalColor);
     }
 
     public void PlayVFX_SwitchCharacter()
@@ -104,8 +124,6 @@ public class UI_SwitchCharacter : MonoBehaviour
 
     public void StopVFX_SwitchCharacter()
     {
-        
+
     }
-
-
 }
