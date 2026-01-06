@@ -32,7 +32,6 @@ Transform:
   m_Children:
   - {fileID: 2964350633519210659}
   - {fileID: 2408669755141191923}
-  - {fileID: 4776118570696509574}
   - {fileID: 5127520311754748805}
   m_Father: {fileID: 7015523131696000684}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -56,7 +55,7 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5000001
-  m_Height: 2
+  m_Height: 1.9
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6037369708929853871
@@ -83,12 +82,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6037369708929853871}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.358, z: 0.266}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.00001, y: -0.00044, z: -0.00341}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7402357352770322476}
+  m_Father: {fileID: 6255147057691174445}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6561023560153844675
 GameObject:
@@ -526,7 +525,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -1141286439924483787, guid: 547caa0e69136994db413d3a7590e3a1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4776118570696509574}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 547caa0e69136994db413d3a7590e3a1, type: 3}
       insertIndex: -1
@@ -557,10 +559,11 @@ MonoBehaviour:
   fireOrigin: {fileID: 4776118570696509574}
   playerCamera: {fileID: 0}
   camRotation: {fileID: 0}
+  guitar: {fileID: 0}
   animator: {fileID: 8614678783172485769}
   lineSpeed: 15
   maxLineLength: 7
-  breakDistance: 9
+  breakDistance: 18
   attachDelay: 1.5
   hittableLayers:
     serializedVersion: 2
@@ -599,6 +602,14 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 3
     m_NumAlphaKeys: 2
+  musicNotePrefabs:
+  - {fileID: 3264979585735070075, guid: 6b4d90d95cbca0245a04cfda397c34db, type: 3}
+  - {fileID: 7583933016545180703, guid: b8b297f208000964dbb6fc7416b62a7d, type: 3}
+  noteSpawnInterval: 0.15
+  noteTravelSpeed: 15
+  minNoteSpeed: 5
+  maxNoteSpeed: 6
+  spawnSpreadRadius: 0.3
   specialTags:
   - Remi
   - Domi
@@ -651,6 +662,11 @@ MonoBehaviour:
   colliderEndOffset: 0.1
   safetyMargin: 0.05
   playerCol: {fileID: 6048008349850777846}
+--- !u!4 &6255147057691174445 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -1141286439924483787, guid: 547caa0e69136994db413d3a7590e3a1, type: 3}
+  m_PrefabInstance: {fileID: 2803465599778791192}
+  m_PrefabAsset: {fileID: 0}
 --- !u!95 &8614678783172485769 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 547caa0e69136994db413d3a7590e3a1, type: 3}

@@ -16,7 +16,7 @@ public class SwitchCharacter : MonoBehaviour
     [SerializeField] private GameObject woodwind_remi_object;
 
     [Header("Which Area? (stringed / woodwind)")]
-    [SerializeField] private bool isStringedArea = true;
+    public bool isStringedArea = true;
 
     private int activeCharacterIndex;
 
@@ -27,7 +27,7 @@ public class SwitchCharacter : MonoBehaviour
     [Header("UI Script")]
     [SerializeField] private UI_SwitchCharacter uiSwitchCharacterScript;
     [SerializeField] private OffScreenIndicator offScreenIndicatorScript;
-    
+
     [Header("Other Scripts Reference")]
     [SerializeField] private VisionMode visionModeScript;
     [SerializeField] private ConductorAttack conductorAttackScript;
@@ -35,10 +35,14 @@ public class SwitchCharacter : MonoBehaviour
     [Header("Level Rules")]
     [SerializeField] private bool conductorLockedInThisScene = false;
 
+    // --- FITUR BARU: COOLDOWN ---
+    [Header("Settings")]
+    [SerializeField] private float switchCooldown = 1.0f; // Durasi jeda antar ganti karakter
+    private float lastSwitchTime = -999f; // Waktu terakhir ganti (diisi -999 biar bisa langsung ganti di awal)
+
     [Header("HandObject")]
     [SerializeField] private GameObject HandObject;
 
-    // Variabel ini akan otomatis berubah isinya sesuai karakter yang aktif
     [Header("Tidak usah diisi v")]
     public Move currentMoveScript;
 
@@ -63,15 +67,14 @@ public class SwitchCharacter : MonoBehaviour
 
     void Update()
     {
-        // Pengecekan Grounded sekarang jadi sangat simpel
-        if (!IsCurrentCharacterGrounded()) return;
+        // Pengecekan Grounded
+        //if (!IsCurrentCharacterGrounded()) return;
 
         bool canSwitch = CanSwitchCharacter();
 
         // Update UI Visual (Merah jika gak bisa switch, Putih jika bisa)
         if (uiSwitchCharacterScript != null)
         {
-            // Kirim kebalikan dari canSwitch (isLocked = !canSwitch)
             uiSwitchCharacterScript.SetLockedVisuals(!canSwitch, activeCharacterIndex);
         }
 
@@ -94,34 +97,35 @@ public class SwitchCharacter : MonoBehaviour
 
     private bool CanSwitchCharacter()
     {
-        // 1. Cek Grounded (Harus di tanah)
+        // 1. Cek Grounded
         if (!IsCurrentCharacterGrounded()) return false;
 
-        // 2. Cek Vision Mode (Harus dunia nyata / berwarna)
+        // 2. Cek Vision Mode
         if (visionModeScript != null && visionModeScript.IsVisionActive) return false;
 
-        // 3. Cek Attack (Harus tidak sedang menyerang)
-        // Pastikan di ConductorAttack ada bool IsAttacking atau semacamnya
+        // 3. Cek Attack
         if (conductorAttackScript != null && conductorAttackScript.isAttacking) return false;
 
-        // Jika semua aman:
+        // 4. CEK COOLDOWN (BARU)
+        if (Time.time < lastSwitchTime + switchCooldown) return false;
+
         return true;
     }
 
     private bool IsCurrentCharacterGrounded()
     {
-        // Karena currentMoveScript sudah di-update saat ChangeCharacter,
-        // kita tinggal pakai saja, tidak perlu cari-cari lagi.
         if (currentMoveScript != null)
         {
             return currentMoveScript.grounded;
         }
-        return true; // Default true agar tidak macet jika error
+        return true;
     }
 
     public void DelayAndSwitchTo(int characterIndex)
     {
         uiSwitchCharacterScript.PlayVFX_SwitchCharacter();
+        // Reset timer saat mulai proses switch
+        lastSwitchTime = Time.time;
         Invoke(() => ChangeCharacter(characterIndex), 0.6f);
     }
 
@@ -140,17 +144,22 @@ public class SwitchCharacter : MonoBehaviour
     {
         if (conductorLockedInThisScene && characterIndex == 0) return;
 
+        // Update waktu terakhir switch agar cooldown berjalan
+        lastSwitchTime = Time.time;
+
         if (conductorLockedInThisScene) Conductor.tag = "Conductor";
 
         // --- RESET KARAKTER LAMA ---
         if (activeCharacterIndex == 0)
         {
+            Conductor.GetComponent<Move>().ResetMovementState(); // RESET ANIMASI
             Conductor.tag = "Conductor";
             Conductor.transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
             uiSwitchCharacterScript.change4HP(false);
         }
         else if (activeCharacterIndex == 1)
         {
+            Domi.GetComponent<Move>().ResetMovementState(); // RESET ANIMASI
             Domi.tag = "Domi";
             stringed_domi_object.SetActive(isStringedArea);
             woodwind_domi_object.SetActive(!isStringedArea);
@@ -158,6 +167,7 @@ public class SwitchCharacter : MonoBehaviour
         }
         else if (activeCharacterIndex == 2)
         {
+            Remi.GetComponent<Move>().ResetMovementState(); // RESET ANIMASI
             Remi.tag = "Remi";
             stringed_remi_object.SetActive(isStringedArea);
             woodwind_remi_object.SetActive(!isStringedArea);
@@ -208,18 +218,14 @@ public class SwitchCharacter : MonoBehaviour
             HandObject.SetActive(false);
         }
 
-        // --- LOGIKA BARU: Update Move Script ---
-        // Kita ambil script Move dari karakter yang BARU saja dipilih
         if (CurrentPlayer != null)
         {
             currentMoveScript = CurrentPlayer.GetComponent<Move>();
         }
 
-        // --- UPDATE KAMERA ---
         camScript.setCameraPosition();
-        camRotationScript.SetCharacter(CurrentPlayer); // Ini memanggil script CamRotation yang saya kasih sebelumnya
+        camRotationScript.SetCharacter(CurrentPlayer);
 
-        // FINAL OVERRIDE for rail conductor
         if (conductorLockedInThisScene)
         {
             Rigidbody rb = Conductor.GetComponent<Rigidbody>();
