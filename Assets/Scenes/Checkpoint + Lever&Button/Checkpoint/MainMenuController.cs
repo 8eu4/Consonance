@@ -1,31 +1,29 @@
 using UnityEngine;
+using System.Collections;
 
 public class MainMenuController : MonoBehaviour
 {
     [Header("Optional")]
     public GameObject playerObject; // boleh kosong, akan dicari otomatis
 
-    // =========================
-    // NEW GAME
-    // =========================
     public void NewGame()
     {
-        // 1. Reset checkpoint system
-        if (RespawnManager.Instance != null)
+        // 1. Reset save
+        if (SaveManager.Instance != null)
         {
-            RespawnManager.Instance.ClearSavedCheckpoint();
+            SaveManager.Instance.NewGame();
         }
 
-        // 2. Reset Quest UI (Story Objective)
+        // 2. Reset Quest UI
         if (QuestUIController.Instance != null)
         {
             QuestUIController.Instance.ResetQuest();
         }
 
-        // 3. Pastikan player reference ada
+        // 3. Ensure player reference
         EnsurePlayerReference();
 
-        // 4. Respawn player ke default spawn
+        // 4. Respawn player to default spawn (in current scene). If you want to load a starter scene, do that here.
         if (RespawnManager.Instance != null && playerObject != null)
         {
             RespawnManager.Instance.RespawnPlayer(playerObject);
@@ -34,23 +32,21 @@ public class MainMenuController : MonoBehaviour
         Debug.Log("[MainMenu] New Game started");
     }
 
-    // =========================
-    // CONTINUE GAME
-    // =========================
     public void ContinueGame()
     {
         EnsurePlayerReference();
 
-        if (RespawnManager.Instance != null && playerObject != null)
+        if (SaveManager.Instance != null)
         {
-            bool loaded = RespawnManager.Instance.ContinueGameRespawn(playerObject);
-            Debug.Log("[MainMenu] Continue Game used checkpoint: " + loaded);
+            // Start coroutine to load saved scene & respawn player
+            StartCoroutine(SaveManager.Instance.ContinueAndRespawn(playerObject));
+        }
+        else
+        {
+            Debug.LogWarning("[MainMenu] SaveManager missing. Can't continue.");
         }
     }
 
-    // =========================
-    // UTILITIES
-    // =========================
     void EnsurePlayerReference()
     {
         if (playerObject != null) return;
@@ -60,16 +56,7 @@ public class MainMenuController : MonoBehaviour
             playerObject = p;
     }
 
-    // =========================
-    // OTHER MENU
-    // =========================
-    public void Option()
-    {
-        // implementasi menu option (audio, graphics, dll)
-    }
+    public void Option() { /* implement options */ }
 
-    public void ExitGame()
-    {
-        Application.Quit();
-    }
+    public void ExitGame() { Application.Quit(); }
 }
