@@ -12,7 +12,8 @@ public class XyrridMovement : MonoBehaviour
     public float amplitudeZ = 2f;
 
     [Header("Chase Settings")]
-    public Transform player;
+    public Transform player; //<- Harusnya mencari target terdekat. targetnya akan dicari berdasarkan ViewRange dimana ViewRange tersebut akan membandingkan Tag "Player, Conductor, Remi, Domi"
+    public NearestTargetDetector targetDetector;
     public float viewRange = 12f;
     public float stopChaseDistance = 10f;
     public float chaseSpeed = 5f;
@@ -53,6 +54,9 @@ public class XyrridMovement : MonoBehaviour
     void Update()
     {
         if (isPaused) return;
+
+        if (targetDetector != null && targetDetector.currentTarget != null)
+            player = targetDetector.currentTarget;
 
         // --------------------------------
         // CHASE LOGIC (SELALU AKTIF)

@@ -43,9 +43,11 @@ GameObject:
   - component: {fileID: 2883871810250628140}
   - component: {fileID: 7211897706007593487}
   - component: {fileID: 2964305845648689352}
+  - component: {fileID: 4197348339241540095}
   - component: {fileID: 5522679367533558264}
   - component: {fileID: 5574346815302315555}
-  m_Layer: 0
+  - component: {fileID: 2365499836099980873}
+  m_Layer: 11
   m_Name: Xyrrid
   m_TagString: Enemy
   m_Icon: {fileID: 0}
@@ -85,11 +87,12 @@ MonoBehaviour:
   amplitudeX: 1
   amplitudeZ: 3
   player: {fileID: 0}
-  viewRange: 12
-  stopChaseDistance: 10
-  chaseSpeed: 3
+  targetDetector: {fileID: 4197348339241540095}
+  viewRange: 24
+  stopChaseDistance: 16
+  chaseSpeed: 4
   faceDirection: 0
-  strafeRadius: 7
+  strafeRadius: 14
   strafeSpeed: 4
   repositionDuration: 3
 --- !u!114 &7211897706007593487
@@ -105,7 +108,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::XyrridLookAt
   playerTarget: {fileID: 0}
-  rotationSpeed: 2
+  targetDetector: {fileID: 4197348339241540095}
+  rotationSpeed: 4
 --- !u!114 &2964305845648689352
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -120,21 +124,42 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::XyrridSpreadGun
   firePoint: {fileID: 7958940094633027848}
   target: {fileID: 0}
+  targetDetector: {fileID: 4197348339241540095}
   bubblePrefab: {fileID: 5341436306426903527, guid: 08d3d205c1250654e9e36a71ccb00fe4, type: 3}
   chargeAudio: {fileID: 0}
   movementScript: {fileID: 2883871810250628140}
   reloadTimeRange: {x: 1, y: 4}
   chargeTime: 1.2
   shootAnimDelay: 0.1
-  bubbleSpeed: 3
-  bubbleLifetime: 6
+  bubbleSpeed: 5
+  bubbleLifetime: 8
   useArc: 1
   arcHeight: 0
   pelletCount: 5
   pelletInterval: 0.3
   spreadAngle: 20
-  attackRange: 11
+  attackRange: 19
   stopMovementWhileFiring: 1
+--- !u!114 &4197348339241540095
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7310876051193327072}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93f8b1d100422314595995233de4ee8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NearestTargetDetector
+  viewRange: 24
+  targetTags:
+  - Player
+  - Conductor
+  - Remi
+  - Domi
+  scanInterval: 0.3
+  currentTarget: {fileID: 0}
 --- !u!95 &5522679367533558264
 Animator:
   serializedVersion: 7
@@ -172,6 +197,29 @@ MonoBehaviour:
   _MaxHP: 1
   deathEffectPrefab: {fileID: 6306435313413162683, guid: 7d0be088a840eac4f80d8356c083deb8, type: 3}
   destroyDelay: 0.1
+--- !u!136 &2365499836099980873
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7310876051193327072}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.3
+  m_Height: 1
+  m_Direction: 1
+  m_Center: {x: 0, y: -0.3, z: 0}
 --- !u!1001 &4890033546096812088
 PrefabInstance:
   m_ObjectHideFlags: 0

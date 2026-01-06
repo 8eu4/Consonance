@@ -2,17 +2,17 @@ using UnityEngine;
 
 public class Cam : MonoBehaviour
 {
-    [SerializeField] private Transform cameraPosition;
+    [SerializeField] private Transform condCameraPosition;
     [SerializeField] private SwitchCharacter switchCharacterScript;
 
     void LateUpdate()
     {
-        transform.position = cameraPosition.position;
+        transform.position = condCameraPosition.position;
     }
     public void setCameraPosition()
     {
         // GetChild(2) selalu component CameraPos
         GameObject Player = GameObject.FindGameObjectWithTag("Player");
-        cameraPosition = Player.transform.GetChild(2).transform;
+        condCameraPosition = Player.transform.GetChild(2).transform;
     }
 }

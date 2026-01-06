@@ -10,6 +10,8 @@ TagManager:
   - Conductor
   - Domi
   - Remi
+  - Enemy
+  - Highlight
   layers:
   - Default
   - TransparentFX

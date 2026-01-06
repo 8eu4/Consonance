@@ -17,6 +17,10 @@ public class UI_SwitchCharacter : MonoBehaviour
     [SerializeField] private Sprite _4ActiveHP;
     [SerializeField] private Sprite _4UnactiveHP;
 
+    [Header("Color Settings")]
+    public Color normalColor = Color.white;
+    public Color lockedColor = Color.red;
+
     public void change4HP(bool isActive)
     {
         Image HP1 = UI_ConductorHP.transform.GetChild(0).GetComponent<Image>();
@@ -66,6 +70,30 @@ public class UI_SwitchCharacter : MonoBehaviour
             HP1.sprite = _2UnactiveHP;
             HP2.sprite = _2UnactiveHP;
         }
+    }
+
+    public void SetLockedVisuals(bool isLocked, int activeCharIndex)
+    {
+        // Tentukan warna target: Jika Locked = Merah, Jika Tidak = Putih (Normal)
+        Color targetColor = isLocked ? lockedColor : normalColor;
+
+        // Kita hanya ubah warna karakter yang TIDAK AKTIF.
+        // Karakter yang sedang dipakai (Active) biarkan tetap Putih/Normal.
+
+        if (activeCharIndex != 0) // Jika Conductor BUKAN karakter aktif
+            UI_ConductorHP.color = targetColor;
+        else
+            UI_ConductorHP.color = normalColor;
+
+        if (activeCharIndex != 1) // Jika Domi BUKAN karakter aktif
+            UI_DomiHP.color = targetColor;
+        else
+            UI_DomiHP.color = normalColor;
+
+        if (activeCharIndex != 2) // Jika Remi BUKAN karakter aktif
+            UI_RemiHP.color = targetColor;
+        else
+            UI_RemiHP.color = normalColor;
     }
 
     public void PlayVFX_SwitchCharacter()
