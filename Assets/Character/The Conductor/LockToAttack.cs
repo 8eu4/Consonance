@@ -11,10 +11,13 @@ public class LockToAttack : MonoBehaviour
     [SerializeField] private VisionMode visionModeScript;
     private ConductorAttack conductorAttackScript;
 
-
-
     [Header("Lock Settings")]
+    [Tooltip("Jarak maksimal untuk BISA MEMULAI lock")]
     [SerializeField] private float maxLockOnDistance = 30f;
+
+    [Tooltip("Jarak otomatis CANCEL jika musuh menjauh melebihi angka ini")]
+    [SerializeField] private float breakLockDistance = 35f;
+
     [SerializeField] private float maxLockOnRadius = 2f;
 
     // Pindahkan referensi ini ke atas agar bisa diakses
@@ -26,6 +29,8 @@ public class LockToAttack : MonoBehaviour
     {
         camTransform = camRotationScript.transform;
         conductorAttackScript = GetComponent<ConductorAttack>();
+        if (visionModeScript == null)
+            visionModeScript = FindAnyObjectByType<VisionMode>();
     }
 
     void Update()
@@ -43,12 +48,15 @@ public class LockToAttack : MonoBehaviour
             }
         }
 
-        // 2. Di dalam Update(), HANYA cek jarak jika kita SUDAH lock
+        // 2. CEK JARAK OTOMATIS (AUTO CANCEL)
         if (lockedTarget != null)
         {
-            // Cek jika target terlalu jauh
-            if (Vector3.Distance(transform.position, lockedTarget.position) > maxLockOnDistance)
+            float currentDist = Vector3.Distance(transform.position, lockedTarget.position);
+
+            // Jika jarak melebihi batas 'Break Distance', batalkan serangan otomatis
+            if (currentDist > breakLockDistance)
             {
+                // Opsional: Debug.Log("Target too far! Auto cancelling...");
                 UnlockTarget();
             }
         }
