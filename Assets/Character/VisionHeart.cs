@@ -179,7 +179,11 @@ public class VisionHeart : MonoBehaviour
             trackerScript.ShowHealthForEnemy(enemyRootObject);
         }
     }
-
+    public bool IsLockable()
+    {
+        // Hanya bisa di-lock jika MUSUH dan SUDAH REVEALED (Scan sukses)
+        return isEnemy && isRevealed;
+    }
     private void SetEmissionColor(bool enable, Color color, float intensity)
     {
         if (enable)

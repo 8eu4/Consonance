@@ -8,6 +8,7 @@ public class VisionMode : MonoBehaviour
     public Camera highlightCamera;
     public SwitchCharacter switchCharacterScript;
     public Camera mainCamera;
+    public Animator handAnimator;
 
     [Header("Settings")]
     public Color baseColor = Color.cyan;
@@ -16,6 +17,11 @@ public class VisionMode : MonoBehaviour
 
     private bool isVisionOn = false;
     private VisionHeart[] allHearts;
+
+    public bool IsVisionActive
+    {
+        get { return isVisionOn; }
+    }
 
     void Start()
     {
@@ -92,6 +98,14 @@ public class VisionMode : MonoBehaviour
             // Jika yang tertembus adalah Heart (bukan kulit luarnya)
             if (heart != null)
             {
+                if (!heart.isRevealed)
+                {
+                    if (handAnimator != null)
+                    {
+                        handAnimator.SetTrigger("TriggerActivate");
+                    }
+                }
+
                 // Klik heart tersebut
                 heart.Interact(baseColor, visionEmission);
                 return; // Stop setelah nemu satu heart, biar gak dobel klik

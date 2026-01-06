@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 1316424179223869086}
   - component: {fileID: 5157624809439924641}
   - component: {fileID: 3323569097382369383}
+  - component: {fileID: 8503704190267262207}
+  - component: {fileID: 8631124486155501894}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -30,7 +32,7 @@ Transform:
   m_GameObject: {fileID: 176832924945163484}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.24393, y: 1.75179, z: 4.54933}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -51,10 +53,18 @@ MonoBehaviour:
   Conductor: {fileID: 0}
   Domi: {fileID: 0}
   Remi: {fileID: 0}
+  s_domi: {fileID: 0}
+  s_remi: {fileID: 0}
+  w_domi: {fileID: 0}
+  w_remi: {fileID: 0}
+  isStringedArea: 1
   camRotationScript: {fileID: 0}
   camScript: {fileID: 0}
   uiSwitchCharacterScript: {fileID: 3054199413897942557}
   offScreenIndicatorScript: {fileID: 5157624809439924641}
+  conductorLockedInThisScene: 0
+  HandObject: {fileID: 0}
+  currentMoveScript: {fileID: 0}
 --- !u!114 &3054199413897942557
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137,3 +147,49 @@ MonoBehaviour:
   VFX_SwitchCharacter: {fileID: 0}
   VFX_Dots: 2000
   VFX_Notes: 100
+--- !u!114 &8503704190267262207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 176832924945163484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98e6fe120ab950a49bf880dbe38b32ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ArrowSpawner
+  arrowPrefab: {fileID: 5861355375452040185, guid: ba5e11481e1782b40bc7727b252e3154, type: 3}
+  canvasParentPanel: {fileID: 0}
+  upSpawnPoint: {fileID: 0}
+  downSpawnPoint: {fileID: 0}
+  leftSpawnPoint: {fileID: 0}
+  rightSpawnPoint: {fileID: 0}
+  upTargetPoint: {fileID: 0}
+  downTargetPoint: {fileID: 0}
+  leftTargetPoint: {fileID: 0}
+  rightTargetPoint: {fileID: 0}
+  upExitPoint: {fileID: 0}
+  downExitPoint: {fileID: 0}
+  leftExitPoint: {fileID: 0}
+  rightExitPoint: {fileID: 0}
+  shakeDuration: 0.5
+  shakeMagnitude: 10
+--- !u!114 &8631124486155501894
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 176832924945163484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f833a0e28d7110c47b8466027d9e1fb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyHealthTracker
+  targetTag: Enemy
+  heightOffset: 0.5
+  heartIconSize: {x: 0.3, y: 0.3}
+  gridHealthPopUpPrefab: {fileID: 3239203753631944084, guid: 6177ca8043c2bf94bab0d0138d563b9e, type: 3}
+  heartIconPrefab: {fileID: 8351453044476677710, guid: 52ecf036d1cfee641beec4a2a3a49a39, type: 3}
+  visionModeScript: {fileID: 5250892442988856157, guid: 577f413ece15b64449c35f68a7f97310, type: 3}

@@ -16,7 +16,7 @@ public class ConductorAttack : MonoBehaviour
     [SerializeField] private float swipeThreshold = 50f;
 
     private EnemyHealth currentTargetHealth;
-    private bool isAttacking = false;
+    public bool isAttacking = false;
 
     private Vector2 mouseStartPos;
     private bool isSwiping = false;

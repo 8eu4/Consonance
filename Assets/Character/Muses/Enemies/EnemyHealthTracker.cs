@@ -18,6 +18,8 @@ public class EnemyHealthTracker : MonoBehaviour
     private Camera mainCam;
     private Dictionary<int, EnemyUIData> trackedEnemies = new Dictionary<int, EnemyUIData>();
 
+    public VisionMode visionModeScript;
+
     class EnemyUIData
     {
         public Transform enemyTransform;
@@ -103,6 +105,8 @@ public class EnemyHealthTracker : MonoBehaviour
 
     void LateUpdate()
     {
+        bool shouldHideUI = (visionModeScript != null && visionModeScript.IsVisionActive);
+
         List<int> toRemove = new List<int>();
 
         foreach (var kvp in trackedEnemies)
@@ -115,6 +119,16 @@ public class EnemyHealthTracker : MonoBehaviour
                 toRemove.Add(kvp.Key);
                 continue;
             }
+
+            if (data.uiInstance.activeSelf == shouldHideUI)
+            {
+                // Toggle kebalikan dari shouldHideUI
+                // Jika shouldHideUI = true, SetActive = false
+                data.uiInstance.SetActive(!shouldHideUI);
+            }
+
+            // Jika UI mati/hide, kita skip kalkulasi posisi biar hemat performance
+            if (shouldHideUI) continue;
 
             // --- HITUNG POSISI BERDASARKAN VISUAL MESH ---
 

@@ -9,11 +9,11 @@ public class SwitchCharacter : MonoBehaviour
     [SerializeField] private GameObject Remi;
 
     [Header("Mesh (stringed / woodwind)")]
-    [SerializeField] private GameObject s_domi;
-    [SerializeField] private GameObject s_remi;
+    [SerializeField] private GameObject stringed_domi_object;
+    [SerializeField] private GameObject woodwind_domi_object;
     [Space]
-    [SerializeField] private GameObject w_domi;
-    [SerializeField] private GameObject w_remi;
+    [SerializeField] private GameObject stringed_remi_object;
+    [SerializeField] private GameObject woodwind_remi_object;
 
     [Header("Which Area? (stringed / woodwind)")]
     [SerializeField] private bool isStringedArea = true;
@@ -27,6 +27,10 @@ public class SwitchCharacter : MonoBehaviour
     [Header("UI Script")]
     [SerializeField] private UI_SwitchCharacter uiSwitchCharacterScript;
     [SerializeField] private OffScreenIndicator offScreenIndicatorScript;
+    
+    [Header("Other Scripts Reference")]
+    [SerializeField] private VisionMode visionModeScript;
+    [SerializeField] private ConductorAttack conductorAttackScript;
 
     [Header("Level Rules")]
     [SerializeField] private bool conductorLockedInThisScene = false;
@@ -62,6 +66,17 @@ public class SwitchCharacter : MonoBehaviour
         // Pengecekan Grounded sekarang jadi sangat simpel
         if (!IsCurrentCharacterGrounded()) return;
 
+        bool canSwitch = CanSwitchCharacter();
+
+        // Update UI Visual (Merah jika gak bisa switch, Putih jika bisa)
+        if (uiSwitchCharacterScript != null)
+        {
+            // Kirim kebalikan dari canSwitch (isLocked = !canSwitch)
+            uiSwitchCharacterScript.SetLockedVisuals(!canSwitch, activeCharacterIndex);
+        }
+
+        if (!canSwitch) return;
+
         if (Input.GetKeyDown(KeyCode.Alpha1) && activeCharacterIndex != 0)
         {
             if (conductorLockedInThisScene) return;
@@ -75,6 +90,22 @@ public class SwitchCharacter : MonoBehaviour
         {
             DelayAndSwitchTo(2);
         }
+    }
+
+    private bool CanSwitchCharacter()
+    {
+        // 1. Cek Grounded (Harus di tanah)
+        if (!IsCurrentCharacterGrounded()) return false;
+
+        // 2. Cek Vision Mode (Harus dunia nyata / berwarna)
+        if (visionModeScript != null && visionModeScript.IsVisionActive) return false;
+
+        // 3. Cek Attack (Harus tidak sedang menyerang)
+        // Pastikan di ConductorAttack ada bool IsAttacking atau semacamnya
+        if (conductorAttackScript != null && conductorAttackScript.isAttacking) return false;
+
+        // Jika semua aman:
+        return true;
     }
 
     private bool IsCurrentCharacterGrounded()
@@ -121,15 +152,15 @@ public class SwitchCharacter : MonoBehaviour
         else if (activeCharacterIndex == 1)
         {
             Domi.tag = "Domi";
-            s_domi.SetActive(isStringedArea);
-            w_domi.SetActive(!isStringedArea);
+            stringed_domi_object.SetActive(isStringedArea);
+            woodwind_domi_object.SetActive(!isStringedArea);
             uiSwitchCharacterScript.change2HP(1, false);
         }
         else if (activeCharacterIndex == 2)
         {
             Remi.tag = "Remi";
-            s_remi.SetActive(isStringedArea);
-            w_remi.SetActive(!isStringedArea);
+            stringed_remi_object.SetActive(isStringedArea);
+            woodwind_remi_object.SetActive(!isStringedArea);
             uiSwitchCharacterScript.change2HP(2, false);
         }
 
@@ -213,13 +244,13 @@ public class SwitchCharacter : MonoBehaviour
         }
         else if (activeCharacterIndex == 1)
         {
-            s_domi.SetActive(false);
-            w_domi.SetActive(false);
+            stringed_domi_object.SetActive(false);
+            woodwind_domi_object.SetActive(false);
         }
         else if (activeCharacterIndex == 2)
         {
-            s_remi.SetActive(false);
-            w_remi.SetActive(false);
+            stringed_remi_object.SetActive(false);
+            woodwind_remi_object.SetActive(false);
         }
     }
 

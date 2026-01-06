@@ -89,6 +89,8 @@ public class StringLineAttack : MonoBehaviour
     private Rigidbody cachedRb;
     private bool wasKinematic;
 
+    private Vector3 lockCenterOffset;
+
     private int museIdx
     {
         get
@@ -200,10 +202,8 @@ public class StringLineAttack : MonoBehaviour
         bool isActive = false;
         Vector3 endPos = Vector3.zero;
 
-
         if (isAttacking[museIdx] == true || isAttached)
         {
-            
             if (animator != null && gameObject.transform.parent.parent.CompareTag("Player")) animator.SetBool("Shoot", true);
             isActive = true;
 
@@ -215,14 +215,17 @@ public class StringLineAttack : MonoBehaviour
                 return;
             }
 
-            // 2. LOGIKA LOCK (PHYSICS)
+            // 2. LOGIKA LOCK (PHYSICS & CENTER OFFSET)
             if (isAttached && ignoredCollider != null)
             {
                 if (isTargetSpecial && lockedTargetTransform != null)
                 {
+                    // Paku posisi kaki musuh (Transform asli)
                     lockedTargetTransform.position = lockedPosition;
                     lockedTargetTransform.rotation = lockedRotation;
-                    targetPoint = lockedPosition;
+
+                    // Tapi target tali mengarah ke posisi Kaki + Offset (Tengah badan)
+                    targetPoint = lockedPosition + lockCenterOffset;
                 }
             }
 
@@ -230,22 +233,15 @@ public class StringLineAttack : MonoBehaviour
             if (isAttached)
             {
                 // -- FASE 2: SUDAH NEMPEL (SLIDE) --
-                // Tali bergerak halus dari Titik Kena Awal -> Titik Center
                 currentTipPosition = Vector3.SmoothDamp(currentTipPosition, targetPoint, ref snapVelocity, slideDuration);
                 endPos = currentTipPosition;
 
-                // Kamera mengikuti pergerakan halus tali (Slide effect)
                 if (isAttacking[museIdx] == true) camRotation.LockLookAt(endPos, gameObject);
             }
             else
             {
                 // -- FASE 1: SEDANG TERBANG (FLYING) --
-                // Tali mengikuti peluru/ujung visual
                 endPos = currentTipPosition;
-
-                // PERBAIKAN:
-                // Saat terbang, Kamera fokus ke TARGET UTAMA (Crosshair), BUKAN ke ujung tali yang baru keluar dari tangan.
-                // Ini mencegah kamera "nunduk" melihat tangan.
                 if (isAttacking[museIdx] == true) camRotation.LockLookAt(targetPoint, gameObject);
             }
         }
@@ -270,8 +266,7 @@ public class StringLineAttack : MonoBehaviour
         if (showEnemyRing && isTargetSpecial && ringRenderer != null)
         {
             ringRenderer.enabled = true;
-            // Gambar ring di posisi endPos (biar ikut slide dari kepala ke badan)
-            DrawStunEffect(endPos);
+            DrawStunEffect(endPos); // Stun Effect digambar di tengah badan
             ringRenderer.startColor = specialLineColor.Evaluate(0.5f);
             ringRenderer.endColor = specialLineColor.Evaluate(1f);
         }
@@ -371,6 +366,7 @@ public class StringLineAttack : MonoBehaviour
         }
 
         lineObj.SetActive(true);
+        lineCol.enabled = false;
         currentTipPosition = fireOrigin.position; // Tali mulai dari tangan
         fireRoutine = StartCoroutine(FireLine());
     }
@@ -400,6 +396,8 @@ public class StringLineAttack : MonoBehaviour
         if (fireRoutine != null) { StopCoroutine(fireRoutine); fireRoutine = null; }
 
         lineObj.SetActive(false);
+        lineCol.enabled = false;
+
         ResetIgnored();
         camRotation.IsAttackLocked = false;
     }
@@ -427,6 +425,8 @@ public class StringLineAttack : MonoBehaviour
             yield return new WaitForSeconds(attachDelay);
 
             isAttached = true;
+
+            lineCol.enabled = true;
             CheckTargetStatus(ignoredCollider);
         }
         else CancelAttack(museIdx);
@@ -449,13 +449,18 @@ public class StringLineAttack : MonoBehaviour
             showEnemyRing = true;
 
             lockedTargetTransform = col.transform.parent != null ? col.transform.parent : col.transform;
-            lockedPosition = lockedTargetTransform.position;
+
+            // --- LOGIKA MENGHITUNG VISUAL CENTER ---
+            Vector3 visualCenter = GetVisualCenter(lockedTargetTransform.gameObject);
+
+            lockedPosition = lockedTargetTransform.position; // Simpan posisi asli (Kaki)
             lockedRotation = lockedTargetTransform.rotation;
 
-            // Saat attached, targetPoint kita ubah menjadi Pusat Badan (Lock Position)
-            // Tapi currentTipPosition masih di initialHitPoint (Kepala).
-            // LateUpdate akan memuluskan perpindahan dari Kepala -> Pusat Badan.
-            targetPoint = lockedPosition;
+            // Hitung selisih antara Kaki dan Tengah Badan
+            lockCenterOffset = visualCenter - lockedPosition;
+
+            // Target awal tali langsung diarahkan ke tengah badan
+            targetPoint = visualCenter;
 
             cachedRb = lockedTargetTransform.GetComponent<Rigidbody>();
             if (cachedRb != null)
@@ -469,10 +474,44 @@ public class StringLineAttack : MonoBehaviour
             isTargetSpecial = false;
             showEnemyRing = false;
             lockedTargetTransform = null;
+            lockCenterOffset = Vector3.zero;
         }
     }
 
-    // --- TIMPA FUNGSI INI ---
+    private Vector3 GetVisualCenter(GameObject enemy)
+    {
+        // Cari semua renderer di musuh (badan, kepala, dll)
+        Renderer[] allRenderers = enemy.GetComponentsInChildren<Renderer>();
+        if (allRenderers.Length == 0) return enemy.transform.position; // Fallback kalau tidak ada mesh
+
+        // Inisialisasi bounds dengan renderer pertama yang valid
+        Bounds combinedBounds = new Bounds();
+        bool hasBounds = false;
+
+        foreach (var r in allRenderers)
+        {
+            // Jangan hitung particle, trail, atau line (efek visual non-body)
+            if (r is ParticleSystemRenderer || r is TrailRenderer || r is LineRenderer)
+                continue;
+
+            if (!hasBounds)
+            {
+                combinedBounds = r.bounds;
+                hasBounds = true;
+            }
+            else
+            {
+                combinedBounds.Encapsulate(r.bounds);
+            }
+        }
+
+        // Kalau ternyata cuma ada particle, kembalikan posisi transform biasa
+        if (!hasBounds) return enemy.transform.position;
+
+        // Kembalikan titik tengah visual
+        return combinedBounds.center;
+    }
+
     private void UpdateCollider()
     {
         Vector3 a = fireOrigin.position;

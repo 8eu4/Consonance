@@ -520,6 +520,10 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: c1388c01688b2e041a1bf6f6f9b1bd03, type: 2}
+    - target: {fileID: 7893559831018651092, guid: 547caa0e69136994db413d3a7590e3a1, type: 3}
+      propertyPath: m_Name
+      value: Stringed_domi
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -555,8 +559,8 @@ MonoBehaviour:
   camRotation: {fileID: 0}
   animator: {fileID: 8614678783172485769}
   lineSpeed: 15
-  maxLineLength: 15
-  breakDistance: 17
+  maxLineLength: 7
+  breakDistance: 9
   attachDelay: 1.5
   hittableLayers:
     serializedVersion: 2
@@ -718,7 +722,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: c589a01a87f2da949b4f156c92f4818a, type: 3}
       propertyPath: m_Name
-      value: WoodWind_Muse
+      value: WoodWind_domi
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: c589a01a87f2da949b4f156c92f4818a, type: 3}
       propertyPath: m_IsActive
