@@ -4,9 +4,14 @@ using System.Collections;
 
 public class RemiLaserCutsceneManager : MonoBehaviour
 {
-    [Header("--- CHARACTERS & CAMERA ---")]
+    [Header("--- CHARACTERS & PHYSICS ---")]
     public GameObject remi;
-    public MonoBehaviour cameraRotationScript; 
+    public Rigidbody remiRb; 
+    
+    [Header("--- CAMERA CONTROL ---")]
+    [Tooltip("Drag Main Camera ke sini!")]
+    public Transform cameraToRotate; 
+    public CamRotation cameraRotationScript; // Pastikan nama script ini sesuai script kameramu
     public Transform ventLookTarget; 
 
     [Header("--- UI SETTINGS ---")]
@@ -17,23 +22,33 @@ public class RemiLaserCutsceneManager : MonoBehaviour
     public MonoBehaviour remiMovement; 
     public MonoBehaviour switchSystem; 
 
+    // Internal States
     private bool isTriggered = false;
     private bool introDone = false;
+    private bool isLaserBlocked = false; // Flag penanda sukses
 
     private void Start()
     {
         if (promptParent != null) promptParent.SetActive(false);
+        if (remiRb == null && remi != null) remiRb = remi.GetComponent<Rigidbody>();
+        
+        if (cameraToRotate == null && Camera.main != null) 
+            cameraToRotate = Camera.main.transform;
     }
 
     private void LateUpdate()
     {
-        if (isTriggered && !introDone && ventLookTarget != null)
+        // LOGIC FORCE LOOK (Kamera maksa liat vent)
+        if (isTriggered && !introDone && ventLookTarget != null && cameraToRotate != null)
         {
-            Camera cam = Camera.main;
-            if (cam != null)
+            if (cameraRotationScript != null && cameraRotationScript.enabled) 
+                cameraRotationScript.enabled = false;
+
+            Vector3 dir = ventLookTarget.position - cameraToRotate.position;
+            if (dir != Vector3.zero)
             {
-                Vector3 dir = ventLookTarget.position - cam.transform.position;
-                cam.transform.rotation = Quaternion.Slerp(cam.transform.rotation, Quaternion.LookRotation(dir), Time.deltaTime * 5f);
+                Quaternion targetRot = Quaternion.LookRotation(dir);
+                cameraToRotate.rotation = Quaternion.Slerp(cameraToRotate.rotation, targetRot, Time.deltaTime * 8f);
             }
         }
     }
@@ -43,32 +58,61 @@ public class RemiLaserCutsceneManager : MonoBehaviour
         if (!isTriggered && (other.CompareTag("Player") || other.transform.root.gameObject == remi))
         {
             isTriggered = true;
+            StopCharacterPhysics();
+            DisableControlsImmediately();
             StartCoroutine(SequenceLaserTutorial());
         }
     }
 
-    IEnumerator SequenceLaserTutorial()
+    // --- FUNGSI INI DIPANGGIL OLEH SCRIPT TEMBOK ---
+    public void OnWallHitByString()
     {
-        // --- FASE 1: INTRO (4 DETIK) ---
+        if (introDone && !isLaserBlocked)
+        {
+            isLaserBlocked = true; // Sinyal diterima, lanjut ke fase sukses!
+            Debug.Log("Manager: String nempel tembok, story lanjut!");
+        }
+    }
+
+    void StopCharacterPhysics()
+    {
+        if (remiRb != null)
+        {
+            remiRb.linearVelocity = Vector3.zero;        
+            remiRb.angularVelocity = Vector3.zero; 
+            remiRb.isKinematic = true;             
+        }
+    }
+
+    void DisableControlsImmediately()
+    {
         if (remiMovement != null) remiMovement.enabled = false;
         if (switchSystem != null) switchSystem.enabled = false;
-        if (cameraRotationScript != null) cameraRotationScript.enabled = false; 
+        if (cameraRotationScript != null) cameraRotationScript.enabled = false;
+    }
 
+    IEnumerator SequenceLaserTutorial()
+    {
+        // FASE 1: INTRO (4 Detik)
         if (promptText != null) promptText.text = "GUNAKAN STRING LINE REMI UNTUK MENGGANGGU LASER.";
         if (promptParent != null) promptParent.SetActive(true);
 
         yield return new WaitForSeconds(4.0f); 
 
-        // --- FASE 2: PLAYER MENEMBAK (10 DETIK) ---
+        // FASE 2: ACTION (Tunggu Player)
         if (promptParent != null) promptParent.SetActive(false); 
         introDone = true; 
+        
+        // Unlock Kontrol
         if (remiMovement != null) remiMovement.enabled = true;
         if (cameraRotationScript != null) cameraRotationScript.enabled = true;
+        if (remiRb != null) remiRb.isKinematic = false; 
 
-        // WAKTU DIPERPANJANG SESUAI TITAH EMPEROR
-        yield return new WaitForSeconds(10.0f); 
+        // TUNGGU SAMPAI TEMBOK KENA HIT
+        Debug.Log("Menunggu player menembak tembok...");
+        yield return new WaitUntil(() => isLaserBlocked);
 
-        // --- FASE 3: SUKSES (PROMPT MAJU MANUAL) ---
+        // FASE 3: SUKSES
         if (promptText != null) promptText.text = "LASER 1 TERBLOKIR — CONDUCTOR DAN DOMI SEKARANG DAPAT MAJU.";
         if (promptParent != null) promptParent.SetActive(true); 
 

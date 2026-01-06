@@ -17,7 +17,7 @@ public class ConductorVisualBaton : MonoBehaviour
         }
         if (conductorMoveScript == null)
         {
-            Debug.LogError("LUPA ASSIGN: Move Script kosong!");
+                Debug.LogError("LUPA ASSIGN: Move Script kosong!");
             return;
         }
 

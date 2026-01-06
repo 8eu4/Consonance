@@ -93,13 +93,33 @@ public class PlayerCommandSystem : MonoBehaviour
             {
                 follower.speed = npcSpeed;
                 follower.acceleration = npcAcceleration;
+                
+                // --- PERBAIKAN DI SINI ---
+                
+                // Kita hitung manual jarak follower ke "Conductor/Player"
+                float distToPlayer = Vector3.Distance(follower.transform.position, transform.position);
 
-                // Selalu update tujuan ke posisi object ini (Conductor)
-                if (!follower.hasPath || follower.remainingDistance <= follower.stoppingDistance)
+                // Pastikan stopping distance sesuai settingan script
+                follower.stoppingDistance = followStoppingDistance;
+
+                // LOGIKA BARU:
+                // Jika jarak LEBIH JAUH dari batas berhenti -> Jalan mendekat
+                // Tambahkan sedikit buffer (+ 0.5f) biar dia gak maju-mundur di perbatasan
+                if (distToPlayer > followStoppingDistance + 0.5f)
                 {
+                    follower.isStopped = false;
                     follower.SetDestination(transform.position);
                 }
-                follower.stoppingDistance = followStoppingDistance;
+                // Jika sudah DEKAT -> Stop total biar gak geter
+                else if (distToPlayer <= followStoppingDistance)
+                {
+                    if (!follower.isStopped)
+                    {
+                        follower.isStopped = true;
+                        follower.velocity = Vector3.zero; // Matikan sisa momentum
+                        follower.ResetPath(); // Hapus jalur biar gak maksa jalan
+                    }
+                }
             }
         }
 

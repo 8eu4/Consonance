@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.AI;
 
 public class PuzzleTutorialManager : MonoBehaviour
@@ -10,90 +11,183 @@ public class PuzzleTutorialManager : MonoBehaviour
     public GameObject remi;
     public GameObject domi;
 
-    [Header("--- TELEPORT POSITIONS ---")]
+    [Header("--- TELEPORT SETTINGS ---")]
     public Transform conductorTargetPos;
     public Transform remiTargetPos;
     public Transform domiTargetPos;
+    
+    [Header("--- FIX TENGGELAM (Height Offset) ---")]
+    public float domiOffsetY = 0.8f; 
+    public float remiOffsetY = 0.1f;
 
     [Header("--- UI & AUDIO ---")]
-    public CanvasGroup blackScreen; 
+    public CanvasGroup blackScreen;
     public GameObject promptTekan3;
-    public GameObject uiFollowingText; 
+    public GameObject uiFollowingText;
     public AudioSource audioSource;
     public AudioClip voClip1, voClip2, voClip3;
 
-    [Header("--- CONTROL SCRIPTS ---")]
-    public MonoBehaviour conductorMovement;
-    public GameObject cameraHolder; 
-    public MonoBehaviour mainSwitchSystem; // Tarik script SwitchCharacter ke sini
+    [Header("--- SYSTEM CONTROL ---")]
+    public MonoBehaviour mainSwitchSystem; // Script CharacterSwitchManager
+    public MonoBehaviour conductorMovement; // Script gerak (WASD)
+    
+    // PERUBAHAN DI SINI:
+    // Diganti dari MonoBehaviour menjadi PlayerCommandSystem agar Unity otomatis mencari script yang benar
+    public PlayerCommandSystem playerCommandSystem; 
+    
+    public GameObject conductorCameraHolder; 
 
     [Header("--- LOOK TARGETS ---")]
-    public Transform ventTarget;      
+    public Transform ventTarget;
 
-    private bool isTriggered = false;
+    // --- INTERNAL STATE ---
+    private bool isCutsceneActive = false;
+    private bool isWaitingForInput3 = false; 
     private Transform remiCurrentLookTarget;
-    private Transform mainCamera;
-    private Quaternion originalCamLocalRot;
+    private Camera conductorCamComponent;
+    private HashSet<GameObject> charsInZone = new HashSet<GameObject>();
 
     private void Start()
     {
-        if (blackScreen != null) { blackScreen.alpha = 0; blackScreen.gameObject.SetActive(true); }
-        if (promptTekan3 != null) promptTekan3.SetActive(false); 
-        if (conductor != null) mainCamera = conductor.GetComponentInChildren<Camera>().transform;
+        if (blackScreen != null) 
+        { 
+            blackScreen.alpha = 0; 
+            blackScreen.gameObject.SetActive(true); 
+            blackScreen.blocksRaycasts = false; 
+        }
+        
+        if (promptTekan3 != null) promptTekan3.SetActive(false);
+        if (conductor != null) conductorCamComponent = conductor.GetComponentInChildren<Camera>();
     }
 
     private void Update()
     {
-        // Smooth Rotation Remi menoleh
-        if (remiCurrentLookTarget != null)
+        // 1. LOGIC REMI MENOLEH
+        if (remiCurrentLookTarget != null && remi != null)
         {
             Vector3 dir = remiCurrentLookTarget.position - remi.transform.position;
             dir.y = 0;
-            if (dir != Vector3.zero) remi.transform.rotation = Quaternion.Slerp(remi.transform.rotation, Quaternion.LookRotation(dir), Time.deltaTime * 3.0f);
+            if (dir != Vector3.zero) 
+                remi.transform.rotation = Quaternion.Slerp(remi.transform.rotation, Quaternion.LookRotation(dir), Time.deltaTime * 3.0f);
+        }
+
+        // 2. LOGIC INPUT TEKAN 3 (UNLOCK PHASE)
+        if (isWaitingForInput3 && Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            // --- FASE 3: FULL UNLOCK SETELAH TEKAN 3 ---
+            
+            if (promptTekan3 != null) promptTekan3.SetActive(false); 
+            
+            // Nyalakan kembali Move & Command
+            if (conductorMovement != null) conductorMovement.enabled = true;
+            if (playerCommandSystem != null) playerCommandSystem.enabled = true; // Nyalakan lagi logic command
+            if (uiFollowingText != null) uiFollowingText.SetActive(true);
+
+            isWaitingForInput3 = false; 
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if ((other.CompareTag("Player") || other.transform.root.CompareTag("Player")) && !isTriggered)
+        if (isCutsceneActive) return;
+
+        GameObject rootObj = other.transform.root.gameObject;
+        if (rootObj == conductor || rootObj == remi || rootObj == domi)
         {
-            isTriggered = true;
-            StartCoroutine(SequenceTutorial());
+            if (!charsInZone.Contains(rootObj)) charsInZone.Add(rootObj);
+            if (charsInZone.Count >= 3) StartCoroutine(SequenceTutorial());
         }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (isCutsceneActive) return;
+        GameObject rootObj = other.transform.root.gameObject;
+        if (charsInZone.Contains(rootObj)) charsInZone.Remove(rootObj);
     }
 
     IEnumerator SequenceTutorial()
     {
-        yield return new WaitForSeconds(10f);
-        if (blackScreen != null) yield return StartCoroutine(FadeCanvas(blackScreen, 1, 1.0f));
+        isCutsceneActive = true; 
 
-        // Matikan Kontrol selama cutscene
-        if (conductorMovement != null) conductorMovement.enabled = false;
+        // --- FASE 1: MATIKAN SEMUA (Cutscene Mode) ---
         if (mainSwitchSystem != null) mainSwitchSystem.enabled = false;
-        if (uiFollowingText != null) uiFollowingText.SetActive(false); 
-        if (cameraHolder != null) cameraHolder.SetActive(false); 
-
-        CharacterController cc = conductor.GetComponent<CharacterController>();
-        if (cc != null) cc.enabled = false; 
-
-        ToggleMusesNavMesh(false); 
-        yield return new WaitForFixedUpdate(); 
+        if (conductorMovement != null) conductorMovement.enabled = false;
         
-        TeleportCharacters();
-        
-        if (mainCamera != null)
+        // Matikan sistem command
+        if (playerCommandSystem != null) playerCommandSystem.enabled = false; 
+        if (uiFollowingText != null) uiFollowingText.SetActive(false);
+
+        // Ambil komponen fisik
+        CharacterController ccConductor = conductor.GetComponent<CharacterController>();
+        NavMeshAgent agentRemi = remi.GetComponent<NavMeshAgent>();
+        NavMeshAgent agentDomi = domi.GetComponent<NavMeshAgent>();
+
+        // Matikan Physics
+        if (agentRemi != null) agentRemi.enabled = false;
+        if (agentDomi != null) agentDomi.enabled = false;
+        if (ccConductor != null) ccConductor.enabled = false;
+
+        // --- FADE OUT ---
+        if (blackScreen != null)
         {
-            originalCamLocalRot = mainCamera.localRotation;
-            mainCamera.localRotation = Quaternion.identity; 
+            blackScreen.blocksRaycasts = true;
+            yield return StartCoroutine(FadeCanvas(blackScreen, 1f, 1.0f));
         }
 
-        yield return new WaitForSeconds(0.5f);
-        if (blackScreen != null) yield return StartCoroutine(FadeCanvas(blackScreen, 0, 1.5f));
+        yield return new WaitForFixedUpdate();
 
-        // --- DIALOG SEQUENCE ---
+        // --- TELEPORT ---
+        if (conductor && conductorTargetPos)
+        {
+            conductor.transform.position = conductorTargetPos.position;
+            conductor.transform.rotation = conductorTargetPos.rotation;
+        }
+
+        if (remi && remiTargetPos)
+        {
+            Vector3 finalPos = remiTargetPos.position + (Vector3.up * remiOffsetY);
+            if (agentRemi != null) {
+                agentRemi.enabled = true; 
+                if(!agentRemi.Warp(finalPos)) remi.transform.position = finalPos;
+                agentRemi.enabled = false;
+            } else {
+                remi.transform.position = finalPos;
+            }
+            remi.transform.rotation = remiTargetPos.rotation;
+        }
+
+        if (domi && domiTargetPos)
+        {
+            Vector3 finalPos = domiTargetPos.position + (Vector3.up * domiOffsetY);
+            if (agentDomi != null) {
+                agentDomi.enabled = true;
+                if(!agentDomi.Warp(finalPos)) domi.transform.position = finalPos;
+                agentDomi.enabled = false;
+            } else {
+                domi.transform.position = finalPos;
+            }
+            domi.transform.rotation = domiTargetPos.rotation;
+        }
+
+        Physics.SyncTransforms(); 
+        yield return new WaitForFixedUpdate();
+
+        // --- RESET KAMERA ---
+        if (conductorCameraHolder != null) 
+        {
+            conductorCameraHolder.SetActive(true);
+            if (conductorCamComponent != null) conductorCamComponent.transform.localRotation = Quaternion.identity;
+        }
+
+        // --- FADE IN ---
+        if (blackScreen != null) yield return StartCoroutine(FadeCanvas(blackScreen, 0f, 1.5f));
+        if (blackScreen != null) blackScreen.blocksRaycasts = false;
+
+        // --- DIALOG ---
         remiCurrentLookTarget = ventTarget; 
         PlayVO(voClip1);
-        yield return new WaitForSeconds(8f);
+        yield return new WaitForSeconds(8f); 
 
         remiCurrentLookTarget = conductor.transform;
         PlayVO(voClip2);
@@ -102,37 +196,24 @@ public class PuzzleTutorialManager : MonoBehaviour
         PlayVO(voClip3);
         yield return new WaitForSeconds(5f);
 
-        // 🔥 TAHAP SIMPLE DARI EMPEROR:
-        // Begitu dialog selesai, aktifkan semua script kembali secara otomatis
-        // Jadi saat Emperor pencet 3, script SwitchCharacter sudah 'ON' dan langsung respon.
+        // --- KEMBALIKAN FISIKA ---
+        if (ccConductor != null) ccConductor.enabled = true;
+        if (agentRemi != null) agentRemi.enabled = true;     
+        if (agentDomi != null) agentDomi.enabled = true;     
         
-        if (promptTekan3 != null) promptTekan3.SetActive(true);
-        
-        if (mainSwitchSystem != null) mainSwitchSystem.enabled = true; // Aktifkan SwitchCharacter
-        if (cameraHolder != null) cameraHolder.SetActive(true);       // Aktifkan Kamera Mouse
-        if (conductorMovement != null) conductorMovement.enabled = true; // Aktifkan Gerak
-        if (cc != null) cc.enabled = true;
-
-        // Berhenti memaksa Remi menoleh agar dia bisa gerak bebas lagi
         remiCurrentLookTarget = null;
-    }
 
-    void TeleportCharacters()
-    {
-        conductor.transform.position = conductorTargetPos.position;
-        conductor.transform.rotation = conductorTargetPos.rotation;
-        remi.transform.position = remiTargetPos.position + Vector3.up * 0.1f;
-        remi.transform.rotation = remiTargetPos.rotation;
-        domi.transform.position = domiTargetPos.position + Vector3.up * 0.8f; 
-        domi.transform.rotation = domiTargetPos.rotation;
-    }
+        // --- FASE 2: UNLOCK SWITCH ONLY ---
+        if (mainSwitchSystem != null) mainSwitchSystem.enabled = true; 
+        
+        if (conductorMovement != null) conductorMovement.enabled = false; 
+        if (playerCommandSystem != null) playerCommandSystem.enabled = false;
 
-    void ToggleMusesNavMesh(bool state)
-    {
-        NavMeshAgent ar = remi.GetComponent<NavMeshAgent>();
-        if (ar != null) ar.enabled = state;
-        NavMeshAgent ad = domi.GetComponent<NavMeshAgent>();
-        if (ad != null) ad.enabled = state;
+        if (promptTekan3 != null)
+        {
+            promptTekan3.SetActive(true);
+            isWaitingForInput3 = true; 
+        }
     }
 
     IEnumerator FadeCanvas(CanvasGroup cg, float target, float dur)
