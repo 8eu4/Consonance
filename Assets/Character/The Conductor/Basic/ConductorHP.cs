@@ -1,38 +1,53 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 public class ConductorHP : Health
 {
     private void OnCollisionEnter(Collision collision)
     {
-        EnemyAttack bubble = collision.gameObject.GetComponent<EnemyAttack>();
-
-        void TakeDamage(int amount)
+        if (collision.gameObject.TryGetComponent<EnemyAttack>(out var attack))
         {
-            CurrentHP -= amount;
-
-            Debug.Log($"{gameObject.name} took {amount} damage, HP is now {CurrentHP}");
-
-            if (CurrentHP == 0)
-            {
-                Die();
-            }
+            TakeDamage(attack.damage);
+            Destroy(collision.gameObject);
         }
+    }
 
-        if (bubble != null)
+    protected override void Die()
+    {
+        StartCoroutine(DeathSequence());
+    }
+
+    IEnumerator DeathSequence()
+    {
+        Debug.Log("Conductor Mati. Menunggu respawn...");
+
+        // Matikan visual
+        Renderer[] renders = GetComponentsInChildren<Renderer>();
+        foreach (var r in renders) r.enabled = false;
+
+        // Matikan gerak
+        var cc = GetComponent<CharacterController>();
+        if (cc) cc.enabled = false;
+        var rb = GetComponent<Rigidbody>();
+        if (rb) rb.isKinematic = true;
+
+        yield return new WaitForSeconds(2.0f);
+
+        // Nyalakan visual kembali (penting sebelum respawn)
+        foreach (var r in renders) r.enabled = true;
+
+        Debug.Log("Memanggil Respawn Manager...");
+
+        base.Die();
+
+        var identity = GetComponent<PlayerIdentity>();
+        if (identity != null)
         {
-            Debug.Log("Conductor terkena Bubble!");
-
-            // kalau nanti mau pakai damage:
-            TakeDamage(bubble.damage);
-
-            // optional: hancurkan bubble
-            Destroy(bubble.gameObject);
+            identity.Die();
         }
-
-        void Die()
+        else
         {
-            Debug.Log("YOU LOSE");
-            Destroy(gameObject);
+            Debug.LogError("PlayerIdentity tidak ditemukan di Conductor!");
         }
     }
 }

@@ -1,154 +1,88 @@
 using UnityEngine;
-using UnityEngine.UI;
+using System.Text.RegularExpressions;
 
-public enum CheckpointState
-{
-    Fresh,   // putih
-    Used,    // merah
-    Current  // hijau
-}
-
-[RequireComponent(typeof(Transform))]
 public class Checkpoint : MonoBehaviour
 {
-    [Header("Activation")]
-    public float activationRadius = 2.0f;
-    public bool autoActivate = true; // jika true: cukup masuk radius -> auto aktif
-    public KeyCode interactKey = KeyCode.E; // jika autoActivate == false, tekan E untuk activate
+    [Header("Settings")]
+    public int index;
+    public Renderer meshRenderer;
 
-    [Header("Checkpoint ordering (important for 1-way behaviour)")]
-    [Tooltip("Urutan checkpoint dalam alur cerita. Checkpoint dengan index lebih kecil dianggap 'sebelumnya' dan akan menjadi Used setelah melewati checkpoint berindex lebih tinggi.")]
-    public int index = 0;
+    // KITA HAPUS PropertyBlock. Kita pakai cara langsung (Direct Access).
 
-    [Header("Optional")]
-    public string checkpointName = "";
+    void OnValidate()
+    {
+        // Auto-detect renderer di Editor
+        if (meshRenderer == null) meshRenderer = GetComponentInChildren<Renderer>();
 
-    [Header("Story Quest")]
-    [TextArea(2, 4)]
-    public string mainObjective;
-
-
-    // Visuals: pilih salah satu atau kedua-duanya
-    [Header("Visuals (optional)")]
-    public Renderer indicatorRenderer;       // world renderer (misalnya mesh)
-    public Image uiIndicatorImage;           // UI image jika Anda punya UI untuk checkpoint
-
-    // internal state
-    Transform playerT;
-    CheckpointState state = CheckpointState.Fresh;
+        // Auto-detect index dari nama (Checkpoint (1) -> 1)
+        var match = Regex.Match(gameObject.name, @"\((\d+)\)$");
+        if (match.Success) index = int.Parse(match.Groups[1].Value);
+        else index = 0;
+    }
 
     void Start()
     {
-        playerT = GameObject.FindGameObjectWithTag("Player")?.transform;
-        UpdateVisuals();
-    }
-
-    void Update()
-    {
-        if (playerT == null)
-        {
-            var p = GameObject.FindGameObjectWithTag("Player");
-            if (p != null) playerT = p.transform;
-            else return;
-        }
-
-        float dist = Vector3.Distance(playerT.position, transform.position);
-
-        // hanya bisa diaktifkan jika masih Fresh (belum Used / Current)
-        if (state == CheckpointState.Fresh && dist <= activationRadius)
-        {
-            if (autoActivate)
-            {
-                ActivateCheckpoint();
-            }
-            else
-            {
-                if (Input.GetKeyDown(interactKey))
-                    ActivateCheckpoint();
-            }
-        }
-    }
-
-    public void ActivateCheckpoint()
-    {
-        if (state != CheckpointState.Fresh) return;
+        // Pastikan Renderer ketemu
+        if (meshRenderer == null) meshRenderer = GetComponentInChildren<Renderer>();
 
         if (RespawnManager.Instance != null)
-        {
             RespawnManager.Instance.RegisterCheckpoint(this);
-        }
+    }
 
-        // UPDATE QUEST UI
-        if (QuestUIController.Instance != null && !string.IsNullOrEmpty(mainObjective))
+    void OnDestroy()
+    {
+        if (RespawnManager.Instance != null)
+            RespawnManager.Instance.UnregisterCheckpoint(this);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        // Logic Trigger tetap sama
+        if (other.TryGetComponent<PlayerIdentity>(out var identity))
         {
-            QuestUIController.Instance.SetQuest(mainObjective);
+            if (identity.type == CharacterType.Conductor)
+            {
+                Debug.Log($"[CHECKPOINT {index}] Disentuh Player!");
+                RespawnManager.Instance.SetCheckpoint(index, transform.position, transform.rotation);
+            }
         }
-
-        Debug.Log($"[Checkpoint] Activated: {(string.IsNullOrEmpty(checkpointName) ? name : checkpointName)} (index {index})");
     }
 
-
-    // dipanggil oleh RespawnManager untuk menandai state
-    public void MarkAsUsed()
+    // --- LOGIKA GANTI WARNA (VERSI PAKSA) ---
+    public void UpdateState(int savedIndex)
     {
-        state = CheckpointState.Used;
-        UpdateVisuals();
-    }
+        if (meshRenderer == null) return;
 
-    public void MarkAsCurrent()
-    {
-        state = CheckpointState.Current;
-        UpdateVisuals();
-    }
+        // Kita buat Instance Material baru (Clone) biar warnanya independen
+        // Ini cara paling kasar tapi paling pasti jalan.
 
-    public void ResetCheckpoint()
-    {
-        state = CheckpointState.Fresh;
-        UpdateVisuals();
-    }
-
-    void UpdateVisuals()
-    {
-        // warna untuk world renderer
-        if (indicatorRenderer != null)
+        if (index == savedIndex)
         {
-            // pastikan material instance agar tidak mengubah material shared
-            if (Application.isPlaying)
-            {
-                if (indicatorRenderer.material == null) return;
-            }
-
-            Color col = Color.white;
-            switch (state)
-            {
-                case CheckpointState.Fresh: col = Color.white; break;
-                case CheckpointState.Used: col = Color.red; break;
-                case CheckpointState.Current: col = Color.green; break;
-            }
-
-            // jika material array, ubah color pada material utama
-            if (indicatorRenderer.material != null)
-                indicatorRenderer.material.color = col;
+            // HIJAU = AKTIF SEKARANG
+            meshRenderer.material.color = Color.green;
         }
-
-        // warna untuk UI image
-        if (uiIndicatorImage != null)
+        else if (index < savedIndex)
         {
-            Color col = Color.white;
-            switch (state)
-            {
-                case CheckpointState.Fresh: col = Color.white; break;
-                case CheckpointState.Used: col = Color.red; break;
-                case CheckpointState.Current: col = Color.green; break;
-            }
-            uiIndicatorImage.color = col;
+            // MERAH = SUDAH LEWAT
+            meshRenderer.material.color = Color.red;
+        }
+        else
+        {
+            // ABU/PUTIH = BELUM DISENTUH
+            meshRenderer.material.color = Color.white;
         }
     }
 
-    // debug sphere
-    void OnDrawGizmosSelected()
+    // --- DEBUG MANUAL (Klik Kanan Script) ---
+    [ContextMenu("TEST: Jadi HIJAU (Aktif)")]
+    public void TestGreen()
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, activationRadius);
+        if (meshRenderer) meshRenderer.material.color = Color.green;
+    }
+
+    [ContextMenu("TEST: Jadi MERAH (Lewat)")]
+    public void TestRed()
+    {
+        if (meshRenderer) meshRenderer.material.color = Color.red;
     }
 }

@@ -7,7 +7,7 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/Scenes/Mechanic.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    guid: fa0e771ca4b8ff048b868a6ee5fb84dd
   - enabled: 1
     path: Assets/Scenes/Main Menu/MainMenu.unity
     guid: f44d76fcd973faf458867c0ee01e9514
@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Laser.unity
     guid: dc091a6c8d5f4b9418094539cd4d1c9f
+  - enabled: 1
+    path: Assets/Scenes/Checkpoint + Lever&Button/Testing.unity
+    guid: 3012590f87855444188b8c4aad6a2d06
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
