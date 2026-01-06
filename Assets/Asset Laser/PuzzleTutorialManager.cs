@@ -31,8 +31,7 @@ public class PuzzleTutorialManager : MonoBehaviour
     public MonoBehaviour mainSwitchSystem; // Script CharacterSwitchManager
     public MonoBehaviour conductorMovement; // Script gerak (WASD)
     
-    // PERUBAHAN DI SINI:
-    // Diganti dari MonoBehaviour menjadi PlayerCommandSystem agar Unity otomatis mencari script yang benar
+    // Diganti dari MonoBehaviour menjadi PlayerCommandSystem agar bisa akses fungsi reset
     public PlayerCommandSystem playerCommandSystem; 
     
     public GameObject conductorCameraHolder; 
@@ -80,7 +79,9 @@ public class PuzzleTutorialManager : MonoBehaviour
             
             // Nyalakan kembali Move & Command
             if (conductorMovement != null) conductorMovement.enabled = true;
-            if (playerCommandSystem != null) playerCommandSystem.enabled = true; // Nyalakan lagi logic command
+            
+            // Nyalakan lagi logic command (SEKARANG SUDAH BERSIH KARENA DI-RESET DI AWAL)
+            if (playerCommandSystem != null) playerCommandSystem.enabled = true; 
             if (uiFollowingText != null) uiFollowingText.SetActive(true);
 
             isWaitingForInput3 = false; 
@@ -114,8 +115,13 @@ public class PuzzleTutorialManager : MonoBehaviour
         if (mainSwitchSystem != null) mainSwitchSystem.enabled = false;
         if (conductorMovement != null) conductorMovement.enabled = false;
         
-        // Matikan sistem command
-        if (playerCommandSystem != null) playerCommandSystem.enabled = false; 
+        // [MODIFIKASI] FORCE RESET AGAR TIDAK AUTO-FOLLOW
+        if (playerCommandSystem != null) 
+        {
+            playerCommandSystem.ForceResetState(); // Hapus ingatan follower
+            playerCommandSystem.enabled = false;   // Baru matikan scriptnya
+        }
+
         if (uiFollowingText != null) uiFollowingText.SetActive(false);
 
         // Ambil komponen fisik

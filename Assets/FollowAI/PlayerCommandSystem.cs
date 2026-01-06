@@ -63,25 +63,16 @@ public class PlayerCommandSystem : MonoBehaviour
 
     void Update()
     {
-        // -------------------------------------------------------------
         // 1. SATPAM TAG (AUTO SWITCH SAFETY)
-        // -------------------------------------------------------------
-        // Cek: Apakah object ini (Conductor) masih punya tag "Player"?
-        // Kalau kamu lagi mainin Domi, tag Conductor pasti berubah, jadi ini jadi FALSE.
         if (!gameObject.CompareTag(requiredTag))
         {
-            // Matikan visual jika mendadak ganti karakter
             if(uiCanvasGroup != null && uiCanvasGroup.alpha > 0) HideUI();
             if(currentArrow != null && currentArrow.activeSelf) currentArrow.SetActive(false);
             
-            // Reset status input biar ga nyangkut
             isHolding = false;
             isCommanding = false;
-            
-            // Stop proses update di sini. Script "Tidur".
             return; 
         }
-        // -------------------------------------------------------------
 
         // 2. CLEANUP (Hapus NPC mati)
         activeFollowers.RemoveAll(agent => agent == null || !agent.isActiveAndEnabled);
@@ -94,30 +85,21 @@ public class PlayerCommandSystem : MonoBehaviour
                 follower.speed = npcSpeed;
                 follower.acceleration = npcAcceleration;
                 
-                // --- PERBAIKAN DI SINI ---
-                
-                // Kita hitung manual jarak follower ke "Conductor/Player"
                 float distToPlayer = Vector3.Distance(follower.transform.position, transform.position);
-
-                // Pastikan stopping distance sesuai settingan script
                 follower.stoppingDistance = followStoppingDistance;
 
-                // LOGIKA BARU:
-                // Jika jarak LEBIH JAUH dari batas berhenti -> Jalan mendekat
-                // Tambahkan sedikit buffer (+ 0.5f) biar dia gak maju-mundur di perbatasan
                 if (distToPlayer > followStoppingDistance + 0.5f)
                 {
                     follower.isStopped = false;
                     follower.SetDestination(transform.position);
                 }
-                // Jika sudah DEKAT -> Stop total biar gak geter
                 else if (distToPlayer <= followStoppingDistance)
                 {
                     if (!follower.isStopped)
                     {
                         follower.isStopped = true;
-                        follower.velocity = Vector3.zero; // Matikan sisa momentum
-                        follower.ResetPath(); // Hapus jalur biar gak maksa jalan
+                        follower.velocity = Vector3.zero; 
+                        follower.ResetPath(); 
                     }
                 }
             }
@@ -130,7 +112,6 @@ public class PlayerCommandSystem : MonoBehaviour
 
     void PerformRaycast()
     {
-        // Pastikan kamera ada (kadang kamera ikut pindah object)
         Camera cam = playerCamera != null ? playerCamera : Camera.main;
         if (cam == null) return;
 
@@ -150,7 +131,6 @@ public class PlayerCommandSystem : MonoBehaviour
 
     void HandleInput()
     {
-        // A. MULAI TEKAN
         if (Input.GetKeyDown(KeyCode.F))
         {
             keyPressTimer = 0f;
@@ -161,7 +141,6 @@ public class PlayerCommandSystem : MonoBehaviour
             else if (activeFollowers.Count > 0) commandTarget = null; 
         }
 
-        // B. TAHAN
         if (Input.GetKey(KeyCode.F))
         {
             keyPressTimer += Time.deltaTime;
@@ -173,7 +152,6 @@ public class PlayerCommandSystem : MonoBehaviour
             }
         }
 
-        // C. LEPAS
         if (Input.GetKeyUp(KeyCode.F))
         {
             if (isHolding && isCommanding) ExecuteMoveCommand(); 
@@ -185,7 +163,6 @@ public class PlayerCommandSystem : MonoBehaviour
             commandTarget = null;
         }
 
-        // D. UPDATE UI
         if (!isCommanding) UpdateStatusUI();
     }
 
@@ -234,7 +211,6 @@ public class PlayerCommandSystem : MonoBehaviour
     {
         if (hoveredNPC != null)
         {
-            // LOGIKA CANCEL PRIORITAS (Kalau lagi jalan -> STOP)
             bool isBusy = (hoveredNPC.velocity.magnitude > 0.1f) || activeFollowers.Contains(hoveredNPC) || hoveredNPC.hasPath;
 
             if (isBusy)
@@ -282,6 +258,7 @@ public class PlayerCommandSystem : MonoBehaviour
         }
     }
 
+    // Fungsi internal untuk menghentikan semua unit
     void StopAll()
     {
         if (activeFollowers.Count > 0)
@@ -377,5 +354,25 @@ public class PlayerCommandSystem : MonoBehaviour
         }
         if (cg != null) cg.alpha = targetAlpha;
         if (targetAlpha == 0 && promptText != null) promptText.text = "";
+    }
+
+    // =========================================================================
+    // [MODIFIKASI] FUNGSI BARU UNTUK DIPANGGIL OLEH CUTSCENE
+    // =========================================================================
+    public void ForceResetState()
+    {
+        // 1. Hentikan semua unit dan bersihkan list activeFollowers
+        StopAll();
+
+        // 2. Bersihkan UI supaya tidak ada sisa text "All Units Stopped" saat cutscene
+        HideUI();
+
+        // 3. Reset variabel input agar tidak ada state yang nyangkut
+        isHolding = false;
+        isCommanding = false;
+        commandTarget = null;
+        keyPressTimer = 0f;
+
+        Debug.Log("PlayerCommandSystem: State has been forcibly reset by Cutscene.");
     }
 }
