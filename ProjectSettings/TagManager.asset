@@ -49,6 +49,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: ParticleSwitchChar
+    uniqueID: 656088205
+    locked: 0
   m_RenderingLayers:
   - Default
   - Light Layer 1
