@@ -248,7 +248,7 @@ NavMeshAgent:
   m_BaseOffset: 1
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!1001 &4242936776522339356
+--- !u!1001 &3813622281702828644
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -278,11 +278,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6187106401238641313, guid: 0171c7174a4df714eba4664e8723e23b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.79
+      value: 0.67
       objectReference: {fileID: 0}
     - target: {fileID: 6187106401238641313, guid: 0171c7174a4df714eba4664e8723e23b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.15
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6187106401238641313, guid: 0171c7174a4df714eba4664e8723e23b, type: 3}
       propertyPath: m_LocalRotation.w
@@ -317,10 +317,10 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0171c7174a4df714eba4664e8723e23b, type: 3}
---- !u!4 &8015550788846878397 stripped
+--- !u!4 &7003573780772978885 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6187106401238641313, guid: 0171c7174a4df714eba4664e8723e23b, type: 3}
-  m_PrefabInstance: {fileID: 4242936776522339356}
+  m_PrefabInstance: {fileID: 3813622281702828644}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4890033546096812088
 PrefabInstance:
@@ -495,7 +495,7 @@ PrefabInstance:
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 6b4de809ef8c9cc4fa70f71f8f319e5d, type: 3}
       insertIndex: 0
-      addedObject: {fileID: 8015550788846878397}
+      addedObject: {fileID: 7003573780772978885}
     - targetCorrespondingSourceObject: {fileID: 8879528566716807029, guid: 6b4de809ef8c9cc4fa70f71f8f319e5d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7958940094633027848}

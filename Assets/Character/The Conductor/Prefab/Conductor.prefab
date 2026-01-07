@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 7279728556538009903}
   - component: {fileID: 7565923698150537360}
   - component: {fileID: 2925964894526973202}
+  - component: {fileID: 3851031335420868825}
   m_Layer: 0
   m_Name: Conductor
   m_TagString: Player
@@ -137,6 +138,19 @@ MonoBehaviour:
   handAnimator: {fileID: 0}
   swipeThreshold: 50
   isAttacking: 0
+--- !u!114 &3851031335420868825
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 936051787911710925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 433295d1d35d4c246ad13099d9ffc08e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerRespawner
+  registerDefaultOnStart: 1
 --- !u!1 &3060485669786619265
 GameObject:
   m_ObjectHideFlags: 0

@@ -31,7 +31,7 @@ public class MainMenuController : MonoBehaviour
         if (SaveManager.Instance != null)
         {
             SaveManager.Instance.NewGame();
-            SceneManager.LoadScene("Testing");
+            SceneManager.LoadScene("Level Tut");
         }
 
         // 2. Reset Quest UI
