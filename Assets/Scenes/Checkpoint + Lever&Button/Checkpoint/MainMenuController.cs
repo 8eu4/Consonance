@@ -1,10 +1,29 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class MainMenuController : MonoBehaviour
 {
     [Header("Optional")]
     public GameObject playerObject; // boleh kosong, akan dicari otomatis
+    public bool cont = false;
+    public static MainMenuController Instance;
+
+    void Awake()
+    {
+        // Cek apakah sudah ada instance lain
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject); // Object ini tidak akan hancur saat load scene
+        }
+        else
+        {
+            // Jika sudah ada instance lain (misal saat kembali ke Main Menu),
+            // hancurkan object baru ini agar tidak terjadi duplikat.
+            Destroy(gameObject);
+        }
+    }
 
     public void NewGame()
     {
@@ -12,6 +31,7 @@ public class MainMenuController : MonoBehaviour
         if (SaveManager.Instance != null)
         {
             SaveManager.Instance.NewGame();
+            SceneManager.LoadScene("Testing");
         }
 
         // 2. Reset Quest UI
