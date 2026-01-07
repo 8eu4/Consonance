@@ -46,7 +46,7 @@ public class CamRotation : MonoBehaviour
 
     void LateUpdate()
     {
-        if (Player == null || orientation == null || playerModel == null) return;
+      
 
         // --- LOGIKA LOCK ON ---
         if (isAttackLocked && lockOnTarget != null && switchCharacterScript.CurrentPlayer == Conductor)

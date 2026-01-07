@@ -4,7 +4,7 @@ public class UnlockScriptOnTrigger : MonoBehaviour
 {
     [Header("Masukkan Script Vision Disini")]
 
-    public VisionMode scriptToUnlock; // Ganti 'VisionMode' dengan nama script aslimu
+    public VisionMode scriptToUnlock; 
 
     [Header("Setting")]
         public string playerTag = "Player";

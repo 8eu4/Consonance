@@ -26,11 +26,22 @@ public class PrologueDirector : MonoBehaviour
 
     [Header("Audio")]
     public AudioSource audioSource;     
-    public AudioSource museAudioSource; 
+    public AudioSource museAudioSource;
+    public AudioSource musicSource;
     public AudioClip voiceClip; 
     public AudioClip sfxRuntuhan;
     public AudioClip sfxConductorGasp; 
     public AudioClip voiceMuseHelp;
+    public AudioClip diManaAku;
+    public AudioClip actualDiManaAku;
+    public AudioClip tolongAku;
+
+    [Header("Final World Movement")]
+    public Transform worldObjectToMove;
+    public Vector3 moveOffsetUp = new Vector3(0, 3f, 0);
+    public float worldMoveDuration = 2.0f;
+
+
 
     [Header("Visual FX")]
     public Volume dizzyVolume; 
@@ -175,15 +186,18 @@ public class PrologueDirector : MonoBehaviour
             playerCameraTransform.localPosition = liePos;
             playerCameraTransform.localRotation = lieRot;
         }
-        yield return null; 
+        yield return null;
+        musicSource.Play();
         introCamera.SetActive(false);
 
         // --- 1. BUKA MATA DIKIT (SAMAR) ---
         float blinkT = 0;
         while(blinkT < 1f)
-        {
+        { 
+            PlayDialogue(diManaAku);
             blinkT += Time.deltaTime * 0.5f; 
-            introCanvasGroup.alpha = Mathf.Lerp(1f, 0.4f, blinkT); 
+            introCanvasGroup.alpha = Mathf.Lerp(1f, 0.4f, blinkT);
+           
             if (playerCameraTransform != null) { playerCameraTransform.localPosition = liePos; playerCameraTransform.localRotation = lieRot; }
             yield return null;
         }
@@ -308,7 +322,8 @@ public class PrologueDirector : MonoBehaviour
             float pitchNoise = Mathf.PerlinNoise(time * 1.5f, 0) * headShakeAmount - (headShakeAmount/2);
             float rollNoise = Mathf.PerlinNoise(0, time * 1.5f) * headShakeAmount - (headShakeAmount/2);
             Quaternion targetLookRot = Quaternion.Euler(pitchNoise, yaw, rollNoise);
-            float blendFactor = Mathf.Clamp01(time / 1.0f); 
+            float blendFactor = Mathf.Clamp01(time / 1.0f);
+            PlayDialogue(actualDiManaAku);
             playerCameraTransform.localRotation = Quaternion.Slerp(startLookingRot, targetLookRot, blendFactor);
             float breathY = Mathf.Sin(time * 4f) * 0.02f;
             playerCameraTransform.localPosition = sitPos + new Vector3(0, breathY, 0);
@@ -332,6 +347,7 @@ public class PrologueDirector : MonoBehaviour
         }
 
         time = 0;
+
         while (time < standUpDuration)
         {
             time += Time.deltaTime;
@@ -353,7 +369,8 @@ public class PrologueDirector : MonoBehaviour
 
         // FINAL
         if (playerCameraTransform != null) { playerCameraTransform.localPosition = standPos; playerCameraTransform.localRotation = standRot; }
-        
+        StartCoroutine(MoveWorldObjectUp());
+
         // Nyalakan Rigidbody (Aktifkan Fisika)
         if (playerRigid != null) playerRigid.isKinematic = false;
 
@@ -375,9 +392,41 @@ public class PrologueDirector : MonoBehaviour
                 }
             }
         }
+        PlayDialogue(tolongAku);
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         if (sfxRuntuhan != null) audioSource.PlayOneShot(sfxRuntuhan);
     }
+
+    void PlayDialogue(AudioClip clip)
+    {
+        if (clip == null) return;
+
+        audioSource.Stop();
+        audioSource.clip = clip;
+        audioSource.Play();
+    }
+
+    IEnumerator MoveWorldObjectUp()
+    {
+        if (worldObjectToMove == null)
+            yield break;
+
+        Vector3 startPos = worldObjectToMove.position;
+        Vector3 endPos = startPos + moveOffsetUp;
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            t += Time.deltaTime / worldMoveDuration;
+            float smoothT = Mathf.SmoothStep(0f, 1f, t);
+
+            worldObjectToMove.position = Vector3.Lerp(startPos, endPos, smoothT);
+            yield return null;
+        }
+
+        worldObjectToMove.position = endPos;
+    }
+
 }
