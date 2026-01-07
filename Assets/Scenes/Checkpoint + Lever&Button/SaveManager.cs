@@ -11,12 +11,35 @@ public class SaveManager : MonoBehaviour
     string SaveFilePath => Path.Combine(Application.persistentDataPath, saveFileName);
 
     public SaveData CurrentSave { get; private set; } = null;
+    public MainMenuController mainMenuController;
 
     void Awake()
     {
+        void Awake()
+        {
+            // Cek apakah sudah ada instance lain
+            if (Instance == null)
+            {
+                Instance = this;
+                DontDestroyOnLoad(gameObject); // Object ini tidak akan hancur saat load scene
+            }
+            else
+            {
+                // Jika sudah ada instance lain (misal saat kembali ke Main Menu),
+                // hancurkan object baru ini agar tidak terjadi duplikat.
+                Destroy(gameObject);
+            }
+        }
+
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        if (mainMenuController.cont == true)
+        {
+            Debug.Log("BOTAK");
+            mainMenuController.ContinueGame();
+        }
     }
 
     #region Save / Load / NewGame
