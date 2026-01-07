@@ -6,7 +6,7 @@ public class QuestUIController : MonoBehaviour
     public static QuestUIController Instance { get; private set; }
 
     [Header("UI Reference")]
-    public TMP_Text currentQuestText;   // TextMeshPro UGUI
+    public TMP_Text currentQuestText;
 
     [Header("Default Quest")]
     [TextArea(2, 4)]
@@ -20,6 +20,7 @@ public class QuestUIController : MonoBehaviour
             return;
         }
         Instance = this;
+        DontDestroyOnLoad(gameObject); // persist Quest UI across scenes
     }
 
     void Start()
@@ -27,9 +28,6 @@ public class QuestUIController : MonoBehaviour
         ResetQuest();
     }
 
-    /// <summary>
-    /// Dipanggil saat checkpoint aktif
-    /// </summary>
     public void SetQuest(string questText)
     {
         if (currentQuestText == null)
@@ -42,9 +40,6 @@ public class QuestUIController : MonoBehaviour
         Debug.Log("[QuestUI] Quest Updated: " + questText);
     }
 
-    /// <summary>
-    /// Dipanggil saat New Game
-    /// </summary>
     public void ResetQuest()
     {
         if (currentQuestText == null)

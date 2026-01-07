@@ -13,11 +13,10 @@ public class Checkpoint : MonoBehaviour
 {
     [Header("Activation")]
     public float activationRadius = 2.0f;
-    public bool autoActivate = true; // jika true: cukup masuk radius -> auto aktif
-    public KeyCode interactKey = KeyCode.E; // jika autoActivate == false, tekan E untuk activate
+    public bool autoActivate = true;
+    public KeyCode interactKey = KeyCode.E;
 
     [Header("Checkpoint ordering (important for 1-way behaviour)")]
-    [Tooltip("Urutan checkpoint dalam alur cerita. Checkpoint dengan index lebih kecil dianggap 'sebelumnya' dan akan menjadi Used setelah melewati checkpoint berindex lebih tinggi.")]
     public int index = 0;
 
     [Header("Optional")]
@@ -27,13 +26,10 @@ public class Checkpoint : MonoBehaviour
     [TextArea(2, 4)]
     public string mainObjective;
 
-
-    // Visuals: pilih salah satu atau kedua-duanya
     [Header("Visuals (optional)")]
-    public Renderer indicatorRenderer;       // world renderer (misalnya mesh)
-    public Image uiIndicatorImage;           // UI image jika Anda punya UI untuk checkpoint
+    public Renderer indicatorRenderer;
+    public Image uiIndicatorImage;
 
-    // internal state
     Transform playerT;
     CheckpointState state = CheckpointState.Fresh;
 
@@ -54,18 +50,10 @@ public class Checkpoint : MonoBehaviour
 
         float dist = Vector3.Distance(playerT.position, transform.position);
 
-        // hanya bisa diaktifkan jika masih Fresh (belum Used / Current)
         if (state == CheckpointState.Fresh && dist <= activationRadius)
         {
-            if (autoActivate)
-            {
-                ActivateCheckpoint();
-            }
-            else
-            {
-                if (Input.GetKeyDown(interactKey))
-                    ActivateCheckpoint();
-            }
+            if (autoActivate) ActivateCheckpoint();
+            else if (Input.GetKeyDown(interactKey)) ActivateCheckpoint();
         }
     }
 
@@ -78,7 +66,7 @@ public class Checkpoint : MonoBehaviour
             RespawnManager.Instance.RegisterCheckpoint(this);
         }
 
-        // UPDATE QUEST UI
+        // Update Quest UI
         if (QuestUIController.Instance != null && !string.IsNullOrEmpty(mainObjective))
         {
             QuestUIController.Instance.SetQuest(mainObjective);
@@ -87,8 +75,6 @@ public class Checkpoint : MonoBehaviour
         Debug.Log($"[Checkpoint] Activated: {(string.IsNullOrEmpty(checkpointName) ? name : checkpointName)} (index {index})");
     }
 
-
-    // dipanggil oleh RespawnManager untuk menandai state
     public void MarkAsUsed()
     {
         state = CheckpointState.Used;
@@ -109,15 +95,9 @@ public class Checkpoint : MonoBehaviour
 
     void UpdateVisuals()
     {
-        // warna untuk world renderer
         if (indicatorRenderer != null)
         {
-            // pastikan material instance agar tidak mengubah material shared
-            if (Application.isPlaying)
-            {
-                if (indicatorRenderer.material == null) return;
-            }
-
+            if (Application.isPlaying && indicatorRenderer.material == null) return;
             Color col = Color.white;
             switch (state)
             {
@@ -126,12 +106,10 @@ public class Checkpoint : MonoBehaviour
                 case CheckpointState.Current: col = Color.green; break;
             }
 
-            // jika material array, ubah color pada material utama
             if (indicatorRenderer.material != null)
                 indicatorRenderer.material.color = col;
         }
 
-        // warna untuk UI image
         if (uiIndicatorImage != null)
         {
             Color col = Color.white;
@@ -145,7 +123,6 @@ public class Checkpoint : MonoBehaviour
         }
     }
 
-    // debug sphere
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;

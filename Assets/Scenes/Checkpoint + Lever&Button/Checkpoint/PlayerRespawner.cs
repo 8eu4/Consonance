@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerRespawner : MonoBehaviour, IRespawnReset
+public class PlayerRespawner : MonoBehaviour//, IRespawnReset
 {
     [Header("Optional")]
     public bool registerDefaultOnStart = true; // register this transform as default spawn at Start()

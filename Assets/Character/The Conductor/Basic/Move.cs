@@ -87,7 +87,25 @@ public class Move : MonoBehaviour
         }
     }
 
-    // TAMBAHAN ANIMATOR: Fungsi baru untuk update animasi
+    public void ResetMovementState()
+    {
+        // 1. Reset Input ke 0
+        horizontalInput = 0;
+        verticalInput = 0;
+
+        // 2. Paksa Animasi berhenti (Speed 0)
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", 0f);
+        }
+
+        // 3. (Opsional) Hentikan sisa momentum fisika biar gak meluncur
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector3.zero;
+        }
+    }
+
     void UpdateAnimations()
     {
         if (animator == null) return;

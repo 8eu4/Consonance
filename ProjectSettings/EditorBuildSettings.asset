@@ -17,6 +17,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Laser.unity
     guid: dc091a6c8d5f4b9418094539cd4d1c9f
+  - enabled: 1
+    path: Assets/Scenes/Checkpoint + Lever&Button/Testing.unity
+    guid: 3012590f87855444188b8c4aad6a2d06
+  - enabled: 1
+    path: Assets/Scenes/Checkpoint + Lever&Button/Testing 1.unity
+    guid: 694d788e87279bb4a82fb73972256c43
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
